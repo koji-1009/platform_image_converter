@@ -1,92 +1,139 @@
 # image_ffi
 
-A new Flutter FFI plugin project.
+A high-performance Flutter plugin for cross-platform image format conversion using native APIs.
+
+## Features
+
+- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS.
+- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: ImageIO on iOS/macOS and BitmapFactory on Android.
+- 🔒 **Efficient Native Interop**: Employs FFI and JNI to create a fast, type-safe bridge between Dart and native code, ensuring robust and reliable communication.
+
+## Platform Support
+
+| Platform | Minimum Version | API Used |
+|----------|-----------------|----------|
+| iOS      | 14.0            | ImageIO (CoreFoundation, CoreGraphics) |
+| macOS    | 10.15           | ImageIO (CoreFoundation, CoreGraphics) |
+| Android  | 7               | BitmapFactory, Bitmap compression |
+| Web      | N/A             | Not supported |
+
+on Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[FFI plugin](https://flutter.dev/to/ffi-package),
-a specialized package that includes native code directly invoked with Dart FFI.
+### Installation
 
-## Project structure
-
-This template uses the following structure:
-
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
-
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
-
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
-
-## Building and bundling native code
-
-The `pubspec.yaml` specifies FFI plugins as follows:
+Add `image_ffi` to your `pubspec.yaml`:
 
 ```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
+dependencies:
+  image_ffi: ^0.0.1
 ```
 
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
+### Basic Usage
 
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
+```dart
+import 'package:image_ffi/image_ffi.dart';
+import 'dart:typed_data';
 
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
+// Convert HEIC image to JPEG
+final jpegData = await ImageConverter.convert(
+  inputData: heicImageData,
+  format: OutputFormat.jpeg,
+  quality: 90,
+);
+
+// Convert any format to PNG
+final pngData = await ImageConverter.convert(
+  inputData: imageData,
+  format: OutputFormat.png,
+);
 ```
 
-A plugin can have both FFI and method channels:
+## Supported Formats
 
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
+### Input Formats
+- **iOS/macOS**: JPEG, PNG, HEIC, WebP, BMP, GIF, TIFF, and more
+- **Android**: JPEG, PNG, WebP, GIF, BMP, HEIC (via BitmapFactory)
+
+### Output Formats
+The supported output formats are defined by the `OutputFormat` enum, with platform-specific limitations:
+- **JPEG**: Supported on all platforms.
+- **PNG**: Supported on all platforms.
+- **WebP**: Supported on Android only.
+- **HEIC**: Supported on iOS/macOS only.
+
+## API Reference
+
+### `ImageConverter.convert()`
+
+```dart
+static Future<Uint8List> convert({
+  required Uint8List inputData,
+  OutputFormat format = OutputFormat.jpeg,
+  int quality = 100,
+}) async
 ```
 
-The native build systems that are invoked by FFI (and method channel) plugins are:
+**Parameters:**
+- `inputData` (`Uint8List`): Raw image data to convert
+- `format` (`OutputFormat`): Target image format (default: JPEG)
+- `quality` (`int`): Compression quality 1-100 (default: 100, only for lossy formats)
 
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/image_ffi.podspec.
-  * See the documentation in macos/image_ffi.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
+**Returns:** `Future<Uint8List>` containing the converted image data
 
-## Binding to native code
+**Throws:**
+- `UnsupportedError`: If the platform or format is not supported
+- `Exception`: If conversion fails
 
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/image_ffi.h`) by `package:ffigen`.
-Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
+### `OutputFormat` Enum
 
-## Invoking native code
+```dart
+enum OutputFormat {
+  /// JPEG format (.jpg, .jpeg)
+  /// Lossy compression, suitable for photos
+  jpeg,
 
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/image_ffi.dart`.
+  /// PNG format (.png)
+  /// Lossless compression, supports transparency
+  png,
 
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/image_ffi.dart`.
+  /// WebP format (.webp)
+  /// Modern format with superior compression (not supported on Darwin)
+  webp,
 
-## Flutter help
+  /// HEIC format (.heic)
+  /// High Efficiency Image Format (not supported on Android)
+  heic,
+}
+```
 
-For help getting started with Flutter, view our
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Implementation Details
 
+### iOS/macOS Implementation
+
+The iOS/macOS implementation uses the [ImageIO](https://developer.apple.com/documentation/imageio) framework via FFI bindings:
+
+1. **Decoding**: `CGImageSourceCreateWithData` reads input data
+2. **Rendering**: `CGImageSourceCreateImageAtIndex` decodes to `CGImage`
+3. **Encoding**: `CGImageDestinationCreateWithData` encodes to target format
+4. **Quality**: Uses `kCGImageDestinationLossyCompressionQuality` for JPEG/WebP
+
+**Key Functions:**
+- `CFDataCreate`: Create immutable data from input bytes
+- `CGImageSourceCreateWithData`: Create image source from data
+- `CGImageDestinationCreateWithData`: Create image destination
+- `CGImageDestinationAddImage`: Add image to destination
+- `CGImageDestinationFinalize`: Complete encoding
+
+### Android Implementation
+
+The Android implementation uses [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)):
+
+1. **Decoding**: `BitmapFactory.decodeByteArray` handles all supported formats
+2. **Compression**: `Bitmap.compress` encodes to target format
+3. **Buffer Management**: `ByteArrayOutputStream` manages output data
+
+**Key Limitations:**
+- HEIC can be read (input only) but cannot be written (output format not supported)
+- Requires Android 9+ for full HEIC support

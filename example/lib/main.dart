@@ -1,72 +1,142 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
+import 'dart:typed_data';
 
-import 'package:image_ffi/image_ffi.dart' as image_ffi;
+import 'package:flutter/material.dart';
+import 'package:image_ffi/image_ffi.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Image FFI Demo',
+      theme: ThemeData.light(),
+      home: MainPage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  late int sumResult;
-  late Future<int> sumAsyncResult;
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    sumResult = image_ffi.sum(1, 2);
-    sumAsyncResult = image_ffi.sumAsync(3, 4);
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  Uint8List? _originalImage;
+  String? _originalName;
+  Uint8List? _convertedImage;
+  String? _convertedFormat;
+  int? _convertElapsedMs;
+  bool _isLoading = false;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      _originalImage = await pickedFile.readAsBytes();
+      _originalName = pickedFile.name;
+      _convertedImage = null;
+      _convertedFormat = null;
+      _convertElapsedMs = null;
+      setState(() {});
+    }
+  }
+
+  Future<void> _convertImage(OutputFormat format) async {
+    if (_originalImage == null) return;
+    setState(() => _isLoading = true);
+    final sw = Stopwatch()..start();
+    try {
+      final converted = await ImageConverter.convert(
+        inputData: _originalImage!,
+        format: format,
+        quality: 90,
+      );
+      sw.stop();
+      _convertedImage = converted;
+      _convertedFormat = format.name;
+      _convertElapsedMs = sw.elapsedMilliseconds;
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Conversion failed: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 25);
-    const spacerSmall = SizedBox(height: 10);
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Native Packages'),
-        ),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const .all(10),
-            child: Column(
-              children: [
-                const Text(
-                  'This calls a native function through FFI that is shipped as source in the package. '
-                  'The native code is built as part of the Flutter Runner build.',
-                  style: textStyle,
-                  textAlign: .center,
-                ),
-                spacerSmall,
-                Text(
-                  'sum(1, 2) = $sumResult',
-                  style: textStyle,
-                  textAlign: .center,
-                ),
-                spacerSmall,
-                FutureBuilder<int>(
-                  future: sumAsyncResult,
-                  builder: (BuildContext context, AsyncSnapshot<int> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'loading';
-                    return Text(
-                      'await sumAsync(3, 4) = $displayValue',
-                      style: textStyle,
-                      textAlign: .center,
-                    );
-                  },
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: const Text('image_ffi Demo')),
+      body: SingleChildScrollView(
+        padding: const .all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FilledButton(
+              onPressed: _pickImage,
+              child: const Text('Pick Image'),
             ),
-          ),
+            if (_originalImage != null) ...[
+              Text('Original Image ($_originalName): '),
+              Image.memory(_originalImage!, height: 180),
+              const SizedBox(height: 8),
+              Row(
+                spacing: 4,
+                children: [
+                  ActionChip(
+                    onPressed: _isLoading
+                        ? null
+                        : () => _convertImage(OutputFormat.jpeg),
+                    label: const Text('to JPG'),
+                  ),
+                  ActionChip(
+                    onPressed: _isLoading
+                        ? null
+                        : () => _convertImage(OutputFormat.png),
+                    label: const Text('to PNG'),
+                  ),
+                  ActionChip(
+                    onPressed: _isLoading
+                        ? null
+                        : () => _convertImage(OutputFormat.webp),
+                    label: const Text('to WebP'),
+                  ),
+                  ActionChip(
+                    onPressed: _isLoading
+                        ? null
+                        : () => _convertImage(OutputFormat.heic),
+                    label: const Text('to HEIC'),
+                  ),
+                ],
+              ),
+            ],
+            if (_isLoading)
+              const Padding(
+                padding: .all(16),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (!_isLoading && _convertedImage != null)
+              Column(
+                children: [
+                  Text('Converted ($_convertedFormat):'),
+                  Image.memory(_convertedImage!, height: 180),
+                  Text('Size: ${_convertedImage!.lengthInBytes} bytes'),
+                  if (_convertElapsedMs != null)
+                    Text('Convert time: $_convertElapsedMs ms'),
+                ],
+              ),
+          ],
         ),
       ),
     );

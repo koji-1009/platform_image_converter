@@ -1,131 +1,121 @@
+library;
 
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
 
-import 'image_ffi_bindings_generated.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_ffi/src/image_converter_android.dart';
+import 'package:image_ffi/src/image_converter_darwin.dart';
+import 'package:image_ffi/src/image_converter_platform_interface.dart';
+import 'package:image_ffi/src/output_format.dart';
 
-/// A very short-lived native function.
-///
-/// For very short-lived functions, it is fine to call them on the main isolate.
-/// They will block the Dart execution while running the native function, so
-/// only do this for native functions which are guaranteed to be short-lived.
-int sum(int a, int b) => _bindings.sum(a, b);
+export 'src/output_format.dart';
 
-/// A longer lived native function, which occupies the thread calling it.
+/// Main entry point for image format conversion.
 ///
-/// Do not call these kind of native functions in the main isolate. They will
-/// block Dart execution. This will cause dropped frames in Flutter applications.
-/// Instead, call these native functions on a separate isolate.
-///
-/// Modify this to suit your own use case. Example use cases:
-///
-/// 1. Reuse a single isolate for various different kinds of requests.
-/// 2. Use multiple helper isolates for parallel execution.
-Future<int> sumAsync(int a, int b) async {
-  final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
-  final int requestId = _nextSumRequestId++;
-  final _SumRequest request = _SumRequest(requestId, a, b);
-  final Completer<int> completer = Completer<int>();
-  _sumRequests[requestId] = completer;
-  helperIsolateSendPort.send(request);
-  return completer.future;
+/// Provides a platform-agnostic interface to convert images across iOS,
+/// macOS, and Android platforms using native APIs.
+class ImageConverter {
+  /// The platform-specific implementation of the image converter.
+  ///
+  /// This is initialized based on the current platform.
+  static ImageConverterPlatform get _platform =>
+      _getPlatformForTarget(defaultTargetPlatform);
+
+  /// Converts an image to a target format.
+  ///
+  /// By default, this operation is performed in a separate isolate to avoid
+  /// blocking the UI thread. For very small images, the overhead of an isolate
+  /// can be disabled by setting [runInIsolate] to `false`.
+  ///
+  /// **Parameters:**
+  /// - [inputData]: Raw bytes of the image to convert.
+  /// - [format]: Target [OutputFormat]. Defaults to [OutputFormat.jpeg].
+  /// - [quality]: Compression quality for lossy formats (1-100).
+  /// - [runInIsolate]: Whether to run the conversion in a separate isolate.
+  ///   Defaults to `true`.
+  ///
+  /// **Returns:** A [Future] that completes with the converted image data.
+  ///
+  /// **Throws:**
+  /// - [UnsupportedError]: If the platform or output format is not supported.
+  /// - [Exception]: If the image decoding or encoding fails.
+  ///
+  /// **Example - Convert HEIC to JPEG:**
+  /// ```dart
+  /// final jpegData = await ImageConverter.convert(
+  ///   inputData: heicImageData,
+  ///   format: OutputFormat.jpeg,
+  ///   quality: 90,
+  /// );
+  /// ```
+  ///
+  /// **Example - Running on the main thread:**
+  /// ```dart
+  /// // Only do this for very small images where isolate overhead is a concern.
+  /// final pngData = await ImageConverter.convert(
+  ///   inputData: smallImageData,
+  ///   format: OutputFormat.png,
+  ///   runInIsolate: false,
+  /// );
+  /// ```
+  static Future<Uint8List> convert({
+    required Uint8List inputData,
+    OutputFormat format = OutputFormat.jpeg,
+    int quality = 100,
+    bool runInIsolate = true,
+  }) {
+    if (runInIsolate) {
+      return compute(
+        _convertInIsolate,
+        _ConvertRequest(inputData, format, quality, defaultTargetPlatform),
+      );
+    } else {
+      // The original implementation for those who opt-out.
+      return _platform.convert(
+        inputData: inputData,
+        format: format,
+        quality: quality,
+      );
+    }
+  }
 }
 
-const String _libName = 'image_ffi';
+/// Helper class to pass arguments to the isolate.
+@immutable
+class _ConvertRequest {
+  final Uint8List inputData;
+  final OutputFormat format;
+  final int quality;
+  final TargetPlatform platform;
 
-/// The dynamic library in which the symbols for [ImageFfiBindings] can be found.
-final DynamicLibrary _dylib = () {
-  if (Platform.isMacOS || Platform.isIOS) {
-    return DynamicLibrary.open('$_libName.framework/$_libName');
-  }
-  if (Platform.isAndroid || Platform.isLinux) {
-    return DynamicLibrary.open('lib$_libName.so');
-  }
-  if (Platform.isWindows) {
-    return DynamicLibrary.open('$_libName.dll');
-  }
-  throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
-}();
-
-/// The bindings to the native functions in [_dylib].
-final ImageFfiBindings _bindings = ImageFfiBindings(_dylib);
-
-
-/// A request to compute `sum`.
-///
-/// Typically sent from one isolate to another.
-class _SumRequest {
-  final int id;
-  final int a;
-  final int b;
-
-  const _SumRequest(this.id, this.a, this.b);
+  const _ConvertRequest(
+    this.inputData,
+    this.format,
+    this.quality,
+    this.platform,
+  );
 }
 
-/// A response with the result of `sum`.
-///
-/// Typically sent from one isolate to another.
-class _SumResponse {
-  final int id;
-  final int result;
-
-  const _SumResponse(this.id, this.result);
+/// Returns the platform-specific converter instance.
+ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
+  if (kIsWeb) {
+    throw UnsupportedError('Image conversion is not supported on the web.');
+  }
+  return switch (platform) {
+    TargetPlatform.android => ImageConverterAndroid(),
+    TargetPlatform.iOS || TargetPlatform.macOS => ImageConverterDarwin(),
+    _ => throw UnsupportedError(
+      'Image conversion is not supported on this platform: $platform',
+    ),
+  };
 }
 
-/// Counter to identify [_SumRequest]s and [_SumResponse]s.
-int _nextSumRequestId = 0;
-
-/// Mapping from [_SumRequest] `id`s to the completers corresponding to the correct future of the pending request.
-final Map<int, Completer<int>> _sumRequests = <int, Completer<int>>{};
-
-/// The SendPort belonging to the helper isolate.
-Future<SendPort> _helperIsolateSendPort = () async {
-  // The helper isolate is going to send us back a SendPort, which we want to
-  // wait for.
-  final Completer<SendPort> completer = Completer<SendPort>();
-
-  // Receive port on the main isolate to receive messages from the helper.
-  // We receive two types of messages:
-  // 1. A port to send messages on.
-  // 2. Responses to requests we sent.
-  final ReceivePort receivePort = ReceivePort()
-    ..listen((dynamic data) {
-      if (data is SendPort) {
-        // The helper isolate sent us the port on which we can sent it requests.
-        completer.complete(data);
-        return;
-      }
-      if (data is _SumResponse) {
-        // The helper isolate sent us a response to a request we sent.
-        final Completer<int> completer = _sumRequests[data.id]!;
-        _sumRequests.remove(data.id);
-        completer.complete(data.result);
-        return;
-      }
-      throw UnsupportedError('Unsupported message type: ${data.runtimeType}');
-    });
-
-  // Start the helper isolate.
-  await Isolate.spawn((SendPort sendPort) async {
-    final ReceivePort helperReceivePort = ReceivePort()
-      ..listen((dynamic data) {
-        // On the helper isolate listen to requests and respond to them.
-        if (data is _SumRequest) {
-          final int result = _bindings.sum_long_running(data.a, data.b);
-          final _SumResponse response = _SumResponse(data.id, result);
-          sendPort.send(response);
-          return;
-        }
-        throw UnsupportedError('Unsupported message type: ${data.runtimeType}');
-      });
-
-    // Send the port to the main isolate on which we can receive requests.
-    sendPort.send(helperReceivePort.sendPort);
-  }, receivePort.sendPort);
-
-  // Wait until the helper isolate has sent us back the SendPort on which we
-  // can start sending requests.
-  return completer.future;
-}();
+/// Top-level function for `compute`.
+Future<Uint8List> _convertInIsolate(_ConvertRequest request) {
+  final platform = _getPlatformForTarget(request.platform);
+  return platform.convert(
+    inputData: request.inputData,
+    format: request.format,
+    quality: request.quality,
+  );
+}

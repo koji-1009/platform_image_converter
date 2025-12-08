@@ -1,7 +1,7 @@
 name: image_ffi
-description: "A new Flutter FFI plugin project."
+description: "A high-performance Flutter plugin for cross-platform image format conversion using native APIs."
 version: 0.0.1
-homepage:
+homepage: https://github.com/koji-1009/image_ffi
 
 environment:
   sdk: ^3.10.0
@@ -10,19 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
-
+  jni: ^0.15.2
+  ffi: ^2.1.4
+  objective_c: ^9.2.1
+  
 dev_dependencies:
-  ffi: ^2.1.3
-  ffigen: ^20.0.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        ffiPlugin: true
-      ios:
-        ffiPlugin: true
+  jnigen: ^0.15.0
+  ffigen: ^20.1.1
