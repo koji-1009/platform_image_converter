@@ -1,0 +1,17 @@
+# Regenerate bindings with `dart run jnigen --config jnigen.yaml`.
+
+android_sdk_config:
+  add_gradle_deps: true
+  android_example: 'example/'
+
+output:
+  dart:
+    path: lib/gen/jnigen_bindings.dart
+    structure: single_file
+
+source_path:
+  - 'java/'
+classes:
+  - 'java.io.ByteArrayOutputStream'
+  - 'android/graphics/BitmapFactory'
+  - 'android/graphics/Bitmap'
