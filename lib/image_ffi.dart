@@ -3,10 +3,11 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:image_ffi/src/image_converter_android.dart';
-import 'package:image_ffi/src/image_converter_darwin.dart';
 import 'package:image_ffi/src/image_converter_platform_interface.dart';
 import 'package:image_ffi/src/output_format.dart';
+import 'package:image_ffi/src/android/shared.dart';
+import 'package:image_ffi/src/darwin/shared.dart';
+import 'package:image_ffi/src/web/shared.dart';
 
 export 'src/output_format.dart';
 
@@ -99,11 +100,11 @@ class _ConvertRequest {
 /// Returns the platform-specific converter instance.
 ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
   if (kIsWeb) {
-    throw UnsupportedError('Image conversion is not supported on the web.');
+    return const ImageConverterWeb();
   }
   return switch (platform) {
-    TargetPlatform.android => ImageConverterAndroid(),
-    TargetPlatform.iOS || TargetPlatform.macOS => ImageConverterDarwin(),
+    TargetPlatform.android => const ImageConverterAndroid(),
+    TargetPlatform.iOS || TargetPlatform.macOS => const ImageConverterDarwin(),
     _ => throw UnsupportedError(
       'Image conversion is not supported on this platform: $platform',
     ),

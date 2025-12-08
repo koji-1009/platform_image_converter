@@ -28,6 +28,8 @@ import 'package:jni/jni.dart';
 /// - Native image decoding via BitmapFactory
 /// - Efficient compression with quality adjustment
 final class ImageConverterAndroid implements ImageConverterPlatform {
+  const ImageConverterAndroid();
+
   @override
   Future<Uint8List> convert({
     required Uint8List inputData,

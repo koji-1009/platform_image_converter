@@ -29,6 +29,8 @@ import 'package:objective_c/objective_c.dart';
 /// - In-memory processing
 /// - Adjustable JPEG/WebP quality for size optimization
 final class ImageConverterDarwin implements ImageConverterPlatform {
+  const ImageConverterDarwin();
+
   @override
   Future<Uint8List> convert({
     required Uint8List inputData,

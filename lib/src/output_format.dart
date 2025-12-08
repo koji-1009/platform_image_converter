@@ -3,17 +3,18 @@
 /// Specifies the target format when converting images.
 ///
 /// **Format Support:**
-/// | Format | iOS/macOS | Android |
-/// |--------|-----------|---------|
-/// | jpeg   | ✓         | ✓       |
-/// | png    | ✓         | ✓       |
-/// | webp   |           | ✓       |
-/// | heic   | ✓         |         |
+/// | Format | iOS/macOS | Android | Web |
+/// |--------|-----------|---------| ----|
+/// | jpeg   | ✓         | ✓       | ✓   |
+/// | png    | ✓         | ✓       | ✓   |
+/// | webp   |           | ✓       | ✓   |
+/// | heic   | ✓         |         |     |
 ///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality
 /// - [png]: Lossless compression, supports transparency
 /// - [webp]: Modern format with better compression than JPEG
+/// - [heic]: High Efficiency Image Format, not supported on Android
 enum OutputFormat {
   /// JPEG format (.jpg, .jpeg)
   /// Lossy compression, suitable for photos
@@ -28,6 +29,6 @@ enum OutputFormat {
   webp,
 
   /// HEIC format (.heic)
-  /// High Efficiency Image Format (not supported on Android)
+  /// High Efficiency Image Format (not supported on Android and Web)
   heic,
 }

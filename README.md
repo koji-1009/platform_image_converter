@@ -15,9 +15,12 @@ A high-performance Flutter plugin for cross-platform image format conversion usi
 | iOS      | 14.0            | ImageIO (CoreFoundation, CoreGraphics) |
 | macOS    | 10.15           | ImageIO (CoreFoundation, CoreGraphics) |
 | Android  | 7               | BitmapFactory, Bitmap compression |
-| Web      | N/A             | Not supported |
+| Web      | -               | Canvas API |
 
-on Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
+**Note:**
+- On iOS and macOS, WebP input is supported but WebP output is not supported.
+- On Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
+- On Web, HEIC is not supported.
 
 ## Getting Started
 
@@ -137,3 +140,22 @@ The Android implementation uses [BitmapFactory](https://developer.android.com/re
 **Key Limitations:**
 - HEIC can be read (input only) but cannot be written (output format not supported)
 - Requires Android 9+ for full HEIC support
+
+### Web Implementation
+
+The Web implementation uses the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for image conversion:
+
+1. **Decoding**: `HTMLImageElement` loads image data via Blob URL
+2. **Rendering**: `CanvasRenderingContext2D.drawImage` renders the image to canvas
+3. **Encoding**: `HTMLCanvasElement.toBlob` encodes to target format
+4. **Quality**: Supports quality parameter for JPEG and WebP (0.0-1.0 scale)
+
+**Key Steps:**
+- `Blob` and `URL.createObjectURL`: Create temporary URL from input bytes
+- `HTMLImageElement.onLoad`: Wait for image to load asynchronously
+- `canvas.width/height = img.width/height`: Set canvas size to match image dimensions
+- `canvas.toBlob`: Convert canvas content to target format
+
+**Key Limitations:**
+- HEIC format is not supported on Web platform
+- Output format depends on browser support (JPEG and PNG are universally supported, WebP is widely supported)
