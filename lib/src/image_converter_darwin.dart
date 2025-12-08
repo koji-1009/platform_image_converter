@@ -35,11 +35,18 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
   }) async {
-    final inputPtr = calloc<Uint8>(inputData.length);
+    Pointer<Uint8>? inputPtr;
+    CFDataRef? cfData;
+    CGImageSourceRef? imageSource;
+    CGImageRef? cgImage;
+    CFMutableDataRef? outputData;
+    CGImageDestinationRef? destination;
+    CFDictionaryRef? properties;
     try {
+      inputPtr = calloc<Uint8>(inputData.length);
       inputPtr.asTypedList(inputData.length).setAll(0, inputData);
 
-      final cfData = CFDataCreate(
+      cfData = CFDataCreate(
         kCFAllocatorDefault,
         inputPtr.cast(),
         inputData.length,
@@ -48,17 +55,17 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         throw Exception('Failed to create CFData from input data.');
       }
 
-      final imageSource = CGImageSourceCreateWithData(cfData, nullptr);
+      imageSource = CGImageSourceCreateWithData(cfData, nullptr);
       if (imageSource == nullptr) {
         throw Exception('Failed to create CGImageSource. Invalid image data.');
       }
 
-      final cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
+      cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
       if (cgImage == nullptr) {
         throw Exception('Failed to decode image.');
       }
 
-      final outputData = CFDataCreateMutable(kCFAllocatorDefault, 0);
+      outputData = CFDataCreateMutable(kCFAllocatorDefault, 0);
       if (outputData == nullptr) {
         throw Exception('Failed to create output CFData.');
       }
@@ -81,7 +88,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
           .retainAndAutorelease()
           .cast<CFString>();
 
-      final destination = CGImageDestinationCreateWithData(
+      destination = CGImageDestinationCreateWithData(
         outputData,
         cfString,
         1,
@@ -91,7 +98,8 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         throw Exception('Failed to create CGImageDestination.');
       }
 
-      CGImageDestinationAddImage(destination, cgImage, nullptr);
+      properties = _createPropertiesForFormat(format, quality);
+      CGImageDestinationAddImage(destination, cgImage, properties ?? nullptr);
 
       final success = CGImageDestinationFinalize(destination);
       if (!success) {
@@ -106,7 +114,45 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
       return Uint8List.fromList(bytePtr.cast<Uint8>().asTypedList(length));
     } finally {
-      calloc.free(inputPtr);
+      if (inputPtr != null) calloc.free(inputPtr);
+      if (cfData != null) CFRelease(cfData.cast());
+      if (imageSource != null) CFRelease(imageSource.cast());
+      if (cgImage != null) CFRelease(cgImage.cast());
+      if (outputData != null) CFRelease(outputData.cast());
+      if (destination != null) CFRelease(destination.cast());
+      if (properties != null) CFRelease(properties.cast());
     }
+  }
+
+  CFDictionaryRef? _createPropertiesForFormat(
+    OutputFormat format,
+    int quality,
+  ) {
+    if (format == OutputFormat.png || format == OutputFormat.webp) {
+      return null;
+    }
+
+    return using((arena) {
+      final keys = arena<Pointer<CFString>>(1);
+      final values = arena<Pointer<Void>>(1);
+
+      keys[0] = kCGImageDestinationLossyCompressionQuality;
+      values[0] = (quality / 100.0)
+          .toNSNumber()
+          .ref
+          .retainAndAutorelease()
+          .cast<Void>();
+
+      final keyCallBacks = arena<CFDictionaryKeyCallBacks>();
+      final valueCallBacks = arena<CFDictionaryValueCallBacks>();
+      return CFDictionaryCreate(
+        kCFAllocatorDefault,
+        keys.cast(),
+        values.cast(),
+        1,
+        keyCallBacks,
+        valueCallBacks,
+      );
+    });
   }
 }
