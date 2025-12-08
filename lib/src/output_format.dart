@@ -7,7 +7,8 @@
 /// |--------|-----------|---------|
 /// | jpeg   | ✓         | ✓       |
 /// | png    | ✓         | ✓       |
-/// | webp   | ✓         | ✓       |
+/// | webp   |           | ✓       |
+/// | heic   | ✓         |         |
 ///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality
