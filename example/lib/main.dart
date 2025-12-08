@@ -35,6 +35,7 @@ class _MainPageState extends State<MainPage> {
   String? _convertedFormat;
   int? _convertElapsedMs;
   bool _isLoading = false;
+  double _quality = 90;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -57,7 +58,7 @@ class _MainPageState extends State<MainPage> {
       final converted = await ImageConverter.convert(
         inputData: _originalImage!,
         format: format,
-        quality: 90,
+        quality: _quality.round(),
       );
       sw.stop();
       _convertedImage = converted;
@@ -86,6 +87,18 @@ class _MainPageState extends State<MainPage> {
             FilledButton(
               onPressed: _pickImage,
               child: const Text('Pick Image'),
+            ),
+            const SizedBox(height: 8),
+            Text('Quality: ${_quality.round()}%'),
+            Slider(
+              value: _quality,
+              min: 1,
+              max: 100,
+              divisions: 99,
+              label: _quality.round().toString(),
+              onChanged: _isLoading
+                  ? null
+                  : (v) => setState(() => _quality = v),
             ),
             if (_originalImage != null) ...[
               Text('Original Image ($_originalName): '),
