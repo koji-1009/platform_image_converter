@@ -17,6 +17,8 @@ final config = FfiGenerator(
     'CFDataCreateMutable',
     'CFDataGetBytePtr',
     'CFDataGetLength',
+    // CFDictionary operations
+    'CFDictionaryCreate',
     // CGImageSource operations (decoding)
     'CGImageSourceCreateWithData',
     'CGImageSourceCreateImageAtIndex',
@@ -24,8 +26,23 @@ final config = FfiGenerator(
     'CGImageDestinationCreateWithData',
     'CGImageDestinationAddImage',
     'CGImageDestinationFinalize',
+    // Memory management
+    'CFRelease',
   }),
-  globals: Globals.includeSet({'kCFAllocatorDefault'}),
+  globals: Globals.includeSet({
+    'kCFAllocatorDefault',
+    'kCGImageDestinationLossyCompressionQuality',
+    'kCFTypeDictionaryValueCallBacks',
+    'kCFTypeDictionaryKeyCallBacks',
+  }),
+  typedefs: Typedefs.includeSet({
+    'CFDataRef',
+    'CFDictionaryRef',
+    'CGImageRef',
+    'CGImageSourceRef',
+    'CFMutableDataRef',
+    'CGImageDestinationRef',
+  }),
 );
 
 void main() => config.generate();

@@ -8,98 +8,210 @@ import 'package:objective_c/objective_c.dart' as objc;
 @ffi.Native<ffi.Pointer<__CFAllocator>>()
 external final ffi.Pointer<__CFAllocator> kCFAllocatorDefault;
 
+@ffi.Native<ffi.Void Function(ffi.Pointer<ffi.Void>)>()
+external void CFRelease(ffi.Pointer<ffi.Void> cf);
+
+@ffi.Native<CFDictionaryKeyCallBacks>()
+external final CFDictionaryKeyCallBacks kCFTypeDictionaryKeyCallBacks;
+
+@ffi.Native<CFDictionaryValueCallBacks>()
+external final CFDictionaryValueCallBacks kCFTypeDictionaryValueCallBacks;
+
 @ffi.Native<
-  ffi.Pointer<__CFData> Function(
+  CFDictionaryRef Function(
+    ffi.Pointer<__CFAllocator>,
+    ffi.Pointer<ffi.Pointer<ffi.Void>>,
+    ffi.Pointer<ffi.Pointer<ffi.Void>>,
+    ffi.Long,
+    ffi.Pointer<CFDictionaryKeyCallBacks>,
+    ffi.Pointer<CFDictionaryValueCallBacks>,
+  )
+>()
+external CFDictionaryRef CFDictionaryCreate(
+  ffi.Pointer<__CFAllocator> allocator,
+  ffi.Pointer<ffi.Pointer<ffi.Void>> keys,
+  ffi.Pointer<ffi.Pointer<ffi.Void>> values,
+  int numValues,
+  ffi.Pointer<CFDictionaryKeyCallBacks> keyCallBacks,
+  ffi.Pointer<CFDictionaryValueCallBacks> valueCallBacks,
+);
+
+@ffi.Native<
+  CFDataRef Function(
     ffi.Pointer<__CFAllocator>,
     ffi.Pointer<ffi.UnsignedChar>,
     ffi.Long,
   )
 >()
-external ffi.Pointer<__CFData> CFDataCreate(
+external CFDataRef CFDataCreate(
   ffi.Pointer<__CFAllocator> allocator,
   ffi.Pointer<ffi.UnsignedChar> bytes,
   int length,
 );
 
-@ffi.Native<
-  ffi.Pointer<__CFData> Function(ffi.Pointer<__CFAllocator>, ffi.Long)
->()
-external ffi.Pointer<__CFData> CFDataCreateMutable(
+@ffi.Native<CFMutableDataRef Function(ffi.Pointer<__CFAllocator>, ffi.Long)>()
+external CFMutableDataRef CFDataCreateMutable(
   ffi.Pointer<__CFAllocator> allocator,
   int capacity,
 );
 
-@ffi.Native<ffi.Long Function(ffi.Pointer<__CFData>)>()
-external int CFDataGetLength(ffi.Pointer<__CFData> theData);
+@ffi.Native<ffi.Long Function(CFDataRef)>()
+external int CFDataGetLength(CFDataRef theData);
 
-@ffi.Native<ffi.Pointer<ffi.UnsignedChar> Function(ffi.Pointer<__CFData>)>()
-external ffi.Pointer<ffi.UnsignedChar> CFDataGetBytePtr(
-  ffi.Pointer<__CFData> theData,
+@ffi.Native<ffi.Pointer<ffi.UnsignedChar> Function(CFDataRef)>()
+external ffi.Pointer<ffi.UnsignedChar> CFDataGetBytePtr(CFDataRef theData);
+
+@ffi.Native<CGImageSourceRef Function(CFDataRef, CFDictionaryRef)>()
+external CGImageSourceRef CGImageSourceCreateWithData(
+  CFDataRef data,
+  CFDictionaryRef options,
 );
 
-@ffi.Native<
-  ffi.Pointer<CGImageSource> Function(
-    ffi.Pointer<__CFData>,
-    ffi.Pointer<__CFDictionary>,
-  )
->()
-external ffi.Pointer<CGImageSource> CGImageSourceCreateWithData(
-  ffi.Pointer<__CFData> data,
-  ffi.Pointer<__CFDictionary> options,
-);
-
-@ffi.Native<
-  ffi.Pointer<CGImage> Function(
-    ffi.Pointer<CGImageSource>,
-    ffi.Size,
-    ffi.Pointer<__CFDictionary>,
-  )
->()
-external ffi.Pointer<CGImage> CGImageSourceCreateImageAtIndex(
-  ffi.Pointer<CGImageSource> isrc,
+@ffi.Native<CGImageRef Function(CGImageSourceRef, ffi.Size, CFDictionaryRef)>()
+external CGImageRef CGImageSourceCreateImageAtIndex(
+  CGImageSourceRef isrc,
   int index,
-  ffi.Pointer<__CFDictionary> options,
+  CFDictionaryRef options,
 );
 
+@ffi.Native<ffi.Pointer<objc.CFString>>()
+external ffi.Pointer<objc.CFString> kCGImageDestinationLossyCompressionQuality;
+
 @ffi.Native<
-  ffi.Pointer<CGImageDestination> Function(
-    ffi.Pointer<__CFData>,
+  CGImageDestinationRef Function(
+    CFMutableDataRef,
     ffi.Pointer<objc.CFString>,
     ffi.Size,
-    ffi.Pointer<__CFDictionary>,
+    CFDictionaryRef,
   )
 >()
-external ffi.Pointer<CGImageDestination> CGImageDestinationCreateWithData(
-  ffi.Pointer<__CFData> data,
+external CGImageDestinationRef CGImageDestinationCreateWithData(
+  CFMutableDataRef data,
   ffi.Pointer<objc.CFString> type,
   int count,
-  ffi.Pointer<__CFDictionary> options,
+  CFDictionaryRef options,
 );
 
 @ffi.Native<
-  ffi.Void Function(
-    ffi.Pointer<CGImageDestination>,
-    ffi.Pointer<CGImage>,
-    ffi.Pointer<__CFDictionary>,
-  )
+  ffi.Void Function(CGImageDestinationRef, CGImageRef, CFDictionaryRef)
 >()
 external void CGImageDestinationAddImage(
-  ffi.Pointer<CGImageDestination> idst,
-  ffi.Pointer<CGImage> image,
-  ffi.Pointer<__CFDictionary> properties,
+  CGImageDestinationRef idst,
+  CGImageRef image,
+  CFDictionaryRef properties,
 );
 
-@ffi.Native<ffi.Bool Function(ffi.Pointer<CGImageDestination>)>()
-external bool CGImageDestinationFinalize(ffi.Pointer<CGImageDestination> idst);
+@ffi.Native<ffi.Bool Function(CGImageDestinationRef)>()
+external bool CGImageDestinationFinalize(CGImageDestinationRef idst);
 
 final class __CFAllocator extends ffi.Opaque {}
 
+final class CFDictionaryKeyCallBacks extends ffi.Struct {
+  @ffi.Long()
+  external int version;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Void> Function(
+        ffi.Pointer<__CFAllocator> allocator,
+        ffi.Pointer<ffi.Void> value,
+      )
+    >
+  >
+  retain;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<__CFAllocator> allocator,
+        ffi.Pointer<ffi.Void> value,
+      )
+    >
+  >
+  release;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<objc.CFString> Function(ffi.Pointer<ffi.Void> value)
+    >
+  >
+  copyDescription;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.UnsignedChar Function(
+        ffi.Pointer<ffi.Void> value1,
+        ffi.Pointer<ffi.Void> value2,
+      )
+    >
+  >
+  equal;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void> value)>
+  >
+  hash;
+}
+
+final class CFDictionaryValueCallBacks extends ffi.Struct {
+  @ffi.Long()
+  external int version;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Void> Function(
+        ffi.Pointer<__CFAllocator> allocator,
+        ffi.Pointer<ffi.Void> value,
+      )
+    >
+  >
+  retain;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<__CFAllocator> allocator,
+        ffi.Pointer<ffi.Void> value,
+      )
+    >
+  >
+  release;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.Pointer<objc.CFString> Function(ffi.Pointer<ffi.Void> value)
+    >
+  >
+  copyDescription;
+
+  external ffi.Pointer<
+    ffi.NativeFunction<
+      ffi.UnsignedChar Function(
+        ffi.Pointer<ffi.Void> value1,
+        ffi.Pointer<ffi.Void> value2,
+      )
+    >
+  >
+  equal;
+}
+
 final class __CFDictionary extends ffi.Opaque {}
+
+typedef CFDictionaryRef = ffi.Pointer<__CFDictionary>;
 
 final class __CFData extends ffi.Opaque {}
 
+typedef CFDataRef = ffi.Pointer<__CFData>;
+typedef CFMutableDataRef = ffi.Pointer<__CFData>;
+
 final class CGImageSource extends ffi.Opaque {}
+
+typedef CGImageSourceRef = ffi.Pointer<CGImageSource>;
 
 final class CGImage extends ffi.Opaque {}
 
+typedef CGImageRef = ffi.Pointer<CGImage>;
+
 final class CGImageDestination extends ffi.Opaque {}
+
+typedef CGImageDestinationRef = ffi.Pointer<CGImageDestination>;

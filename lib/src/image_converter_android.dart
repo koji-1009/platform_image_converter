@@ -34,60 +34,46 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
   }) async {
-    final inputJBytes = JByteArray.from(inputData);
+    JByteArray? inputJBytes;
+    Bitmap? bitmap;
+    Bitmap$CompressFormat? compressFormat;
+    ByteArrayOutputStream? outputStream;
+    JByteArray? outputJBytes;
     try {
-      final bitmap = BitmapFactory.decodeByteArray(
-        inputJBytes,
-        0,
-        inputData.length,
-      );
+      inputJBytes = JByteArray.from(inputData);
+      bitmap = BitmapFactory.decodeByteArray(inputJBytes, 0, inputData.length);
       if (bitmap == null) {
         throw Exception('Failed to decode image. Invalid image data.');
       }
 
-      try {
-        final compressFormat = switch (format) {
-          OutputFormat.jpeg => Bitmap$CompressFormat.JPEG,
-          OutputFormat.png => Bitmap$CompressFormat.PNG,
-          OutputFormat.webp => Bitmap$CompressFormat.WEBP_LOSSY,
-          OutputFormat.heic => throw UnsupportedError(
-            'HEIC output format is not supported on Android.',
-          ),
-        };
+      compressFormat = switch (format) {
+        OutputFormat.jpeg => Bitmap$CompressFormat.JPEG,
+        OutputFormat.png => Bitmap$CompressFormat.PNG,
+        OutputFormat.webp => Bitmap$CompressFormat.WEBP_LOSSY,
+        OutputFormat.heic => throw UnsupportedError(
+          'HEIC output format is not supported on Android.',
+        ),
+      };
 
-        try {
-          final outputStream = ByteArrayOutputStream();
-          try {
-            final success = bitmap.compress(
-              compressFormat,
-              quality,
-              outputStream,
-            );
-            if (!success) {
-              throw Exception('Failed to compress bitmap.');
-            }
-
-            final outputJBytes = outputStream.toByteArray();
-            if (outputJBytes == null) {
-              throw Exception('Failed to get byte array from output stream.');
-            }
-            try {
-              final outputList = outputJBytes.toList();
-              return Uint8List.fromList(outputList);
-            } finally {
-              outputJBytes.release();
-            }
-          } finally {
-            outputStream.release();
-          }
-        } finally {
-          compressFormat.release();
-        }
-      } finally {
-        bitmap.release();
+      outputStream = ByteArrayOutputStream();
+      final success = bitmap.compress(compressFormat, quality, outputStream);
+      if (!success) {
+        throw Exception('Failed to compress bitmap.');
       }
+
+      outputJBytes = outputStream.toByteArray();
+      if (outputJBytes == null) {
+        throw Exception('Failed to get byte array from output stream.');
+      }
+
+      return Uint8List.fromList(outputJBytes.toList());
     } finally {
-      inputJBytes.release();
+      inputJBytes?.release();
+      bitmap?.recycle();
+      bitmap?.release();
+      compressFormat?.release();
+      outputStream?.release();
+      outputJBytes?.release();
     }
   }
 }
