@@ -1,7 +1,7 @@
-name: image_ffi
+name: platform_image_converter
 description: "A high-performance Flutter plugin for cross-platform image format conversion using native APIs."
 version: 0.0.1
-homepage: https://github.com/koji-1009/image_ffi
+homepage: https://github.com/koji-1009/platform_image_converter
 
 environment:
   sdk: ^3.10.0

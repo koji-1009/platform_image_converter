@@ -2,10 +2,10 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:image_ffi/gen/darwin_bindings.dart';
-import 'package:image_ffi/src/image_converter_platform_interface.dart';
-import 'package:image_ffi/src/output_format.dart';
 import 'package:objective_c/objective_c.dart';
+import 'package:platform_image_converter/gen/darwin_bindings.dart';
+import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/output_format.dart';
 
 /// iOS/macOS image converter using ImageIO framework.
 ///

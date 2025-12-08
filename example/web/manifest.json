@@ -1,6 +1,6 @@
 {
-    "name": "image_ffi_example",
-    "short_name": "image_ffi_example",
+    "name": "platform_image_converter_example",
+    "short_name": "platform_image_converter_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

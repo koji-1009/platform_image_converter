@@ -3,11 +3,11 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:image_ffi/src/image_converter_platform_interface.dart';
-import 'package:image_ffi/src/output_format.dart';
-import 'package:image_ffi/src/android/shared.dart';
-import 'package:image_ffi/src/darwin/shared.dart';
-import 'package:image_ffi/src/web/shared.dart';
+import 'package:platform_image_converter/src/android/shared.dart';
+import 'package:platform_image_converter/src/darwin/shared.dart';
+import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/web/shared.dart';
 
 export 'src/output_format.dart';
 
