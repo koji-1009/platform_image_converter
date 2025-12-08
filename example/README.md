@@ -1,6 +1,6 @@
-# image_ffi_example
+# platform_image_converter_example
 
-Demonstrates how to use the image_ffi plugin.
+Demonstrates how to use the platform_image_converter plugin.
 
 ## Getting Started
 

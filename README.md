@@ -1,6 +1,6 @@
-# image_ffi
+# platform_image_converter
 
-A high-performance Flutter plugin for cross-platform image format conversion using native APIs.
+A high-performance Flutter plugin for cross-platform image format conversion using native APIs on iOS, macOS, Android, and Web.
 
 ## Features
 
@@ -26,17 +26,17 @@ A high-performance Flutter plugin for cross-platform image format conversion usi
 
 ### Installation
 
-Add `image_ffi` to your `pubspec.yaml`:
+Add `platform_image_converter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  image_ffi: ^0.0.1
+  platform_image_converter: ^0.0.1
 ```
 
 ### Basic Usage
 
 ```dart
-import 'package:image_ffi/image_ffi.dart';
+import 'package:platform_image_converter/platform_image_converter.dart';
 import 'dart:typed_data';
 
 // Convert HEIC image to JPEG
@@ -58,6 +58,7 @@ final pngData = await ImageConverter.convert(
 ### Input Formats
 - **iOS/macOS**: JPEG, PNG, HEIC, WebP, BMP, GIF, TIFF, and more
 - **Android**: JPEG, PNG, WebP, GIF, BMP, HEIC (via BitmapFactory)
+- **Web**: JPEG, PNG, WebP, GIF, BMP (via Canvas API)
 
 ### Output Formats
 The supported output formats are defined by the `OutputFormat` enum, with platform-specific limitations:

@@ -1,5 +1,5 @@
-name: image_ffi_example
-description: "Demonstrates how to use the image_ffi plugin."
+name: platform_image_converter_example
+description: "Demonstrates how to use the platform_image_converter plugin."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  image_ffi:
+  platform_image_converter:
     path: ../
   image_picker: 
 
@@ -22,5 +22,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  config:
-    enable-swift-package-manager: true

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:image_ffi/src/image_converter_platform_interface.dart';
-import 'package:image_ffi/src/output_format.dart';
+import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/output_format.dart';
 
 final class ImageConverterWeb implements ImageConverterPlatform {
   const ImageConverterWeb();

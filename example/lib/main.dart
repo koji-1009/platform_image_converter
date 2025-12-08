@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_ffi/image_ffi.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:platform_image_converter/platform_image_converter.dart';
 
 void main() {
   runApp(const MainApp());
@@ -78,7 +78,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('image_ffi Demo')),
+      appBar: AppBar(title: const Text('platform_image_converter Demo')),
       body: SingleChildScrollView(
         padding: const .all(16),
         child: Column(

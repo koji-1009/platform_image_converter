@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:image_ffi/gen/jnigen_bindings.dart';
-import 'package:image_ffi/src/image_converter_platform_interface.dart';
-import 'package:image_ffi/src/output_format.dart';
 import 'package:jni/jni.dart';
+import 'package:platform_image_converter/gen/jnigen_bindings.dart';
+import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/output_format.dart';
 
 /// Android image converter using BitmapFactory and Bitmap compression.
 ///
