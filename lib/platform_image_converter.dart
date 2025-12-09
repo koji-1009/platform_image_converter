@@ -66,10 +66,12 @@ class ImageConverter {
     bool runInIsolate = true,
   }) async {
     if (runInIsolate) {
-      return await compute(
-        _convertInIsolate,
-        _ConvertRequest(inputData, format, quality, defaultTargetPlatform),
-      );
+      return await compute(_convertInIsolate, (
+        inputData: inputData,
+        format: format,
+        quality: quality,
+        platform: defaultTargetPlatform,
+      ));
     } else {
       // The original implementation for those who opt-out.
       return _platform.convert(
@@ -79,22 +81,6 @@ class ImageConverter {
       );
     }
   }
-}
-
-/// Helper class to pass arguments to the isolate.
-@immutable
-class _ConvertRequest {
-  final Uint8List inputData;
-  final OutputFormat format;
-  final int quality;
-  final TargetPlatform platform;
-
-  const _ConvertRequest(
-    this.inputData,
-    this.format,
-    this.quality,
-    this.platform,
-  );
 }
 
 /// Returns the platform-specific converter instance.
@@ -112,7 +98,15 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
 }
 
 /// Top-level function for `compute`.
-Future<Uint8List> _convertInIsolate(_ConvertRequest request) {
+Future<Uint8List> _convertInIsolate(
+  ({
+    Uint8List inputData,
+    OutputFormat format,
+    int quality,
+    TargetPlatform platform,
+  })
+  request,
+) {
   final platform = _getPlatformForTarget(request.platform);
   return platform.convert(
     inputData: request.inputData,
