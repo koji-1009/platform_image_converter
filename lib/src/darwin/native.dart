@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:objective_c/objective_c.dart';
-import 'package:platform_image_converter/gen/darwin_bindings.dart';
+import 'package:platform_image_converter/src/darwin/bindings.g.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 

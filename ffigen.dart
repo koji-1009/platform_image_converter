@@ -10,7 +10,7 @@ final config = FfiGenerator(
     ],
   ),
   objectiveC: ObjectiveC(interfaces: Interfaces.includeSet({'ImageIO'})),
-  output: Output(dartFile: Uri.file('lib/gen/darwin_bindings.dart')),
+  output: Output(dartFile: Uri.file('lib/src/darwin/bindings.g.dart')),
   functions: Functions.includeSet({
     // CFData operations
     'CFDataCreate',

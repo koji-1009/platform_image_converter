@@ -6,7 +6,7 @@ android_sdk_config:
 
 output:
   dart:
-    path: lib/gen/jnigen_bindings.dart
+    path: lib/src/android/bindings.g.dart
     structure: single_file
 
 source_path:
