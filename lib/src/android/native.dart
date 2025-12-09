@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
-import 'package:platform_image_converter/gen/jnigen_bindings.dart';
+import 'package:platform_image_converter/src/android/bindings.g.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 
