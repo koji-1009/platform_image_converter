@@ -41,7 +41,7 @@ jobs:
   drive_ios:
     name: iOS
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: read
     strategy:
