@@ -51,7 +51,8 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       compressFormat = switch (format) {
         OutputFormat.jpeg => Bitmap$CompressFormat.JPEG,
         OutputFormat.png => Bitmap$CompressFormat.PNG,
-        OutputFormat.webp => Bitmap$CompressFormat.WEBP_LOSSY,
+        // TODO: WebP is deprecated since Android 10, consider using WebP_LOSSY or WebP_LOSSLESS
+        OutputFormat.webp => Bitmap$CompressFormat.WEBP,
         OutputFormat.heic => throw UnsupportedError(
           'HEIC output format is not supported on Android.',
         ),
