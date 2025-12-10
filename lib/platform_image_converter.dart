@@ -64,9 +64,9 @@ class ImageConverter {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     bool runInIsolate = true,
-  }) {
+  }) async {
     if (runInIsolate) {
-      return compute(
+      return await compute(
         _convertInIsolate,
         _ConvertRequest(inputData, format, quality, defaultTargetPlatform),
       );
