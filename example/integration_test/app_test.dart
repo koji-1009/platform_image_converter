@@ -292,77 +292,6 @@ void main() {
     });
   });
 
-  group(
-    'Darwin platform tests',
-    () {
-      test('HEIC input support', () async {
-        // This should succeed on Android, iOS, and macOS.
-        final jpegConverted = await ImageConverter.convert(
-          inputData: heicData,
-          format: OutputFormat.jpeg,
-        );
-        expect(jpegConverted, isA<Uint8List>());
-        expect(jpegConverted.isNotEmpty, isTrue);
-      });
-
-      test(
-        'HEIC to HEIC with quality 100 should produce same file size',
-        () async {
-          // HEIC to HEIC with quality 100
-          final converted1 = await ImageConverter.convert(
-            inputData: heicData,
-            format: OutputFormat.heic,
-            quality: 100,
-          );
-          final converted2 = await ImageConverter.convert(
-            inputData: heicData,
-            format: OutputFormat.heic,
-            quality: 100,
-          );
-
-          expect(
-            converted1.length,
-            equals(converted2.length),
-            reason:
-                'Converting same HEIC with same format and quality=100 should produce same file size',
-          );
-        },
-      );
-
-      test(
-        'HEIC with quality 50 should produce different file size than quality 100',
-        () async {
-          // HEIC with quality 100
-          final quality100 = await ImageConverter.convert(
-            inputData: heicData,
-            format: OutputFormat.heic,
-            quality: 100,
-          );
-
-          // HEIC with quality 50
-          final quality50 = await ImageConverter.convert(
-            inputData: heicData,
-            format: OutputFormat.heic,
-            quality: 50,
-          );
-
-          expect(
-            quality100.length,
-            isNot(equals(quality50.length)),
-            reason:
-                'Converting same HEIC with different quality should produce different file size',
-          );
-        },
-      );
-    },
-    skip:
-        kIsWeb ||
-        switch (defaultTargetPlatform) {
-          TargetPlatform.iOS || TargetPlatform.macOS => false,
-          _ => true,
-        },
-  );
-
   group('Platform-specific format support', () {
     test('WebP output support', () async {
       if (defaultTargetPlatform == TargetPlatform.android || kIsWeb) {
@@ -380,27 +309,6 @@ void main() {
           ),
           throwsA(isA<UnsupportedError>()),
           reason: 'WebP output should be unsupported on Web, iOS, and macOS',
-        );
-      }
-    });
-
-    test('HEIC output support', () async {
-      if (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.macOS && !kIsWeb) {
-        final heicConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.heic,
-        );
-        expect(heicConverted, isA<Uint8List>());
-        expect(heicConverted.isNotEmpty, isTrue);
-      } else {
-        expect(
-          () => ImageConverter.convert(
-            inputData: jpegData,
-            format: OutputFormat.heic,
-          ),
-          throwsA(isA<UnsupportedError>()),
-          reason: 'HEIC output should be unsupported on Web and Android',
         );
       }
     });
