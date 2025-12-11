@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:web/web.dart';
 
 /// Web image converter using Canvas API.
@@ -40,6 +41,7 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
   }) async {
     final img = HTMLImageElement();
     final decodeCompeleter = Completer<void>();
@@ -56,10 +58,72 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     URL.revokeObjectURL(url);
 
     final canvas = HTMLCanvasElement();
-    canvas.width = img.width;
-    canvas.height = img.height;
+
+    final int destWidth;
+    final int destHeight;
+
+    switch (resizeMode) {
+      case OriginalResizeMode():
+        destWidth = img.width;
+        destHeight = img.height;
+      case ExactResizeMode(width: final w, height: final h):
+        destWidth = w;
+        destHeight = h;
+      case FitResizeMode(:final width, :final height):
+        final originalWidth = img.width;
+        final originalHeight = img.height;
+
+        double newWidth;
+        double newHeight;
+
+        if (width != null && height != null) {
+          if (originalWidth <= width && originalHeight <= height) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          final aspectRatio = originalWidth / originalHeight;
+          newWidth = width.toDouble();
+          newHeight = newWidth / aspectRatio;
+          if (newHeight > height) {
+            newHeight = height.toDouble();
+            newWidth = newHeight * aspectRatio;
+          }
+        } else if (width != null) {
+          if (originalWidth <= width) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          newWidth = width.toDouble();
+          final aspectRatio = originalWidth / originalHeight;
+          newHeight = newWidth / aspectRatio;
+        } else if (height != null) {
+          if (originalHeight <= height) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          newHeight = height.toDouble();
+          final aspectRatio = originalWidth / originalHeight;
+          newWidth = newHeight * aspectRatio;
+        } else {
+          // This case should not be reachable due to the assertion
+          // in the FitResizeMode constructor.
+          destWidth = originalWidth;
+          destHeight = originalHeight;
+          break;
+        }
+
+        destWidth = newWidth.round();
+        destHeight = newHeight.round();
+    }
+
+    canvas.width = destWidth;
+    canvas.height = destHeight;
+
     final ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, destWidth, destHeight);
 
     final encodeCompleter = Completer<Blob>();
     final type = switch (format) {

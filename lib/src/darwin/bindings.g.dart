@@ -61,6 +61,62 @@ external int CFDataGetLength(CFDataRef theData);
 @ffi.Native<ffi.Pointer<ffi.UnsignedChar> Function(CFDataRef)>()
 external ffi.Pointer<ffi.UnsignedChar> CFDataGetBytePtr(CFDataRef theData);
 
+@ffi.Native<ffi.Size Function(CGImageRef)>()
+external int CGImageGetWidth(CGImageRef image);
+
+@ffi.Native<ffi.Size Function(CGImageRef)>()
+external int CGImageGetHeight(CGImageRef image);
+
+@ffi.Native<ffi.Size Function(CGImageRef)>()
+external int CGImageGetBitsPerComponent(CGImageRef image);
+
+@ffi.Native<CGColorSpaceRef Function(CGImageRef)>()
+external CGColorSpaceRef CGImageGetColorSpace(CGImageRef image);
+
+@ffi.Native<ffi.Uint32 Function(CGImageRef)>()
+external int CGImageGetBitmapInfo(CGImageRef image);
+
+@ffi.Native<ffi.Void Function(CGContextRef, objc.CGRect, CGImageRef)>()
+external void CGContextDrawImage(
+  CGContextRef c,
+  objc.CGRect rect,
+  CGImageRef image,
+);
+
+@ffi.Native<ffi.Void Function(CGContextRef, ffi.Int32)>(
+  symbol: 'CGContextSetInterpolationQuality',
+)
+external void _CGContextSetInterpolationQuality(CGContextRef c, int quality);
+
+void CGContextSetInterpolationQuality(
+  CGContextRef c,
+  CGInterpolationQuality quality,
+) => _CGContextSetInterpolationQuality(c, quality.value);
+
+@ffi.Native<
+  CGContextRef Function(
+    ffi.Pointer<ffi.Void>,
+    ffi.Size,
+    ffi.Size,
+    ffi.Size,
+    ffi.Size,
+    CGColorSpaceRef,
+    ffi.Uint32,
+  )
+>()
+external CGContextRef CGBitmapContextCreate(
+  ffi.Pointer<ffi.Void> data,
+  int width,
+  int height,
+  int bitsPerComponent,
+  int bytesPerRow,
+  CGColorSpaceRef space,
+  int bitmapInfo,
+);
+
+@ffi.Native<CGImageRef Function(CGContextRef)>()
+external CGImageRef CGBitmapContextCreateImage(CGContextRef context);
+
 @ffi.Native<CGImageSourceRef Function(CFDataRef, CFDictionaryRef)>()
 external CGImageSourceRef CGImageSourceCreateWithData(
   CFDataRef data,
@@ -208,9 +264,54 @@ final class CGImageSource extends ffi.Opaque {}
 
 typedef CGImageSourceRef = ffi.Pointer<CGImageSource>;
 
+final class CGContext extends ffi.Opaque {}
+
+typedef CGContextRef = ffi.Pointer<CGContext>;
+
+final class CGColorSpace extends ffi.Opaque {}
+
+typedef CGColorSpaceRef = ffi.Pointer<CGColorSpace>;
+
 final class CGImage extends ffi.Opaque {}
 
 typedef CGImageRef = ffi.Pointer<CGImage>;
+
+sealed class CGBitmapInfo {
+  static const kCGBitmapAlphaInfoMask = 31;
+  static const kCGBitmapComponentInfoMask = 3840;
+  static const kCGBitmapByteOrderInfoMask = 28672;
+  static const kCGBitmapPixelFormatInfoMask = 983040;
+  static const kCGBitmapFloatInfoMask = 3840;
+  static const kCGBitmapByteOrderMask = 28672;
+  static const kCGBitmapFloatComponents = 256;
+  static const kCGBitmapByteOrderDefault = 0;
+  static const kCGBitmapByteOrder16Little = 4096;
+  static const kCGBitmapByteOrder32Little = 8192;
+  static const kCGBitmapByteOrder16Big = 12288;
+  static const kCGBitmapByteOrder32Big = 16384;
+}
+
+enum CGInterpolationQuality {
+  kCGInterpolationDefault(0),
+  kCGInterpolationNone(1),
+  kCGInterpolationLow(2),
+  kCGInterpolationMedium(4),
+  kCGInterpolationHigh(3);
+
+  final int value;
+  const CGInterpolationQuality(this.value);
+
+  static CGInterpolationQuality fromValue(int value) => switch (value) {
+    0 => kCGInterpolationDefault,
+    1 => kCGInterpolationNone,
+    2 => kCGInterpolationLow,
+    4 => kCGInterpolationMedium,
+    3 => kCGInterpolationHigh,
+    _ => throw ArgumentError(
+      'Unknown value for CGInterpolationQuality: $value',
+    ),
+  };
+}
 
 final class CGImageDestination extends ffi.Opaque {}
 

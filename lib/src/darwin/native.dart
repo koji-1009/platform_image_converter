@@ -6,6 +6,7 @@ import 'package:objective_c/objective_c.dart';
 import 'package:platform_image_converter/src/darwin/bindings.g.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 
 /// iOS/macOS image converter using ImageIO framework.
 ///
@@ -20,6 +21,9 @@ import 'package:platform_image_converter/src/output_format.dart';
 /// **API Stack:**
 /// - `CGImageSourceCreateWithData`: Decode input image
 /// - `CGImageSourceCreateImageAtIndex`: Extract CGImage
+/// - `CGBitmapContextCreate`: Create a canvas for resizing
+/// - `CGContextDrawImage`: Draw and scale the image
+/// - `CGBitmapContextCreateImage`: Extract resized CGImage
 /// - `CGImageDestinationCreateWithData`: Create output stream
 /// - `CGImageDestinationAddImage`: Add image with encoding options
 /// - `CGImageDestinationFinalize`: Complete encoding
@@ -36,11 +40,13 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
   }) async {
     Pointer<Uint8>? inputPtr;
     CFDataRef? cfData;
     CGImageSourceRef? imageSource;
-    CGImageRef? cgImage;
+    CGImageRef? originalImage;
+    CGImageRef? imageToEncode;
     CFMutableDataRef? outputData;
     CGImageDestinationRef? destination;
     CFDictionaryRef? properties;
@@ -62,9 +68,65 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         throw Exception('Failed to create CGImageSource. Invalid image data.');
       }
 
-      cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
-      if (cgImage == nullptr) {
+      originalImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
+      if (originalImage == nullptr) {
         throw Exception('Failed to decode image.');
+      }
+
+      switch (resizeMode) {
+        case OriginalResizeMode():
+          imageToEncode = originalImage;
+        case ExactResizeMode(width: final w, height: final h):
+          imageToEncode = _resizeImage(originalImage, w, h);
+        case FitResizeMode(:final width, :final height):
+          final originalWidth = CGImageGetWidth(originalImage);
+          final originalHeight = CGImageGetHeight(originalImage);
+
+          double newWidth;
+          double newHeight;
+
+          if (width != null && height != null) {
+            if (originalWidth <= width && originalHeight <= height) {
+              imageToEncode = originalImage;
+              break;
+            }
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = width.toDouble();
+            newHeight = newWidth / aspectRatio;
+            if (newHeight > height) {
+              newHeight = height.toDouble();
+              newWidth = newHeight * aspectRatio;
+            }
+          } else if (width != null) {
+            if (originalWidth <= width) {
+              imageToEncode = originalImage;
+              break;
+            }
+            newWidth = width.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newHeight = newWidth / aspectRatio;
+          } else if (height != null) {
+            if (originalHeight <= height) {
+              imageToEncode = originalImage;
+              break;
+            }
+            newHeight = height.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = newHeight * aspectRatio;
+          } else {
+            // This case should not be reachable due to the assertion
+            // in the FitResizeMode constructor.
+            imageToEncode = originalImage;
+            break;
+          }
+          imageToEncode = _resizeImage(
+            originalImage,
+            newWidth.round(),
+            newHeight.round(),
+          );
+      }
+      if (imageToEncode == nullptr) {
+        throw Exception('Failed to prepare image for encoding.');
       }
 
       outputData = CFDataCreateMutable(kCFAllocatorDefault, 0);
@@ -101,7 +163,11 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
 
       properties = _createPropertiesForFormat(format, quality);
-      CGImageDestinationAddImage(destination, cgImage, properties ?? nullptr);
+      CGImageDestinationAddImage(
+        destination,
+        imageToEncode,
+        properties ?? nullptr,
+      );
 
       final success = CGImageDestinationFinalize(destination);
       if (!success) {
@@ -119,7 +185,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       if (inputPtr != null) calloc.free(inputPtr);
       if (cfData != null) CFRelease(cfData.cast());
       if (imageSource != null) CFRelease(imageSource.cast());
-      if (cgImage != null) CFRelease(cgImage.cast());
+      if (imageToEncode != null && imageToEncode != originalImage) {
+        CFRelease(imageToEncode.cast());
+      }
+      if (originalImage != null) CFRelease(originalImage.cast());
       if (outputData != null) CFRelease(outputData.cast());
       if (destination != null) CFRelease(destination.cast());
       if (properties != null) CFRelease(properties.cast());
@@ -156,5 +225,54 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         valueCallBacks,
       );
     });
+  }
+
+  CGImageRef _resizeImage(CGImageRef originalImage, int width, int height) {
+    CGColorSpaceRef? colorSpace;
+    CGContextRef? context;
+    try {
+      colorSpace = CGImageGetColorSpace(originalImage);
+      if (colorSpace == nullptr) {
+        throw Exception('Failed to get color space from image.');
+      }
+
+      final bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
+      final bitmapInfo = CGImageGetBitmapInfo(originalImage);
+
+      context = CGBitmapContextCreate(
+        nullptr,
+        width,
+        height,
+        bitsPerComponent,
+        0, // bytesPerRow (0 means calculate automatically)
+        colorSpace,
+        bitmapInfo,
+      );
+      if (context == nullptr) {
+        throw Exception('Failed to create bitmap context for resizing.');
+      }
+
+      CGContextSetInterpolationQuality(
+        context,
+        CGInterpolationQuality.kCGInterpolationHigh,
+      );
+
+      final rect = Struct.create<CGRect>()
+        ..origin.x = 0
+        ..origin.y = 0
+        ..size.width = width.toDouble()
+        ..size.height = height.toDouble();
+
+      CGContextDrawImage(context, rect, originalImage);
+
+      final resizedImage = CGBitmapContextCreateImage(context);
+      if (resizedImage == nullptr) {
+        throw Exception('Failed to create resized image from context.');
+      }
+      return resizedImage;
+    } finally {
+      if (colorSpace != null) CFRelease(colorSpace.cast());
+      if (context != null) CFRelease(context.cast());
+    }
   }
 }

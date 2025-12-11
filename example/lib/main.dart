@@ -29,6 +29,9 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final _widthController = TextEditingController();
+  final _heightController = TextEditingController();
+
   Uint8List? _originalImage;
   String? _originalName;
   Uint8List? _convertedImage;
@@ -36,6 +39,13 @@ class _MainPageState extends State<MainPage> {
   int? _convertElapsedMs;
   bool _isLoading = false;
   double _quality = 90;
+
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -55,10 +65,20 @@ class _MainPageState extends State<MainPage> {
     setState(() => _isLoading = true);
     final sw = Stopwatch()..start();
     try {
+      final width = int.tryParse(_widthController.text);
+      final height = int.tryParse(_heightController.text);
+      final resizeMode = switch ((width, height)) {
+        (null, null) => const OriginalResizeMode(),
+        (final w?, final h?) => ExactResizeMode(width: w, height: h),
+        (final w?, null) => FitResizeMode(width: w),
+        (null, final h?) => FitResizeMode(height: h),
+      };
+
       final converted = await ImageConverter.convert(
         inputData: _originalImage!,
         format: format,
         quality: _quality.round(),
+        resizeMode: resizeMode,
       );
       sw.stop();
       _convertedImage = converted;
@@ -81,8 +101,9 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(title: const Text('platform_image_converter Demo')),
       body: SingleChildScrollView(
         padding: const .all(16),
+        keyboardDismissBehavior: .onDrag,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: .stretch,
           children: [
             FilledButton(
               onPressed: _pickImage,
@@ -99,6 +120,31 @@ class _MainPageState extends State<MainPage> {
               onChanged: _isLoading
                   ? null
                   : (v) => setState(() => _quality = v),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _widthController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Width',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _heightController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Height',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ],
             ),
             if (_originalImage != null) ...[
               Text('Original Image ($_originalName): '),
@@ -143,7 +189,7 @@ class _MainPageState extends State<MainPage> {
               Column(
                 children: [
                   Text('Converted ($_convertedFormat):'),
-                  Image.memory(_convertedImage!, height: 180),
+                  Image.memory(_convertedImage!, height: 180, fit: .contain),
                   Text('Size: ${_convertedImage!.lengthInBytes} bytes'),
                   if (_convertElapsedMs != null)
                     Text('Convert time: $_convertElapsedMs ms'),

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'output_format.dart';
+import 'output_resize.dart';
 
 /// Platform-specific image converter interface.
 ///
@@ -19,6 +20,7 @@ abstract interface class ImageConverterPlatform {
   /// - [inputData]: Raw bytes of the image to convert
   /// - [format]: Target [OutputFormat] (default: [OutputFormat.jpeg])
   /// - [quality]: Compression quality 1-100 for lossy formats (default: 95)
+  /// - [resizeMode]: The resize mode to apply to the image.
   ///
   /// **Returns:** Converted image data as [Uint8List]
   ///
@@ -30,6 +32,7 @@ abstract interface class ImageConverterPlatform {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
   }) {
     throw UnimplementedError('convert() has not been implemented.');
   }

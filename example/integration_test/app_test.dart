@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:platform_image_converter/platform_image_converter.dart';
+import 'package:image/image.dart' as img;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -11,14 +12,120 @@ void main() {
   late Uint8List jpegData;
   late Uint8List pngData;
   late Uint8List webpData;
-  late Uint8List heicData;
 
   setUpAll(() async {
     // Load test images from assets
     jpegData = await _loadAssetImage('assets/jpeg.jpg');
     pngData = await _loadAssetImage('assets/png.png');
     webpData = await _loadAssetImage('assets/webp.webp');
-    heicData = await _loadAssetImage('assets/heic.heic');
+  });
+
+  group('Image resizing tests', () {
+    test('OriginalResizeMode preserves original dimensions', () async {
+      final originalImage = img.decodeImage(jpegData)!;
+      final originalWidth = originalImage.width;
+      final originalHeight = originalImage.height;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: const OriginalResizeMode(),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      expect(resizedImage.width, equals(originalWidth));
+      expect(resizedImage.height, equals(originalHeight));
+    });
+
+    test('ExactResizeMode resizes to exact dimensions', () async {
+      final targetWidth = 100;
+      final targetHeight = 150;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: ExactResizeMode(width: targetWidth, height: targetHeight),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      expect(resizedImage.width, equals(targetWidth));
+      expect(resizedImage.height, equals(targetHeight));
+    });
+
+    test('FitResizeMode maintains aspect ratio when downscaling', () async {
+      // Original jpeg.jpg is 1502x2000
+      final targetWidth = 200;
+      final targetHeight = 200;
+      final expectedWidth = 150;
+      final expectedHeight = 200;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(width: targetWidth, height: targetHeight),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      // Allow for small rounding differences
+      expect(resizedImage.width, closeTo(expectedWidth, 1));
+      expect(resizedImage.height, closeTo(expectedHeight, 1));
+    });
+
+    test('FitResizeMode does not upscale smaller images', () async {
+      final originalImage = img.decodeImage(jpegData)!;
+      final originalWidth = originalImage.width;
+      final originalHeight = originalImage.height;
+
+      // Target dimensions are larger than the original
+      final targetWidth = originalWidth * 2;
+      final targetHeight = originalHeight * 2;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(width: targetWidth, height: targetHeight),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      expect(resizedImage.width, equals(originalWidth));
+      expect(resizedImage.height, equals(originalHeight));
+    });
+
+    test('FitResizeMode with only width maintains aspect ratio', () async {
+      // Original jpeg.jpg is 1502x2000
+      final targetWidth = 150;
+      final expectedWidth = 150;
+      final expectedHeight = 200;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(width: targetWidth),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      // Allow for small rounding differences
+      expect(resizedImage.width, closeTo(expectedWidth, 1));
+      expect(resizedImage.height, closeTo(expectedHeight, 1));
+    });
+
+    test('FitResizeMode with only height maintains aspect ratio', () async {
+      // Original jpeg.jpg is 1502x2000
+      final targetHeight = 200;
+      final expectedWidth = 150;
+      final expectedHeight = 200;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(height: targetHeight),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      // Allow for small rounding differences
+      expect(resizedImage.width, closeTo(expectedWidth, 1));
+      expect(resizedImage.height, closeTo(expectedHeight, 1));
+    });
   });
 
   group('File size consistency tests', () {

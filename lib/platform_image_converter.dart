@@ -7,9 +7,11 @@ import 'package:platform_image_converter/src/android/shared.dart';
 import 'package:platform_image_converter/src/darwin/shared.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:platform_image_converter/src/web/shared.dart';
 
 export 'src/output_format.dart';
+export 'src/output_resize.dart';
 
 /// Main entry point for image format conversion.
 ///
@@ -32,6 +34,7 @@ class ImageConverter {
   /// - [inputData]: Raw bytes of the image to convert.
   /// - [format]: Target [OutputFormat]. Defaults to [OutputFormat.jpeg].
   /// - [quality]: Compression quality for lossy formats (1-100).
+  /// - [resizeMode]: The resize mode to apply to the image.
   /// - [runInIsolate]: Whether to run the conversion in a separate isolate.
   ///   Defaults to `true`.
   ///
@@ -63,38 +66,27 @@ class ImageConverter {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
     bool runInIsolate = true,
   }) async {
     if (runInIsolate) {
-      return await compute(
-        _convertInIsolate,
-        _ConvertRequest(inputData, format, quality, defaultTargetPlatform),
-      );
+      return await compute(_convertInIsolate, (
+        inputData: inputData,
+        format: format,
+        quality: quality,
+        resizeMode: resizeMode,
+        platform: defaultTargetPlatform,
+      ));
     } else {
       // The original implementation for those who opt-out.
       return _platform.convert(
         inputData: inputData,
         format: format,
         quality: quality,
+        resizeMode: resizeMode,
       );
     }
   }
-}
-
-/// Helper class to pass arguments to the isolate.
-@immutable
-class _ConvertRequest {
-  final Uint8List inputData;
-  final OutputFormat format;
-  final int quality;
-  final TargetPlatform platform;
-
-  const _ConvertRequest(
-    this.inputData,
-    this.format,
-    this.quality,
-    this.platform,
-  );
 }
 
 /// Returns the platform-specific converter instance.
@@ -112,11 +104,21 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
 }
 
 /// Top-level function for `compute`.
-Future<Uint8List> _convertInIsolate(_ConvertRequest request) {
+Future<Uint8List> _convertInIsolate(
+  ({
+    Uint8List inputData,
+    OutputFormat format,
+    int quality,
+    ResizeMode resizeMode,
+    TargetPlatform platform,
+  })
+  request,
+) {
   final platform = _getPlatformForTarget(request.platform);
   return platform.convert(
     inputData: request.inputData,
     format: request.format,
     quality: request.quality,
+    resizeMode: request.resizeMode,
   );
 }
