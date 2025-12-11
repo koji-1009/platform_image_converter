@@ -82,23 +82,48 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
           final originalWidth = CGImageGetWidth(originalImage);
           final originalHeight = CGImageGetHeight(originalImage);
 
-          if (originalWidth <= width && originalHeight <= height) {
-            imageToEncode = originalImage;
-          } else {
-            final aspectRatio = originalWidth / originalHeight;
-            var newWidth = width.toDouble();
-            var newHeight = newWidth / aspectRatio;
+          double newWidth;
+          double newHeight;
 
+          if (width != null && height != null) {
+            if (originalWidth <= width && originalHeight <= height) {
+              imageToEncode = originalImage;
+              break;
+            }
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = width.toDouble();
+            newHeight = newWidth / aspectRatio;
             if (newHeight > height) {
               newHeight = height.toDouble();
               newWidth = newHeight * aspectRatio;
             }
-            imageToEncode = _resizeImage(
-              originalImage,
-              newWidth.round(),
-              newHeight.round(),
-            );
+          } else if (width != null) {
+            if (originalWidth <= width) {
+              imageToEncode = originalImage;
+              break;
+            }
+            newWidth = width.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newHeight = newWidth / aspectRatio;
+          } else if (height != null) {
+            if (originalHeight <= height) {
+              imageToEncode = originalImage;
+              break;
+            }
+            newHeight = height.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = newHeight * aspectRatio;
+          } else {
+            // This case should not be reachable due to the assertion
+            // in the FitResizeMode constructor.
+            imageToEncode = originalImage;
+            break;
           }
+          imageToEncode = _resizeImage(
+            originalImage,
+            newWidth.round(),
+            newHeight.round(),
+          );
       }
       if (imageToEncode == nullptr) {
         throw Exception('Failed to prepare image for encoding.');

@@ -72,26 +72,51 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
           final originalWidth = originalBitmap.getWidth();
           final originalHeight = originalBitmap.getHeight();
 
-          if (originalWidth <= width && originalHeight <= height) {
-            bitmapToCompress = originalBitmap;
-          } else {
-            final aspectRatio = originalWidth / originalHeight;
-            var newWidth = width.toDouble();
-            var newHeight = newWidth / aspectRatio;
+          double newWidth;
+          double newHeight;
 
+          if (width != null && height != null) {
+            if (originalWidth <= width && originalHeight <= height) {
+              bitmapToCompress = originalBitmap;
+              break;
+            }
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = width.toDouble();
+            newHeight = newWidth / aspectRatio;
             if (newHeight > height) {
               newHeight = height.toDouble();
               newWidth = newHeight * aspectRatio;
             }
-
-            scaledBitmap = Bitmap.createScaledBitmap(
-              originalBitmap,
-              newWidth.round(),
-              newHeight.round(),
-              true, // filter
-            );
-            bitmapToCompress = scaledBitmap;
+          } else if (width != null) {
+            if (originalWidth <= width) {
+              bitmapToCompress = originalBitmap;
+              break;
+            }
+            newWidth = width.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newHeight = newWidth / aspectRatio;
+          } else if (height != null) {
+            if (originalHeight <= height) {
+              bitmapToCompress = originalBitmap;
+              break;
+            }
+            newHeight = height.toDouble();
+            final aspectRatio = originalWidth / originalHeight;
+            newWidth = newHeight * aspectRatio;
+          } else {
+            // This case should not be reachable due to the assertion
+            // in the FitResizeMode constructor.
+            bitmapToCompress = originalBitmap;
+            break;
           }
+
+          scaledBitmap = Bitmap.createScaledBitmap(
+            originalBitmap,
+            newWidth.round(),
+            newHeight.round(),
+            true, // filter
+          );
+          bitmapToCompress = scaledBitmap;
       }
 
       if (bitmapToCompress == null) {

@@ -70,8 +70,8 @@ class _MainPageState extends State<MainPage> {
       final resizeMode = switch ((width, height)) {
         (null, null) => const OriginalResizeMode(),
         (final w?, final h?) => ExactResizeMode(width: w, height: h),
-        (final w?, null) => FitResizeMode(width: w, height: 1 << 30),
-        (null, final h?) => FitResizeMode(width: 1 << 30, height: h),
+        (final w?, null) => FitResizeMode(width: w),
+        (null, final h?) => FitResizeMode(height: h),
       };
 
       final converted = await ImageConverter.convert(

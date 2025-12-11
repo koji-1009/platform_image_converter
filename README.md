@@ -47,11 +47,11 @@ final jpegData = await ImageConverter.convert(
   quality: 90,
 );
 
-// Convert and resize an image to fit within 200x200
+// Convert and resize an image to fit within a width of 200, scaling height proportionally
 final resizedData = await ImageConverter.convert(
   inputData: imageData,
   format: OutputFormat.png,
-  resizeMode: const FitResizeMode(width: 200, height: 200),
+  resizeMode: const FitResizeMode(width: 200),
 );
 
 // Convert any format to PNG
@@ -117,7 +117,7 @@ A sealed class representing different ways to resize an image.
 
 - **`OriginalResizeMode()`**: Keeps the original dimensions of the image.
 - **`ExactResizeMode({required int width, required int height})`**: Resizes the image to exact dimensions, possibly changing the aspect ratio.
-- **`FitResizeMode({required int width, required int height})`**: Fits the image within the specified dimensions while maintaining the aspect ratio. If the image is smaller than the specified dimensions, it will not be scaled up.
+- **`FitResizeMode({int? width, int? height})`**: Fits the image within the specified dimensions while maintaining the aspect ratio. At least one of `width` or `height` must be provided. If only one dimension is provided, the other is scaled proportionally. If the image is smaller than the specified dimensions, it will not be scaled up.
 
 
 ## Implementation Details

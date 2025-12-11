@@ -70,21 +70,53 @@ final class ImageConverterWeb implements ImageConverterPlatform {
         destWidth = w;
         destHeight = h;
       case FitResizeMode(:final width, :final height):
-        if (img.width <= width && img.height <= height) {
-          destWidth = img.width;
-          destHeight = img.height;
-        } else {
-          final aspectRatio = img.width / img.height;
-          var newWidth = width.toDouble();
-          var newHeight = newWidth / aspectRatio;
+        final originalWidth = img.width;
+        final originalHeight = img.height;
 
+        double newWidth;
+        double newHeight;
+
+        if (width != null && height != null) {
+          if (originalWidth <= width && originalHeight <= height) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          final aspectRatio = originalWidth / originalHeight;
+          newWidth = width.toDouble();
+          newHeight = newWidth / aspectRatio;
           if (newHeight > height) {
             newHeight = height.toDouble();
             newWidth = newHeight * aspectRatio;
           }
-          destWidth = newWidth.round();
-          destHeight = newHeight.round();
+        } else if (width != null) {
+          if (originalWidth <= width) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          newWidth = width.toDouble();
+          final aspectRatio = originalWidth / originalHeight;
+          newHeight = newWidth / aspectRatio;
+        } else if (height != null) {
+          if (originalHeight <= height) {
+            destWidth = originalWidth;
+            destHeight = originalHeight;
+            break;
+          }
+          newHeight = height.toDouble();
+          final aspectRatio = originalWidth / originalHeight;
+          newWidth = newHeight * aspectRatio;
+        } else {
+          // This case should not be reachable due to the assertion
+          // in the FitResizeMode constructor.
+          destWidth = originalWidth;
+          destHeight = originalHeight;
+          break;
         }
+
+        destWidth = newWidth.round();
+        destHeight = newHeight.round();
     }
 
     canvas.width = destWidth;

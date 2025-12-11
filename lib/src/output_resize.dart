@@ -26,11 +26,12 @@ class ExactResizeMode extends ResizeMode {
 /// If the image is smaller than the specified dimensions, it will not be
 /// scaled up.
 class FitResizeMode extends ResizeMode {
-  const FitResizeMode({required this.width, required this.height});
+  const FitResizeMode({this.width, this.height})
+    : assert(width != null || height != null);
 
   /// The maximum width for the resized image.
-  final int width;
+  final int? width;
 
   /// The maximum height for the resized image.
-  final int height;
+  final int? height;
 }

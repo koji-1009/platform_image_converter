@@ -90,6 +90,42 @@ void main() {
       expect(resizedImage.width, equals(originalWidth));
       expect(resizedImage.height, equals(originalHeight));
     });
+
+    test('FitResizeMode with only width maintains aspect ratio', () async {
+      // Original jpeg.jpg is 1502x2000
+      final targetWidth = 150;
+      final expectedWidth = 150;
+      final expectedHeight = 200;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(width: targetWidth),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      // Allow for small rounding differences
+      expect(resizedImage.width, closeTo(expectedWidth, 1));
+      expect(resizedImage.height, closeTo(expectedHeight, 1));
+    });
+
+    test('FitResizeMode with only height maintains aspect ratio', () async {
+      // Original jpeg.jpg is 1502x2000
+      final targetHeight = 200;
+      final expectedWidth = 150;
+      final expectedHeight = 200;
+
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        resizeMode: FitResizeMode(height: targetHeight),
+      );
+
+      final resizedImage = img.decodeImage(converted)!;
+      // Allow for small rounding differences
+      expect(resizedImage.width, closeTo(expectedWidth, 1));
+      expect(resizedImage.height, closeTo(expectedHeight, 1));
+    });
   });
 
   group('File size consistency tests', () {
