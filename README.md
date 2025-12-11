@@ -25,15 +25,6 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 
 ## Getting Started
 
-### Installation
-
-Add `platform_image_converter` to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  platform_image_converter: ^0.0.1
-```
-
 ### Basic Usage
 
 ```dart

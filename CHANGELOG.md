@@ -1,3 +1,8 @@
+## 0.2.0
+
+* Support resized image output.
+* Refactor codebase for better maintainability.
+
 ## 0.1.0
 
 * Initial release of platform_image_converter.
