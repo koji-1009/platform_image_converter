@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:web/web.dart';
 
 /// Web image converter using Canvas API.
@@ -40,6 +41,7 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
   }) async {
     final img = HTMLImageElement();
     final decodeCompeleter = Completer<void>();
@@ -56,10 +58,40 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     URL.revokeObjectURL(url);
 
     final canvas = HTMLCanvasElement();
-    canvas.width = img.width;
-    canvas.height = img.height;
+
+    final int destWidth;
+    final int destHeight;
+
+    switch (resizeMode) {
+      case OriginalResizeMode():
+        destWidth = img.width;
+        destHeight = img.height;
+      case ExactResizeMode(width: final w, height: final h):
+        destWidth = w;
+        destHeight = h;
+      case FitResizeMode(:final width, :final height):
+        if (img.width <= width && img.height <= height) {
+          destWidth = img.width;
+          destHeight = img.height;
+        } else {
+          final aspectRatio = img.width / img.height;
+          var newWidth = width.toDouble();
+          var newHeight = newWidth / aspectRatio;
+
+          if (newHeight > height) {
+            newHeight = height.toDouble();
+            newWidth = newHeight * aspectRatio;
+          }
+          destWidth = newWidth.round();
+          destHeight = newHeight.round();
+        }
+    }
+
+    canvas.width = destWidth;
+    canvas.height = destHeight;
+
     final ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, destWidth, destHeight);
 
     final encodeCompleter = Completer<Blob>();
     final type = switch (format) {

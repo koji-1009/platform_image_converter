@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/platform_image_converter.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
-import 'package:platform_image_converter/src/output_format.dart';
 
 final class ImageConverterAndroid implements ImageConverterPlatform {
   const ImageConverterAndroid();
@@ -11,5 +11,6 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
+    ResizeMode resizeMode = const OriginalResizeMode(),
   }) async => throw UnimplementedError();
 }

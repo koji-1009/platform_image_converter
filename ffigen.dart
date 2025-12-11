@@ -26,6 +26,18 @@ final config = FfiGenerator(
     'CGImageDestinationCreateWithData',
     'CGImageDestinationAddImage',
     'CGImageDestinationFinalize',
+    // CGImage operations
+    'CGImageGetBitsPerComponent',
+    'CGImageGetBitmapInfo',
+    'CGImageGetColorSpace',
+    'CGImageGetWidth',
+    'CGImageGetHeight',
+    // CGContext operations
+    'CGContextDrawImage',
+    'CGContextSetInterpolationQuality',
+    // CGBitmapContext operations
+    'CGBitmapContextCreateImage',
+    'CGBitmapContextCreate',
     // Memory management
     'CFRelease',
   }),
@@ -38,8 +50,10 @@ final config = FfiGenerator(
   typedefs: Typedefs.includeSet({
     'CFDataRef',
     'CFDictionaryRef',
+    'CGContextRef',
     'CGImageRef',
     'CGImageSourceRef',
+    'CGColorSpaceRef',
     'CFMutableDataRef',
     'CGImageDestinationRef',
   }),
