@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:objective_c/objective_c.dart';
 import 'package:platform_image_converter/src/darwin/bindings.g.dart';
+import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
@@ -60,17 +61,19 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         inputData.length,
       );
       if (cfData == nullptr) {
-        throw Exception('Failed to create CFData from input data.');
+        throw const ImageConversionException(
+          'Failed to create CFData from input data.',
+        );
       }
 
       imageSource = CGImageSourceCreateWithData(cfData, nullptr);
       if (imageSource == nullptr) {
-        throw Exception('Failed to create CGImageSource. Invalid image data.');
+        throw const ImageDecodingException('Invalid image data.');
       }
 
       originalImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
       if (originalImage == nullptr) {
-        throw Exception('Failed to decode image.');
+        throw const ImageDecodingException();
       }
 
       final originalWidth = CGImageGetWidth(originalImage);
@@ -87,12 +90,14 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
 
       if (imageToEncode == nullptr) {
-        throw Exception('Failed to prepare image for encoding.');
+        throw const ImageConversionException(
+          'Failed to prepare image for encoding. Resizing may have failed.',
+        );
       }
 
       outputData = CFDataCreateMutable(kCFAllocatorDefault, 0);
       if (outputData == nullptr) {
-        throw Exception('Failed to create output CFData.');
+        throw ImageEncodingException(format, 'Failed to create output CFData.');
       }
 
       final utiStr = switch (format) {
@@ -120,7 +125,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         nullptr,
       );
       if (destination == nullptr) {
-        throw Exception('Failed to create CGImageDestination.');
+        throw ImageEncodingException(
+          format,
+          'Failed to create CGImageDestination.',
+        );
       }
 
       properties = _createPropertiesForFormat(format, quality);
@@ -132,13 +140,19 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
       final success = CGImageDestinationFinalize(destination);
       if (!success) {
-        throw Exception('Failed to finalize image encoding.');
+        throw ImageEncodingException(
+          format,
+          'Failed to finalize image encoding.',
+        );
       }
 
       final length = CFDataGetLength(outputData);
       final bytePtr = CFDataGetBytePtr(outputData);
       if (bytePtr == nullptr) {
-        throw Exception('Failed to get output data bytes.');
+        throw ImageEncodingException(
+          format,
+          'Failed to get output data bytes.',
+        );
       }
 
       return Uint8List.fromList(bytePtr.cast<Uint8>().asTypedList(length));
@@ -193,7 +207,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     try {
       final colorSpace = CGImageGetColorSpace(originalImage);
       if (colorSpace == nullptr) {
-        throw Exception('Failed to get color space from image.');
+        throw const ImageConversionException(
+          'Failed to get color space from image for resizing.',
+        );
       }
 
       final bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
@@ -209,7 +225,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         bitmapInfo,
       );
       if (context == nullptr) {
-        throw Exception('Failed to create bitmap context for resizing.');
+        throw const ImageConversionException(
+          'Failed to create bitmap context for resizing.',
+        );
       }
 
       CGContextSetInterpolationQuality(
@@ -227,7 +245,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
       final resizedImage = CGBitmapContextCreateImage(context);
       if (resizedImage == nullptr) {
-        throw Exception('Failed to create resized image from context.');
+        throw const ImageConversionException(
+          'Failed to create resized image from context.',
+        );
       }
       return resizedImage;
     } finally {

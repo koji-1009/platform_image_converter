@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'output_format.dart';
-import 'output_resize.dart';
+import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 
 /// Platform-specific image converter interface.
 ///
@@ -27,7 +27,9 @@ abstract interface class ImageConverterPlatform {
   /// **Throws:**
   /// - [UnimplementedError]: If not implemented by platform subclass
   /// - [UnsupportedError]: If format is not supported
-  /// - [Exception]: If conversion fails
+  /// - [ImageDecodingException]: If the input image data cannot be decoded.
+  /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
+  /// - [ImageConversionException]: For other general errors during the conversion process.
   Future<Uint8List> convert({
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
