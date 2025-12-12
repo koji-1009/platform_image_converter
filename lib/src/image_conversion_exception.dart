@@ -24,7 +24,7 @@ class ImageDecodingException extends ImageConversionException {
 class ImageEncodingException extends ImageConversionException {
   /// Creates an [ImageEncodingException] with the given [message].
   ImageEncodingException(this.format, [String? message])
-      : super(message ?? 'Failed to encode image to ${format.name}');
+    : super(message ?? 'Failed to encode image to ${format.name}');
 
   final OutputFormat format;
 }

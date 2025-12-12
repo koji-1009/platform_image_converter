@@ -113,7 +113,7 @@ void main() {
       const originalWidth = 10000;
       const originalHeight = 5000;
 
-      const resizeMode = FitResizeMode(width: 100,);
+      const resizeMode = FitResizeMode(width: 100);
       final (width, height) = resizeMode.calculateSize(
         originalWidth,
         originalHeight,
