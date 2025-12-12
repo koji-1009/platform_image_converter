@@ -2,6 +2,13 @@ name: platform_image_converter
 description: "A high-performance Flutter plugin for cross-platform image format conversion using native APIs."
 version: 1.0.0
 homepage: https://github.com/koji-1009/platform_image_converter
+topics:
+  - image
+platforms:
+  android:
+  ios:
+  macos:
+  web:
 
 environment:
   sdk: ^3.10.0
