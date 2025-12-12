@@ -69,6 +69,10 @@ class ImageConverter {
     ResizeMode resizeMode = const OriginalResizeMode(),
     bool runInIsolate = true,
   }) async {
+    assert(
+      quality >= 1 && quality <= 100,
+      'Quality must be between 1 and 100.',
+    );
     if (runInIsolate) {
       return await compute(_convertInIsolate, (
         inputData: inputData,

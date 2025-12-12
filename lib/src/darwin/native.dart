@@ -228,10 +228,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   }
 
   CGImageRef _resizeImage(CGImageRef originalImage, int width, int height) {
-    CGColorSpaceRef? colorSpace;
     CGContextRef? context;
     try {
-      colorSpace = CGImageGetColorSpace(originalImage);
+      final colorSpace = CGImageGetColorSpace(originalImage);
       if (colorSpace == nullptr) {
         throw Exception('Failed to get color space from image.');
       }
@@ -271,7 +270,6 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
       return resizedImage;
     } finally {
-      if (colorSpace != null) CFRelease(colorSpace.cast());
       if (context != null) CFRelease(context.cast());
     }
   }

@@ -44,17 +44,17 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     ResizeMode resizeMode = const OriginalResizeMode(),
   }) async {
     final img = HTMLImageElement();
-    final decodeCompeleter = Completer<void>();
+    final decodeCompleter = Completer<void>();
 
     final blob = Blob([inputData.toJS].toJS);
     final url = URL.createObjectURL(blob);
-    img.onLoad.listen((_) => decodeCompeleter.complete());
+    img.onLoad.listen((_) => decodeCompleter.complete());
     img.onError.listen((e) {
       URL.revokeObjectURL(url);
-      decodeCompeleter.completeError('Failed to load image: $e');
+      decodeCompleter.completeError('Failed to load image: $e');
     });
     img.src = url;
-    await decodeCompeleter.future;
+    await decodeCompleter.future;
     URL.revokeObjectURL(url);
 
     final canvas = HTMLCanvasElement();
