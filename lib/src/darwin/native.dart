@@ -73,58 +73,19 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         throw Exception('Failed to decode image.');
       }
 
-      switch (resizeMode) {
-        case OriginalResizeMode():
-          imageToEncode = originalImage;
-        case ExactResizeMode(width: final w, height: final h):
-          imageToEncode = _resizeImage(originalImage, w, h);
-        case FitResizeMode(:final width, :final height):
-          final originalWidth = CGImageGetWidth(originalImage);
-          final originalHeight = CGImageGetHeight(originalImage);
+      final originalWidth = CGImageGetWidth(originalImage);
+      final originalHeight = CGImageGetHeight(originalImage);
+      final (newWidth, newHeight) = resizeMode.calculateSize(
+        originalWidth,
+        originalHeight,
+      );
 
-          double newWidth;
-          double newHeight;
-
-          if (width != null && height != null) {
-            if (originalWidth <= width && originalHeight <= height) {
-              imageToEncode = originalImage;
-              break;
-            }
-            final aspectRatio = originalWidth / originalHeight;
-            newWidth = width.toDouble();
-            newHeight = newWidth / aspectRatio;
-            if (newHeight > height) {
-              newHeight = height.toDouble();
-              newWidth = newHeight * aspectRatio;
-            }
-          } else if (width != null) {
-            if (originalWidth <= width) {
-              imageToEncode = originalImage;
-              break;
-            }
-            newWidth = width.toDouble();
-            final aspectRatio = originalWidth / originalHeight;
-            newHeight = newWidth / aspectRatio;
-          } else if (height != null) {
-            if (originalHeight <= height) {
-              imageToEncode = originalImage;
-              break;
-            }
-            newHeight = height.toDouble();
-            final aspectRatio = originalWidth / originalHeight;
-            newWidth = newHeight * aspectRatio;
-          } else {
-            // This case should not be reachable due to the assertion
-            // in the FitResizeMode constructor.
-            imageToEncode = originalImage;
-            break;
-          }
-          imageToEncode = _resizeImage(
-            originalImage,
-            newWidth.round(),
-            newHeight.round(),
-          );
+      if (newWidth == originalWidth && newHeight == originalHeight) {
+        imageToEncode = originalImage;
+      } else {
+        imageToEncode = _resizeImage(originalImage, newWidth, newHeight);
       }
+
       if (imageToEncode == nullptr) {
         throw Exception('Failed to prepare image for encoding.');
       }

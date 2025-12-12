@@ -57,66 +57,23 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         throw Exception('Failed to decode image. Invalid image data.');
       }
 
-      switch (resizeMode) {
-        case OriginalResizeMode():
-          bitmapToCompress = originalBitmap;
-        case ExactResizeMode(width: final w, height: final h):
-          scaledBitmap = Bitmap.createScaledBitmap(
-            originalBitmap,
-            w,
-            h,
-            true, // filter
-          );
-          bitmapToCompress = scaledBitmap;
-        case FitResizeMode(:final width, :final height):
-          final originalWidth = originalBitmap.getWidth();
-          final originalHeight = originalBitmap.getHeight();
+      final originalWidth = originalBitmap.getWidth();
+      final originalHeight = originalBitmap.getHeight();
+      final (newWidth, newHeight) = resizeMode.calculateSize(
+        originalWidth,
+        originalHeight,
+      );
 
-          double newWidth;
-          double newHeight;
-
-          if (width != null && height != null) {
-            if (originalWidth <= width && originalHeight <= height) {
-              bitmapToCompress = originalBitmap;
-              break;
-            }
-            final aspectRatio = originalWidth / originalHeight;
-            newWidth = width.toDouble();
-            newHeight = newWidth / aspectRatio;
-            if (newHeight > height) {
-              newHeight = height.toDouble();
-              newWidth = newHeight * aspectRatio;
-            }
-          } else if (width != null) {
-            if (originalWidth <= width) {
-              bitmapToCompress = originalBitmap;
-              break;
-            }
-            newWidth = width.toDouble();
-            final aspectRatio = originalWidth / originalHeight;
-            newHeight = newWidth / aspectRatio;
-          } else if (height != null) {
-            if (originalHeight <= height) {
-              bitmapToCompress = originalBitmap;
-              break;
-            }
-            newHeight = height.toDouble();
-            final aspectRatio = originalWidth / originalHeight;
-            newWidth = newHeight * aspectRatio;
-          } else {
-            // This case should not be reachable due to the assertion
-            // in the FitResizeMode constructor.
-            bitmapToCompress = originalBitmap;
-            break;
-          }
-
-          scaledBitmap = Bitmap.createScaledBitmap(
-            originalBitmap,
-            newWidth.round(),
-            newHeight.round(),
-            true, // filter
-          );
-          bitmapToCompress = scaledBitmap;
+      if (newWidth == originalWidth && newHeight == originalHeight) {
+        bitmapToCompress = originalBitmap;
+      } else {
+        scaledBitmap = Bitmap.createScaledBitmap(
+          originalBitmap,
+          newWidth,
+          newHeight,
+          true, // filter
+        );
+        bitmapToCompress = scaledBitmap;
       }
 
       if (bitmapToCompress == null) {

@@ -59,65 +59,10 @@ final class ImageConverterWeb implements ImageConverterPlatform {
 
     final canvas = HTMLCanvasElement();
 
-    final int destWidth;
-    final int destHeight;
-
-    switch (resizeMode) {
-      case OriginalResizeMode():
-        destWidth = img.width;
-        destHeight = img.height;
-      case ExactResizeMode(width: final w, height: final h):
-        destWidth = w;
-        destHeight = h;
-      case FitResizeMode(:final width, :final height):
-        final originalWidth = img.width;
-        final originalHeight = img.height;
-
-        double newWidth;
-        double newHeight;
-
-        if (width != null && height != null) {
-          if (originalWidth <= width && originalHeight <= height) {
-            destWidth = originalWidth;
-            destHeight = originalHeight;
-            break;
-          }
-          final aspectRatio = originalWidth / originalHeight;
-          newWidth = width.toDouble();
-          newHeight = newWidth / aspectRatio;
-          if (newHeight > height) {
-            newHeight = height.toDouble();
-            newWidth = newHeight * aspectRatio;
-          }
-        } else if (width != null) {
-          if (originalWidth <= width) {
-            destWidth = originalWidth;
-            destHeight = originalHeight;
-            break;
-          }
-          newWidth = width.toDouble();
-          final aspectRatio = originalWidth / originalHeight;
-          newHeight = newWidth / aspectRatio;
-        } else if (height != null) {
-          if (originalHeight <= height) {
-            destWidth = originalWidth;
-            destHeight = originalHeight;
-            break;
-          }
-          newHeight = height.toDouble();
-          final aspectRatio = originalWidth / originalHeight;
-          newWidth = newHeight * aspectRatio;
-        } else {
-          // This case should not be reachable due to the assertion
-          // in the FitResizeMode constructor.
-          destWidth = originalWidth;
-          destHeight = originalHeight;
-          break;
-        }
-
-        destWidth = newWidth.round();
-        destHeight = newHeight.round();
-    }
+    final (destWidth, destHeight) = resizeMode.calculateSize(
+      img.width,
+      img.height,
+    );
 
     canvas.width = destWidth;
     canvas.height = destHeight;
