@@ -1,3 +1,7 @@
+## 1.0.2
+
+* dart format applied to all files.
+
 ## 1.0.1
 
 * Fix pubspec.ymml and .metadata files.
