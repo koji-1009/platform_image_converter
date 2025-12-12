@@ -94,4 +94,32 @@ void main() {
       });
     });
   });
+
+  group('Edge cases', () {
+    test('handles 1x1 image', () {
+      const originalWidth = 1;
+      const originalHeight = 1;
+
+      const resizeMode = FitResizeMode(width: 10, height: 10);
+      final (width, height) = resizeMode.calculateSize(
+        originalWidth,
+        originalHeight,
+      );
+      expect(width, originalWidth);
+      expect(height, originalHeight);
+    });
+
+    test('nandles very large images', () {
+      const originalWidth = 10000;
+      const originalHeight = 5000;
+
+      const resizeMode = FitResizeMode(width: 100,);
+      final (width, height) = resizeMode.calculateSize(
+        originalWidth,
+        originalHeight,
+      );
+      expect(width, 100);
+      expect(height, 50);
+    });
+  });
 }
