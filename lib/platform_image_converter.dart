@@ -10,6 +10,7 @@ import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:platform_image_converter/src/web/shared.dart';
 
+export 'src/image_conversion_exception.dart';
 export 'src/output_format.dart';
 export 'src/output_resize.dart';
 
@@ -42,8 +43,9 @@ class ImageConverter {
   ///
   /// **Throws:**
   /// - [UnsupportedError]: If the platform or output format is not supported.
-  /// - [Exception]: If the image decoding or encoding fails.
-  ///
+  /// - [ImageDecodingException]: If the input image data cannot be decoded.
+  /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
+  /// - [ImageConversionException]: For other general errors during the conversion process.  ///
   /// **Example - Convert HEIC to JPEG:**
   /// ```dart
   /// final jpegData = await ImageConverter.convert(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
@@ -45,17 +46,24 @@ final class ImageConverterWeb implements ImageConverterPlatform {
   }) async {
     final img = HTMLImageElement();
     final decodeCompleter = Completer<void>();
-
     final blob = Blob([inputData.toJS].toJS);
     final url = URL.createObjectURL(blob);
-    img.onLoad.listen((_) => decodeCompleter.complete());
-    img.onError.listen((e) {
-      URL.revokeObjectURL(url);
-      decodeCompleter.completeError('Failed to load image: $e');
-    });
+    img
+      ..onLoad.listen((_) {
+        decodeCompleter.complete();
+      })
+      ..onError.listen((event) {
+        decodeCompleter.completeError(
+          const ImageDecodingException('Failed to load image from data.'),
+        );
+      });
     img.src = url;
-    await decodeCompleter.future;
-    URL.revokeObjectURL(url);
+
+    try {
+      await decodeCompleter.future;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
 
     final canvas = HTMLCanvasElement();
 
@@ -86,7 +94,7 @@ final class ImageConverterWeb implements ImageConverterPlatform {
           encodeCompleter.complete(blob);
         } else {
           encodeCompleter.completeError(
-            'Failed to convert canvas to JPEG Blob.',
+            ImageEncodingException(format, 'Canvas toBlob returned null.'),
           );
         }
       }.toJS,

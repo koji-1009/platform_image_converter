@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:platform_image_converter/src/android/bindings.g.dart';
+import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
@@ -54,7 +55,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         inputData.length,
       );
       if (originalBitmap == null) {
-        throw Exception('Failed to decode image. Invalid image data.');
+        throw const ImageDecodingException('Invalid image data.');
       }
 
       final originalWidth = originalBitmap.getWidth();
@@ -78,7 +79,9 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
 
       if (bitmapToCompress == null) {
         // This should not happen if originalBitmap is valid
-        throw Exception('Bitmap could not be prepared for compression.');
+        throw const ImageConversionException(
+          'Bitmap could not be prepared for compression.',
+        );
       }
 
       compressFormat = switch (format) {
@@ -98,12 +101,15 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         outputStream,
       );
       if (!success) {
-        throw Exception('Failed to compress bitmap.');
+        throw ImageEncodingException(format, 'Failed to compress bitmap.');
       }
 
       outputJBytes = outputStream.toByteArray();
       if (outputJBytes == null) {
-        throw Exception('Failed to get byte array from output stream.');
+        throw ImageEncodingException(
+          format,
+          'Failed to get byte array from output stream.',
+        );
       }
 
       return Uint8List.fromList(outputJBytes.toList());
