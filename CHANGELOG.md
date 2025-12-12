@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Fix pubspec.ymml and .metadata files.
+
 ## 1.0.0
 
 * Initial stable release.
