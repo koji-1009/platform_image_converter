@@ -1,3 +1,9 @@
+## 1.0.0
+
+* Initial stable release.
+* Add `ImageConversionException` for better error handling.
+* Improve documentation and add usage examples.
+
 ## 0.2.0
 
 * Support resized image output.
