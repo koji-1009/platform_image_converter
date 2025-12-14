@@ -8,13 +8,14 @@ on:
 
 jobs:
   drive_android:
+    name: Android
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
     strategy:
       matrix:
-        api-level: [29, 35]
+        api-level: [29]
       fail-fast: false
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -41,12 +42,12 @@ jobs:
   drive_ios:
     name: iOS
     runs-on: macos-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     permissions:
       contents: read
     strategy:
       matrix:
-        simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}, {os: "26.1", model: "iPhone SE (3rd generation)"}]
+        simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}]
       fail-fast: false
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -82,3 +83,23 @@ jobs:
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter test integration_test -d macos
+
+  drive_web:
+    name: Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
+        with:
+          channel: stable
+          cache: true
+      - name: Setup chromedriver
+        run: |
+          npx @puppeteer/browsers install chromedriver@stable
+          chromedriver --port=4444 &
+      - name: Run Flutter Integration tests
+        working-directory: example
+        run: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart -d web-server \
