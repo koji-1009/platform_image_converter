@@ -45,7 +45,7 @@ class ImageConverter {
   /// - [UnsupportedError]: If the platform or output format is not supported.
   /// - [ImageDecodingException]: If the input image data cannot be decoded.
   /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
-  /// - [ImageConversionException]: For other general errors during the conversion process.  ///
+  /// - [ImageConversionException]: For other general errors during the conversion process.
   /// **Example - Convert HEIC to JPEG:**
   /// ```dart
   /// final jpegData = await ImageConverter.convert(

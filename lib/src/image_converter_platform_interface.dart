@@ -11,6 +11,7 @@ import 'package:platform_image_converter/src/output_resize.dart';
 /// **Implementations:**
 /// - [ImageConverterDarwin]: iOS and macOS using ImageIO
 /// - [ImageConverterAndroid]: Android using BitmapFactory
+/// - [ImageConverterWeb]: Web using Canvas API
 abstract interface class ImageConverterPlatform {
   /// Converts an image to a target format.
   ///

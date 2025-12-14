@@ -1,5 +1,7 @@
 # platform_image_converter
 
+[![pub package](https://img.shields.io/pub/v/platform_image_converter.svg)](https://pub.dev/packages/platform_image_converter)
+
 A high-performance Flutter plugin for cross-platform image format conversion and resizing using native APIs on iOS, macOS, Android, and Web.
 
 ## Features
@@ -88,8 +90,10 @@ static Future<Uint8List> convert({
 **Returns:** `Future<Uint8List>` containing the converted image data.
 
 **Throws:**
-- `UnsupportedError`: If the platform or format is not supported.
-- `Exception`: If conversion fails.
+- `UnsupportedError`: If the platform or output format is not supported.
+- `ImageDecodingException`: If the input image data cannot be decoded.
+- `ImageEncodingException`: If the image cannot be encoded to the target format.
+- `ImageConversionException`: For other general errors during the conversion process.
 
 ### `OutputFormat` Enum
 
