@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('ResizeMode', () {
