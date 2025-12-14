@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:integration_test/integration_test.dart';
 import 'package:platform_image_converter/platform_image_converter.dart';
-import 'package:image/image.dart' as img;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -281,7 +281,7 @@ void main() {
             quality: 100,
           ),
           throwsA(isA<UnsupportedError>()),
-          reason: 'WebP output is only supported on Android',
+          reason: 'WebP output is only supported on Android and Web.',
         );
       }
     });
@@ -318,7 +318,7 @@ void main() {
               quality: 50,
             ),
             throwsA(isA<UnsupportedError>()),
-            reason: 'WebP output is only supported on Android',
+            reason: 'WebP output is only supported on Android and Web.',
           );
         }
       },
@@ -373,7 +373,7 @@ void main() {
             quality: 100,
           ),
           throwsA(isA<UnsupportedError>()),
-          reason: 'WebP output is only supported on Android',
+          reason: 'WebP output is only supported on Android and Web.',
         );
       }
     });
@@ -415,7 +415,7 @@ void main() {
             format: OutputFormat.webp,
           ),
           throwsA(isA<UnsupportedError>()),
-          reason: 'WebP output should be unsupported on Web, iOS, and macOS',
+          reason: 'WebP output is not supported on this platform.',
         );
       }
     });

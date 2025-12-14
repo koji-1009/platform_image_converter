@@ -82,3 +82,22 @@ jobs:
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter test integration_test -d macos
+
+  drive_web:
+    name: Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
+        with:
+          channel: stable
+          cache: true
+      - uses: nanasess/setup-chromedriver@5ff44aa4cd179b6eac920e1146ac199e29bbad15 # v2
+      - name: Start chromedriver
+        run: chromedriver --port=4444 &
+      - name: Run Flutter Integration tests
+        working-directory: example
+        run: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart -d web-server \
