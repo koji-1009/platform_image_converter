@@ -8,6 +8,7 @@ on:
 
 jobs:
   drive_android:
+    name: Android
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -41,7 +42,7 @@ jobs:
   drive_ios:
     name: iOS
     runs-on: macos-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     permissions:
       contents: read
     strategy:
@@ -95,9 +96,10 @@ jobs:
         with:
           channel: stable
           cache: true
-      - uses: nanasess/setup-chromedriver@5ff44aa4cd179b6eac920e1146ac199e29bbad15 # v2
-      - name: Start chromedriver
-        run: chromedriver --port=4444 &
+      - name: Setup chromedriver
+        run: |
+          npx @puppeteer/browsers install chromedriver@stable
+          chromedriver --port=4444 &
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart -d web-server \
