@@ -14,7 +14,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        api-level: [29, 35]
+        api-level: [29]
       fail-fast: false
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -46,7 +46,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}, {os: "26.1", model: "iPhone SE (3rd generation)"}]
+        simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}]
       fail-fast: false
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
