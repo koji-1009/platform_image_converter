@@ -1,3 +1,9 @@
+## 1.0.3
+
+* Fix support flutter version constraint.
+* Fix documentations.
+* Update integration test.
+
 ## 1.0.2
 
 * dart format applied to all files.
