@@ -1,6 +1,7 @@
 # platform_image_converter
 
 [![pub package](https://img.shields.io/pub/v/platform_image_converter.svg)](https://pub.dev/packages/platform_image_converter)
+[![GitHub license](https://img.shields.io/github/license/koji-1009/platform_image_converter)](https://github.com/koji-1009/platform_image_converter/blob/main/LICENSE)
 
 A high-performance Flutter plugin for cross-platform image format conversion and resizing using native APIs on iOS, macOS, Android, and Web.
 
