@@ -40,20 +40,13 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
   }) async {
-    JByteArray? inputJBytes;
-    Bitmap? originalBitmap;
-    Bitmap? scaledBitmap;
-    Bitmap? bitmapToCompress;
-    Bitmap$CompressFormat? compressFormat;
-    ByteArrayOutputStream? outputStream;
-    JByteArray? outputJBytes;
-    try {
-      inputJBytes = JByteArray.from(inputData);
-      originalBitmap = BitmapFactory.decodeByteArray(
+    return using((arena) {
+      final inputJBytes = JByteArray.from(inputData)..releasedBy(arena);
+      final originalBitmap = BitmapFactory.decodeByteArray(
         inputJBytes,
         0,
         inputData.length,
-      );
+      )?..releasedBy(arena);
       if (originalBitmap == null) {
         throw const ImageDecodingException('Invalid image data.');
       }
@@ -65,26 +58,24 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         originalHeight,
       );
 
+      final Bitmap? bitmapToCompress;
       if (newWidth == originalWidth && newHeight == originalHeight) {
         bitmapToCompress = originalBitmap;
       } else {
-        scaledBitmap = Bitmap.createScaledBitmap(
+        bitmapToCompress = Bitmap.createScaledBitmap(
           originalBitmap,
           newWidth,
           newHeight,
           true, // filter
-        );
-        bitmapToCompress = scaledBitmap;
+        )?..releasedBy(arena);
       }
-
       if (bitmapToCompress == null) {
-        // This should not happen if originalBitmap is valid
         throw const ImageConversionException(
           'Bitmap could not be prepared for compression.',
         );
       }
 
-      compressFormat = switch (format) {
+      final compressFormat = switch (format) {
         OutputFormat.jpeg => Bitmap$CompressFormat.JPEG,
         OutputFormat.png => Bitmap$CompressFormat.PNG,
         // TODO: WebP is deprecated since Android 10, consider using WebP_LOSSY or WebP_LOSSLESS
@@ -92,9 +83,9 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         OutputFormat.heic => throw UnsupportedError(
           'HEIC output format is not supported on Android.',
         ),
-      };
+      }..releasedBy(arena);
 
-      outputStream = ByteArrayOutputStream();
+      final outputStream = ByteArrayOutputStream()..releasedBy(arena);
       final success = bitmapToCompress.compress(
         compressFormat,
         quality,
@@ -104,7 +95,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         throw ImageEncodingException(format, 'Failed to compress bitmap.');
       }
 
-      outputJBytes = outputStream.toByteArray();
+      final outputJBytes = outputStream.toByteArray()?..releasedBy(arena);
       if (outputJBytes == null) {
         throw ImageEncodingException(
           format,
@@ -113,15 +104,6 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       }
 
       return Uint8List.fromList(outputJBytes.toList());
-    } finally {
-      inputJBytes?.release();
-      originalBitmap?.recycle();
-      originalBitmap?.release();
-      scaledBitmap?.recycle();
-      scaledBitmap?.release();
-      compressFormat?.release();
-      outputStream?.release();
-      outputJBytes?.release();
-    }
+    });
   }
 }
