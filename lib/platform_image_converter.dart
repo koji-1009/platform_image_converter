@@ -85,7 +85,7 @@ class ImageConverter {
       ));
     } else {
       // The original implementation for those who opt-out.
-      return _platform.convert(
+      return await _platform.convert(
         inputData: inputData,
         format: format,
         quality: quality,
@@ -110,7 +110,7 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
 }
 
 /// Top-level function for `compute`.
-Future<Uint8List> _convertInIsolate(
+FutureOr<Uint8List> _convertInIsolate(
   ({
     Uint8List inputData,
     OutputFormat format,
@@ -119,12 +119,9 @@ Future<Uint8List> _convertInIsolate(
     TargetPlatform platform,
   })
   request,
-) {
-  final platform = _getPlatformForTarget(request.platform);
-  return platform.convert(
-    inputData: request.inputData,
-    format: request.format,
-    quality: request.quality,
-    resizeMode: request.resizeMode,
-  );
-}
+) => _getPlatformForTarget(request.platform).convert(
+  inputData: request.inputData,
+  format: request.format,
+  quality: request.quality,
+  resizeMode: request.resizeMode,
+);

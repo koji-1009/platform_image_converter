@@ -34,12 +34,12 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
   const ImageConverterAndroid();
 
   @override
-  Future<Uint8List> convert({
+  Uint8List convert({
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-  }) async {
+  }) {
     return using((arena) {
       final inputJBytes = JByteArray.from(inputData)..releasedBy(arena);
       final originalBitmap = BitmapFactory.decodeByteArray(

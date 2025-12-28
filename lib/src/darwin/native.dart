@@ -37,12 +37,12 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   const ImageConverterDarwin();
 
   @override
-  Future<Uint8List> convert({
+  Uint8List convert({
     required Uint8List inputData,
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-  }) async {
+  }) {
     Pointer<Uint8>? inputPtr;
     CFDataRef? cfData;
     CGImageSourceRef? imageSource;
