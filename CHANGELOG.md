@@ -1,3 +1,9 @@
+## 1.0.4
+
+* Fix lint rules.
+* Fix documentations.
+* Fix resource management.
+
 ## 1.0.3
 
 * Fix support flutter version constraint.
