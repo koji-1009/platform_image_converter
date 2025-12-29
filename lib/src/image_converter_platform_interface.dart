@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 
@@ -10,9 +11,9 @@ import 'package:platform_image_converter/src/output_resize.dart';
 /// Handles the core logic of image format conversion on each platform.
 ///
 /// **Implementations:**
-/// - [ImageConverterDarwin]: iOS and macOS using ImageIO
-/// - [ImageConverterAndroid]: Android using BitmapFactory
-/// - [ImageConverterWeb]: Web using Canvas API
+/// - ImageConverterDarwin: iOS and macOS using ImageIO
+/// - ImageConverterAndroid: Android using BitmapFactory
+/// - ImageConverterWeb: Web using Canvas API
 abstract interface class ImageConverterPlatform {
   /// Converts an image to a target format.
   ///
