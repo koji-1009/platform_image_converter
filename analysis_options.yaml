@@ -8,7 +8,6 @@ analyzer:
 
 linter:
   rules:
-    avoid_equals_and_hash_code_on_mutable_classes: true
     type_annotate_public_apis: true
     comment_references: true
     prefer_const_constructors: true
