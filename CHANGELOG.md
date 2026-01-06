@@ -1,3 +1,7 @@
+## 1.0.6
+
+* Fix lint rule.
+
 ## 1.0.5
 
 * Fix exclude rule.
