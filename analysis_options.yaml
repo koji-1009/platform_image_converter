@@ -4,7 +4,7 @@ analyzer:
   language:
     strict-raw-types: true
   exclude:
-    - '**.g.dart'
+    - '**/*.g.dart'
 
 linter:
   rules:
