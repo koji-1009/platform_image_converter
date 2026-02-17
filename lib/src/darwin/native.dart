@@ -212,8 +212,16 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         );
       }
 
-      final bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
-      final bitmapInfo = CGImageGetBitmapInfo(originalImage);
+      // FIX: Always use 8 bits/component for the output bitmap context.
+      // The source may be 16bpc (e.g. 16-bit PNGs), which CGBitmapContextCreate
+      // rejects for certain alpha/byte-order combinations, returning NULL.
+      // Since the output is always 8-bit (JPEG/PNG for display), 8bpc is correct.
+      const bitsPerComponent = 8;
+
+      // We cannot reuse the source image's bitmapInfo because it may contain
+      // 16-bit byte-order flags (e.g. kCGImageByteOrder16Little = 0x1000)
+      // that are incompatible with 8bpc, causing CGBitmapContextCreate to fail.
+      const bitmapInfo = 1; // kCGImageAlphaPremultipliedLast
 
       context = CGBitmapContextCreate(
         nullptr,
@@ -251,7 +259,13 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
       return resizedImage;
     } finally {
-      if (context != null) CFRelease(context.cast());
+      // FIX: Check both Dart null AND FFI nullptr before releasing.
+      // CFRelease(NULL) is a fatal error in CoreFoundation (brk #0x1).
+      // The Dart variable `context` is non-null once assigned, but the
+      // native pointer may be nullptr if CGBitmapContextCreate failed.
+      if (context != null && context != nullptr) {
+        CFRelease(context.cast());
+      }
     }
   }
 }
