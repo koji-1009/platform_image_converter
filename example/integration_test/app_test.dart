@@ -419,10 +419,155 @@ void main() {
       }
     });
   });
+
+  group('Conversion across source pixel formats', () {
+    final sources = <(String, img.Format, int)>[
+      ('8-bit grayscale', img.Format.uint8, 1),
+      ('8-bit RGB', img.Format.uint8, 3),
+      ('8-bit RGBA', img.Format.uint8, 4),
+      ('16-bit grayscale', img.Format.uint16, 1),
+      ('16-bit RGB', img.Format.uint16, 3),
+      ('16-bit RGBA', img.Format.uint16, 4),
+    ];
+
+    for (final (label, format, channels) in sources) {
+      test('$label resizes and stays coherent', () async {
+        final input = _makePng(format: format, numChannels: channels);
+
+        final converted = await ImageConverter.convert(
+          inputData: input,
+          format: OutputFormat.png,
+          resizeMode: ExactResizeMode(width: 64, height: 64),
+        );
+
+        expect(converted, isNotEmpty);
+        final decoded = img.decodeImage(converted);
+        expect(decoded, isNotNull);
+        expect(decoded!.width, 64);
+        expect(decoded.height, 64);
+
+        final info = _inspect(decoded);
+        expect(info.varies, isTrue, reason: '$label lost its gradient');
+        if (channels == 1) {
+          expect(info.achromatic, isTrue, reason: '$label is not gray anymore');
+        }
+      });
+    }
+
+    test('semi-transparent RGBA keeps its alpha through resize', () async {
+      final input = _makePng(
+        format: img.Format.uint8,
+        numChannels: 4,
+        transparent: true,
+      );
+
+      final converted = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.png,
+        resizeMode: ExactResizeMode(width: 64, height: 64),
+      );
+
+      final decoded = img.decodeImage(converted);
+      expect(decoded, isNotNull);
+      expect(
+        _inspect(decoded!).alphaVaries,
+        isTrue,
+        reason: 'transparency was not preserved',
+      );
+    });
+
+    test('indexed (palette) PNG resizes without crashing', () async {
+      final base = img.Image(width: 128, height: 128, numChannels: 3);
+      for (final pixel in base) {
+        final v = (((pixel.x + pixel.y) / 254) * 255).round();
+        pixel
+          ..r = v
+          ..g = v ~/ 2
+          ..b = 255 - v;
+      }
+      final input = img.encodePng(img.quantize(base, numberOfColors: 16));
+
+      final converted = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.png,
+        resizeMode: ExactResizeMode(width: 64, height: 64),
+      );
+
+      final decoded = img.decodeImage(converted);
+      expect(decoded, isNotNull);
+      expect(decoded!.width, 64);
+      expect(decoded.height, 64);
+      expect(_inspect(decoded).varies, isTrue);
+    });
+
+    test('16-bit source converts at original size (no-resize path)', () async {
+      final input = _makePng(format: img.Format.uint16, numChannels: 3);
+
+      final converted = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.png,
+        resizeMode: const OriginalResizeMode(),
+      );
+
+      final decoded = img.decodeImage(converted);
+      expect(decoded, isNotNull);
+      expect(decoded!.width, 128);
+      expect(decoded.height, 128);
+    });
+  });
 }
 
 /// Load an image from assets and return as [Uint8List]
 Future<Uint8List> _loadAssetImage(String assetPath) async {
   final data = await rootBundle.load(assetPath);
   return data.buffer.asUint8List();
+}
+
+/// Build a PNG with the given bit depth and channel count. When [transparent]
+/// the alpha channel ramps 0..max across X so transparency is exercised.
+Uint8List _makePng({
+  required img.Format format,
+  required int numChannels,
+  bool transparent = false,
+}) {
+  final image = img.Image(
+    width: 128,
+    height: 128,
+    format: format,
+    numChannels: numChannels,
+  );
+  final maxValue = format == img.Format.uint16 ? 65535 : 255;
+  for (final pixel in image) {
+    final v = (((pixel.x + pixel.y) / 254) * maxValue).round();
+    pixel
+      ..r = v
+      ..g = v
+      ..b = v
+      ..a = transparent ? ((pixel.x / 127) * maxValue).round() : maxValue;
+  }
+  return img.encodePng(image);
+}
+
+/// Sparse-sample [im]: whether it varies, stays achromatic (r==g==b), and
+/// whether its alpha varies. Tolerant — exact values differ per platform.
+({bool varies, bool achromatic, bool alphaVaries}) _inspect(img.Image im) {
+  int? firstLum;
+  int? firstAlpha;
+  var varies = false;
+  var achromatic = true;
+  var alphaVaries = false;
+  for (var y = 0; y < im.height; y += 8) {
+    for (var x = 0; x < im.width; x += 8) {
+      final p = im.getPixel(x, y);
+      final r = p.r.toInt();
+      final g = p.g.toInt();
+      final b = p.b.toInt();
+      final a = p.a.toInt();
+      final lum = r + g + b;
+      if ((firstLum ??= lum) != lum) varies = true;
+      if ((r - g).abs() > 4 || (r - b).abs() > 4) achromatic = false;
+      if ((firstAlpha ??= a) != a) alphaVaries = true;
+    }
+  }
+  return (varies: varies, achromatic: achromatic, alphaVaries: alphaVaries);
 }
