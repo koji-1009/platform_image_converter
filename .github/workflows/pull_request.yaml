@@ -11,9 +11,6 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-          cache: true
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
       - run: flutter analyze
       - run: dart format --output=none --set-exit-if-changed .

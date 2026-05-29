@@ -28,10 +28,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-          cache: true
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
       - uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
@@ -51,10 +48,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-          cache: true
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
       - uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5
         with:
           wait_for_boot: true
@@ -76,10 +70,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-          cache: true
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter test integration_test -d macos
@@ -92,10 +83,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
-        with:
-          channel: stable
-          cache: true
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
       - name: Setup chromedriver
         run: |
           npx @puppeteer/browsers install chromedriver@stable
