@@ -2,7 +2,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:objective_c/objective_c.dart';
+import 'package:platform_image_converter/src/darwin/apple_cf_types.dart';
 import 'package:platform_image_converter/src/darwin/bindings.g.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
@@ -117,11 +117,14 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
           'WebP output format is not supported on iOS/macOS via ImageIO.',
         ),
       };
-      final cfString = utiStr
-          .toNSString()
-          .ref
-          .retainAndAutorelease()
-          .cast<CFString>();
+      final cfString = CFStringCreateWithCString(
+        kCFAllocatorDefault,
+        utiStr.toNativeUtf8(allocator: arena).cast(),
+        kCFStringEncodingUTF8,
+      )..releasedBy(arena);
+      if (cfString == nullptr) {
+        throw ImageEncodingException(format, 'Failed to create UTI string.');
+      }
 
       final destination = CGImageDestinationCreateWithData(
         outputData,
@@ -136,8 +139,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         );
       }
 
-      final properties = _createPropertiesForFormat(format, quality)
-        ?..releasedBy(arena);
+      final properties = _createPropertiesForFormat(arena, format, quality);
       CGImageDestinationAddImage(
         destination,
         imageToEncode,
@@ -165,7 +167,12 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     });
   }
 
+  /// Builds the encoding options dictionary, or `null` for formats without
+  /// options (PNG/WebP). The quality [CFNumberRef] is registered in [arena]
+  /// (the caller's) so it outlives the dictionary's use during encoding; the
+  /// dictionary itself is returned for the caller to register.
   CFDictionaryRef? _createPropertiesForFormat(
+    Arena arena,
     OutputFormat format,
     int quality,
   ) {
@@ -173,28 +180,32 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       return null;
     }
 
-    return using((arena) {
-      final keys = arena<Pointer<CFString>>(1);
-      final values = arena<Pointer<Void>>(1);
+    final keys = arena<CFStringRef>(1);
+    final values = arena<Pointer<Void>>(1);
 
-      keys[0] = kCGImageDestinationLossyCompressionQuality;
-      values[0] = (quality / 100.0)
-          .toNSNumber()
-          .ref
-          .retainAndAutorelease()
-          .cast<Void>();
+    keys[0] = kCGImageDestinationLossyCompressionQuality;
 
-      final keyCallBacks = arena<CFDictionaryKeyCallBacks>();
-      final valueCallBacks = arena<CFDictionaryValueCallBacks>();
-      return CFDictionaryCreate(
-        kCFAllocatorDefault,
-        keys.cast(),
-        values.cast(),
-        1,
-        keyCallBacks,
-        valueCallBacks,
-      );
-    });
+    final qualityPtr = arena<Double>()..value = quality / 100.0;
+    final number = CFNumberCreate(
+      kCFAllocatorDefault,
+      kCFNumberFloat64Type,
+      qualityPtr.cast(),
+    )..releasedBy(arena);
+    if (number == nullptr) {
+      throw ImageEncodingException(format, 'Failed to create quality value.');
+    }
+    values[0] = number.cast<Void>();
+
+    // Null callbacks: the dictionary neither retains nor releases its key/value
+    // (their lifetimes are managed by the arena).
+    return CFDictionaryCreate(
+      kCFAllocatorDefault,
+      keys.cast(),
+      values.cast(),
+      1,
+      nullptr,
+      nullptr,
+    );
   }
 
   /// Draws [originalImage] into a fixed 8-bpc sRGB premultiplied-RGBA context at
@@ -225,7 +236,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       8, // bitsPerComponent
       0, // bytesPerRow (0 means calculate automatically)
       colorSpace,
-      CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value,
+      kCGImageAlphaPremultipliedLast,
     )..releasedBy(arena);
     if (context == nullptr) {
       throw const ImageConversionException(
@@ -233,10 +244,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       );
     }
 
-    CGContextSetInterpolationQuality(
-      context,
-      CGInterpolationQuality.kCGInterpolationHigh,
-    );
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
 
     final rect = Struct.create<CGRect>()
       ..origin.x = 0

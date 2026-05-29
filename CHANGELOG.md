@@ -2,6 +2,7 @@
 
 * Fix iOS/macOS crash when resizing 16-bit, grayscale, CMYK, or indexed images (#36).
 * Normalize iOS/macOS output to 8-bit sRGB. 16-bit and wide-gamut (e.g. Display P3) sources are no longer preserved, and output no longer depends on whether a resize occurred (behavior change).
+* Drop the `objective_c` dependency on iOS/macOS; the native backend now binds CoreFoundation/CoreGraphics/ImageIO directly via `dart:ffi`.
 
 ## 1.0.6
 

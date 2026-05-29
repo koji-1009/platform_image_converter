@@ -19,7 +19,6 @@ dependencies:
     sdk: flutter
   jni: ^0.15.2
   ffi: ^2.1.4
-  objective_c: ^9.2.1
   web: ^1.0.0
   
 dev_dependencies:
