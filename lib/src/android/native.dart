@@ -10,7 +10,8 @@ import 'package:platform_image_converter/src/output_resize.dart';
 /// Android image converter using BitmapFactory and Bitmap compression.
 ///
 /// Implements image conversion for Android 9+ (API level 28+) platforms using
-/// BitmapFactory for decoding and Bitmap.compress for encoding via JNI.\n///
+/// BitmapFactory for decoding and Bitmap.compress for encoding via JNI.
+///
 /// **Features:**
 /// - Supports JPEG, PNG, WebP, GIF, BMP input formats
 /// - Can read HEIC files (Android 9+)
