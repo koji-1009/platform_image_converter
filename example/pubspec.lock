@@ -259,10 +259,10 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: "8706a77e94c76fe9ec9315e18949cc9479cc03af97085ca9c1077b61323ea12d"
+      sha256: c2230682d5bc2362c1c9e8d3c7f406d9cbba23ab3f2e203a025dd47e0fb2e68f
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.2"
+    version: "1.0.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -365,7 +365,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.1.0"
+    version: "1.2.0"
   plugin_platform_interface:
     dependency: transitive
     description:
