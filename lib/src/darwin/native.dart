@@ -9,11 +9,12 @@ import 'package:platform_image_converter/src/image_converter_platform_interface.
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 
-/// Releases a CoreFoundation object, skipping both Dart `null` and FFI
-/// `nullptr`. `CFRelease(NULL)` is a fatal error.
-void _releaseCF(Pointer<NativeType>? ref) {
-  if (ref != null && ref != nullptr) {
-    CFRelease(ref.cast());
+extension on Pointer<Opaque> {
+  /// Registers this CoreFoundation object to be released with `CFRelease` when
+  /// [arena] is released, mirroring the Android backend's `releasedBy`. Skips
+  /// `nullptr` because `CFRelease(NULL)` is a fatal error.
+  void releasedBy(Arena arena) {
+    if (this != nullptr) arena.onReleaseAll(() => CFRelease(cast<Void>()));
   }
 }
 
@@ -51,35 +52,32 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
   }) {
-    Pointer<Uint8>? inputPtr;
-    CFDataRef? cfData;
-    CGImageSourceRef? imageSource;
-    CGImageRef? originalImage;
-    CGImageRef? imageToEncode;
-    CFMutableDataRef? outputData;
-    CGImageDestinationRef? destination;
-    CFDictionaryRef? properties;
-    try {
-      inputPtr = calloc<Uint8>(inputData.length);
+    return using((arena) {
+      final inputPtr = arena<Uint8>(inputData.length);
       inputPtr.asTypedList(inputData.length).setAll(0, inputData);
 
-      cfData = CFDataCreate(
+      final cfData = CFDataCreate(
         kCFAllocatorDefault,
         inputPtr.cast(),
         inputData.length,
-      );
+      )..releasedBy(arena);
       if (cfData == nullptr) {
         throw const ImageConversionException(
           'Failed to create CFData from input data.',
         );
       }
 
-      imageSource = CGImageSourceCreateWithData(cfData, nullptr);
+      final imageSource = CGImageSourceCreateWithData(cfData, nullptr)
+        ..releasedBy(arena);
       if (imageSource == nullptr) {
         throw const ImageDecodingException('Invalid image data.');
       }
 
-      originalImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nullptr);
+      final originalImage = CGImageSourceCreateImageAtIndex(
+        imageSource,
+        0,
+        nullptr,
+      )..releasedBy(arena);
       if (originalImage == nullptr) {
         throw const ImageDecodingException();
       }
@@ -94,15 +92,15 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       // Always render through the sRGB context (even at the original size) so
       // output is independent of whether a resize happened, matching the
       // Android/Web backends which always produce 8-bit sRGB.
-      imageToEncode = _renderToSRGB(originalImage, newWidth, newHeight);
+      final imageToEncode = _renderToSRGB(
+        arena,
+        originalImage,
+        newWidth,
+        newHeight,
+      );
 
-      if (imageToEncode == nullptr) {
-        throw const ImageConversionException(
-          'Failed to prepare image for encoding. Resizing may have failed.',
-        );
-      }
-
-      outputData = CFDataCreateMutable(kCFAllocatorDefault, 0);
+      final outputData = CFDataCreateMutable(kCFAllocatorDefault, 0)
+        ..releasedBy(arena);
       if (outputData == nullptr) {
         throw ImageEncodingException(format, 'Failed to create output CFData.');
       }
@@ -125,12 +123,12 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
           .retainAndAutorelease()
           .cast<CFString>();
 
-      destination = CGImageDestinationCreateWithData(
+      final destination = CGImageDestinationCreateWithData(
         outputData,
         cfString,
         1,
         nullptr,
-      );
+      )..releasedBy(arena);
       if (destination == nullptr) {
         throw ImageEncodingException(
           format,
@@ -138,7 +136,8 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         );
       }
 
-      properties = _createPropertiesForFormat(format, quality);
+      final properties = _createPropertiesForFormat(format, quality)
+        ?..releasedBy(arena);
       CGImageDestinationAddImage(
         destination,
         imageToEncode,
@@ -163,16 +162,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
 
       return Uint8List.fromList(bytePtr.cast<Uint8>().asTypedList(length));
-    } finally {
-      if (inputPtr != null) calloc.free(inputPtr);
-      _releaseCF(cfData);
-      _releaseCF(imageSource);
-      _releaseCF(imageToEncode);
-      _releaseCF(originalImage);
-      _releaseCF(outputData);
-      _releaseCF(destination);
-      _releaseCF(properties);
-    }
+    });
   }
 
   CFDictionaryRef? _createPropertiesForFormat(
@@ -211,55 +201,57 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   /// [width]x[height], normalizing any source format (16-bpc / grayscale / CMYK
   /// / indexed sources otherwise make CGBitmapContextCreate return NULL) and
   /// scaling in the same pass. Output is always 8-bit sRGB.
-  CGImageRef _renderToSRGB(CGImageRef originalImage, int width, int height) {
-    CGColorSpaceRef? colorSpace;
-    CGContextRef? context;
-    try {
-      colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-      if (colorSpace == nullptr) {
-        throw const ImageConversionException(
-          'Failed to create sRGB color space for resizing.',
-        );
-      }
-
-      context = CGBitmapContextCreate(
-        nullptr,
-        width,
-        height,
-        8, // bitsPerComponent
-        0, // bytesPerRow (0 means calculate automatically)
-        colorSpace,
-        CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value,
+  ///
+  /// The returned image is registered in [arena]; it is released when [arena]
+  /// is released, so callers must not release it themselves.
+  CGImageRef _renderToSRGB(
+    Arena arena,
+    CGImageRef originalImage,
+    int width,
+    int height,
+  ) {
+    final colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
+      ..releasedBy(arena);
+    if (colorSpace == nullptr) {
+      throw const ImageConversionException(
+        'Failed to create sRGB color space for resizing.',
       );
-      if (context == nullptr) {
-        throw const ImageConversionException(
-          'Failed to create bitmap context for resizing.',
-        );
-      }
-
-      CGContextSetInterpolationQuality(
-        context,
-        CGInterpolationQuality.kCGInterpolationHigh,
-      );
-
-      final rect = Struct.create<CGRect>()
-        ..origin.x = 0
-        ..origin.y = 0
-        ..size.width = width.toDouble()
-        ..size.height = height.toDouble();
-
-      CGContextDrawImage(context, rect, originalImage);
-
-      final resizedImage = CGBitmapContextCreateImage(context);
-      if (resizedImage == nullptr) {
-        throw const ImageConversionException(
-          'Failed to create resized image from context.',
-        );
-      }
-      return resizedImage;
-    } finally {
-      _releaseCF(context);
-      _releaseCF(colorSpace);
     }
+
+    final context = CGBitmapContextCreate(
+      nullptr,
+      width,
+      height,
+      8, // bitsPerComponent
+      0, // bytesPerRow (0 means calculate automatically)
+      colorSpace,
+      CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value,
+    )..releasedBy(arena);
+    if (context == nullptr) {
+      throw const ImageConversionException(
+        'Failed to create bitmap context for resizing.',
+      );
+    }
+
+    CGContextSetInterpolationQuality(
+      context,
+      CGInterpolationQuality.kCGInterpolationHigh,
+    );
+
+    final rect = Struct.create<CGRect>()
+      ..origin.x = 0
+      ..origin.y = 0
+      ..size.width = width.toDouble()
+      ..size.height = height.toDouble();
+
+    CGContextDrawImage(context, rect, originalImage);
+
+    final resizedImage = CGBitmapContextCreateImage(context)..releasedBy(arena);
+    if (resizedImage == nullptr) {
+      throw const ImageConversionException(
+        'Failed to create resized image from context.',
+      );
+    }
+    return resizedImage;
   }
 }
