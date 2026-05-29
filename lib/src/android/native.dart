@@ -104,7 +104,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         );
       }
 
-      return Uint8List.fromList(outputJBytes.asDart());
+      return Uint8List.fromList(outputJBytes.getRange(0, outputJBytes.length));
     });
   }
 }
