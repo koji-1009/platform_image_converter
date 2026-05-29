@@ -1,3 +1,8 @@
+## 1.1.0
+
+* Fix iOS/macOS crash when resizing 16-bit, grayscale, CMYK, or indexed images (#36).
+* Normalize iOS/macOS output to 8-bit sRGB. 16-bit and wide-gamut (e.g. Display P3) sources are no longer preserved, and output no longer depends on whether a resize occurred (behavior change).
+
 ## 1.0.6
 
 * Fix lint rule.

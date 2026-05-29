@@ -61,20 +61,19 @@ external int CFDataGetLength(CFDataRef theData);
 @ffi.Native<ffi.Pointer<ffi.UnsignedChar> Function(CFDataRef)>()
 external ffi.Pointer<ffi.UnsignedChar> CFDataGetBytePtr(CFDataRef theData);
 
+@ffi.Native<ffi.Pointer<objc.CFString>>()
+external ffi.Pointer<objc.CFString> kCGColorSpaceSRGB;
+
+@ffi.Native<CGColorSpaceRef Function(ffi.Pointer<objc.CFString>)>()
+external CGColorSpaceRef CGColorSpaceCreateWithName(
+  ffi.Pointer<objc.CFString> name,
+);
+
 @ffi.Native<ffi.Size Function(CGImageRef)>()
 external int CGImageGetWidth(CGImageRef image);
 
 @ffi.Native<ffi.Size Function(CGImageRef)>()
 external int CGImageGetHeight(CGImageRef image);
-
-@ffi.Native<ffi.Size Function(CGImageRef)>()
-external int CGImageGetBitsPerComponent(CGImageRef image);
-
-@ffi.Native<CGColorSpaceRef Function(CGImageRef)>()
-external CGColorSpaceRef CGImageGetColorSpace(CGImageRef image);
-
-@ffi.Native<ffi.Uint32 Function(CGImageRef)>()
-external int CGImageGetBitmapInfo(CGImageRef image);
 
 @ffi.Native<ffi.Void Function(CGContextRef, objc.CGRect, CGImageRef)>()
 external void CGContextDrawImage(
@@ -275,6 +274,32 @@ typedef CGColorSpaceRef = ffi.Pointer<CGColorSpace>;
 final class CGImage extends ffi.Opaque {}
 
 typedef CGImageRef = ffi.Pointer<CGImage>;
+
+enum CGImageAlphaInfo {
+  kCGImageAlphaNone(0),
+  kCGImageAlphaPremultipliedLast(1),
+  kCGImageAlphaPremultipliedFirst(2),
+  kCGImageAlphaLast(3),
+  kCGImageAlphaFirst(4),
+  kCGImageAlphaNoneSkipLast(5),
+  kCGImageAlphaNoneSkipFirst(6),
+  kCGImageAlphaOnly(7);
+
+  final int value;
+  const CGImageAlphaInfo(this.value);
+
+  static CGImageAlphaInfo fromValue(int value) => switch (value) {
+    0 => kCGImageAlphaNone,
+    1 => kCGImageAlphaPremultipliedLast,
+    2 => kCGImageAlphaPremultipliedFirst,
+    3 => kCGImageAlphaLast,
+    4 => kCGImageAlphaFirst,
+    5 => kCGImageAlphaNoneSkipLast,
+    6 => kCGImageAlphaNoneSkipFirst,
+    7 => kCGImageAlphaOnly,
+    _ => throw ArgumentError('Unknown value for CGImageAlphaInfo: $value'),
+  };
+}
 
 sealed class CGBitmapInfo {
   static const kCGBitmapAlphaInfoMask = 31;

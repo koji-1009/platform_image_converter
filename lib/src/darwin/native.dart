@@ -9,6 +9,14 @@ import 'package:platform_image_converter/src/image_converter_platform_interface.
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 
+/// Releases a CoreFoundation object, skipping both Dart `null` and FFI
+/// `nullptr`. `CFRelease(NULL)` is a fatal error.
+void _releaseCF(Pointer<NativeType>? ref) {
+  if (ref != null && ref != nullptr) {
+    CFRelease(ref.cast());
+  }
+}
+
 /// iOS/macOS image converter using ImageIO framework.
 ///
 /// Implements image conversion for iOS 14+ and macOS 10.15+ platforms using
@@ -83,11 +91,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         originalHeight,
       );
 
-      if (newWidth == originalWidth && newHeight == originalHeight) {
-        imageToEncode = originalImage;
-      } else {
-        imageToEncode = _resizeImage(originalImage, newWidth, newHeight);
-      }
+      // Always render through the sRGB context (even at the original size) so
+      // output is independent of whether a resize happened, matching the
+      // Android/Web backends which always produce 8-bit sRGB.
+      imageToEncode = _renderToSRGB(originalImage, newWidth, newHeight);
 
       if (imageToEncode == nullptr) {
         throw const ImageConversionException(
@@ -158,15 +165,13 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       return Uint8List.fromList(bytePtr.cast<Uint8>().asTypedList(length));
     } finally {
       if (inputPtr != null) calloc.free(inputPtr);
-      if (cfData != null) CFRelease(cfData.cast());
-      if (imageSource != null) CFRelease(imageSource.cast());
-      if (imageToEncode != null && imageToEncode != originalImage) {
-        CFRelease(imageToEncode.cast());
-      }
-      if (originalImage != null) CFRelease(originalImage.cast());
-      if (outputData != null) CFRelease(outputData.cast());
-      if (destination != null) CFRelease(destination.cast());
-      if (properties != null) CFRelease(properties.cast());
+      _releaseCF(cfData);
+      _releaseCF(imageSource);
+      _releaseCF(imageToEncode);
+      _releaseCF(originalImage);
+      _releaseCF(outputData);
+      _releaseCF(destination);
+      _releaseCF(properties);
     }
   }
 
@@ -202,27 +207,29 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     });
   }
 
-  CGImageRef _resizeImage(CGImageRef originalImage, int width, int height) {
+  /// Draws [originalImage] into a fixed 8-bpc sRGB premultiplied-RGBA context at
+  /// [width]x[height], normalizing any source format (16-bpc / grayscale / CMYK
+  /// / indexed sources otherwise make CGBitmapContextCreate return NULL) and
+  /// scaling in the same pass. Output is always 8-bit sRGB.
+  CGImageRef _renderToSRGB(CGImageRef originalImage, int width, int height) {
+    CGColorSpaceRef? colorSpace;
     CGContextRef? context;
     try {
-      final colorSpace = CGImageGetColorSpace(originalImage);
+      colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
       if (colorSpace == nullptr) {
         throw const ImageConversionException(
-          'Failed to get color space from image for resizing.',
+          'Failed to create sRGB color space for resizing.',
         );
       }
-
-      final bitsPerComponent = CGImageGetBitsPerComponent(originalImage);
-      final bitmapInfo = CGImageGetBitmapInfo(originalImage);
 
       context = CGBitmapContextCreate(
         nullptr,
         width,
         height,
-        bitsPerComponent,
+        8, // bitsPerComponent
         0, // bytesPerRow (0 means calculate automatically)
         colorSpace,
-        bitmapInfo,
+        CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value,
       );
       if (context == nullptr) {
         throw const ImageConversionException(
@@ -251,7 +258,8 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       }
       return resizedImage;
     } finally {
-      if (context != null) CFRelease(context.cast());
+      _releaseCF(context);
+      _releaseCF(colorSpace);
     }
   }
 }

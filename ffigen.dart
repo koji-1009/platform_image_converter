@@ -27,11 +27,10 @@ final config = FfiGenerator(
     'CGImageDestinationAddImage',
     'CGImageDestinationFinalize',
     // CGImage operations
-    'CGImageGetBitsPerComponent',
-    'CGImageGetBitmapInfo',
-    'CGImageGetColorSpace',
     'CGImageGetWidth',
     'CGImageGetHeight',
+    // CGColorSpace operations
+    'CGColorSpaceCreateWithName',
     // CGContext operations
     'CGContextDrawImage',
     'CGContextSetInterpolationQuality',
@@ -46,7 +45,9 @@ final config = FfiGenerator(
     'kCGImageDestinationLossyCompressionQuality',
     'kCFTypeDictionaryValueCallBacks',
     'kCFTypeDictionaryKeyCallBacks',
+    'kCGColorSpaceSRGB',
   }),
+  enums: Enums.includeSet({'CGImageAlphaInfo'}),
   typedefs: Typedefs.includeSet({
     'CFDataRef',
     'CFDictionaryRef',
