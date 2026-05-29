@@ -109,7 +109,7 @@ void main() {
       expect(height, originalHeight);
     });
 
-    test('nandles very large images', () {
+    test('handles very large images', () {
       const originalWidth = 10000;
       const originalHeight = 5000;
 
@@ -120,6 +120,22 @@ void main() {
       );
       expect(width, 100);
       expect(height, 50);
+    });
+
+    test('ExactResizeMode rejects non-positive dimensions', () {
+      expect(
+        () => ExactResizeMode(width: 0, height: 10),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => ExactResizeMode(width: 10, height: -1),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('FitResizeMode rejects non-positive dimensions', () {
+      expect(() => FitResizeMode(width: 0), throwsA(isA<AssertionError>()));
+      expect(() => FitResizeMode(height: -5), throwsA(isA<AssertionError>()));
     });
   });
 }

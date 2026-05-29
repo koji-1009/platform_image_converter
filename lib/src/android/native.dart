@@ -9,7 +9,7 @@ import 'package:platform_image_converter/src/output_resize.dart';
 
 /// Android image converter using BitmapFactory and Bitmap compression.
 ///
-/// Implements image conversion for Android 9+ (API level 28+) platforms using
+/// Implements image conversion on Android using
 /// BitmapFactory for decoding and Bitmap.compress for encoding via JNI.
 ///
 /// **Features:**

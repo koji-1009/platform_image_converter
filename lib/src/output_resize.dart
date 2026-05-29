@@ -21,7 +21,8 @@ class OriginalResizeMode extends ResizeMode {
 /// A resize mode that resizes the image to exact dimensions,
 /// possibly changing the aspect ratio.
 class ExactResizeMode extends ResizeMode {
-  const ExactResizeMode({required this.width, required this.height});
+  const ExactResizeMode({required this.width, required this.height})
+    : assert(width > 0 && height > 0, 'width and height must be positive');
 
   /// The target width for the resized image.
   final int width;
@@ -42,7 +43,9 @@ class ExactResizeMode extends ResizeMode {
 /// scaled up.
 class FitResizeMode extends ResizeMode {
   const FitResizeMode({this.width, this.height})
-    : assert(width != null || height != null);
+    : assert(width != null || height != null),
+      assert((width ?? 1) > 0, 'width must be positive'),
+      assert((height ?? 1) > 0, 'height must be positive');
 
   /// The maximum width for the resized image.
   final int? width;

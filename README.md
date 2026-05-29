@@ -130,6 +130,8 @@ The iOS/macOS implementation uses the [ImageIO](https://developer.apple.com/docu
 3. **Encoding**: `CGImageDestinationCreateWithData` encodes the final `CGImage` to the target format.
 4. **Quality**: Uses `kCGImageDestinationLossyCompressionQuality` for JPEG/HEIC.
 
+**Note:** Every conversion renders through a fixed 8-bit sRGB context — even when no resize is requested — so iOS/macOS output is always 8-bit sRGB. 16-bit and wide-gamut (e.g. Display P3) sources are not preserved, keeping output consistent with the Android and Web backends.
+
 ### Android Implementation
 
 The Android implementation uses [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)):

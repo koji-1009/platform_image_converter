@@ -22,7 +22,7 @@ abstract interface class ImageConverterPlatform {
   /// **Parameters:**
   /// - [inputData]: Raw bytes of the image to convert
   /// - [format]: Target [OutputFormat] (default: [OutputFormat.jpeg])
-  /// - [quality]: Compression quality 1-100 for lossy formats (default: 95)
+  /// - [quality]: Compression quality 1-100 for lossy formats (default: 100)
   /// - [resizeMode]: The resize mode to apply to the image.
   ///
   /// **Returns:** Converted image data as [Uint8List]
