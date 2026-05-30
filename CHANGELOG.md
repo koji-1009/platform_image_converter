@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Web: render resizes with `imageSmoothingQuality = 'high'` so downscaled output quality matches the iOS/macOS (`kCGInterpolationHigh`) and Android (`filter: true`) backends.
+
 ## 1.2.0
 
 * Upgrade the `jni` dependency to `^1.0.0` and regenerate the Android bindings with `jnigen` 0.16.0. The minimum `jni` version is now 1.0.0 (previously 0.15.2); this major bump of a direct dependency may affect dependency resolution for consumers that also depend on `jni`.
