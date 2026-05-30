@@ -42,7 +42,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
     ResizeMode resizeMode = const OriginalResizeMode(),
   }) {
     return using((arena) {
-      final inputJBytes = JByteArray.from(inputData)..releasedBy(arena);
+      final inputJBytes = JByteArray.of(inputData)..releasedBy(arena);
       final originalBitmap = BitmapFactory.decodeByteArray(
         inputJBytes,
         0,
@@ -52,8 +52,8 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         throw const ImageDecodingException('Invalid image data.');
       }
 
-      final originalWidth = originalBitmap.getWidth();
-      final originalHeight = originalBitmap.getHeight();
+      final originalWidth = originalBitmap.width;
+      final originalHeight = originalBitmap.height;
       final (newWidth, newHeight) = resizeMode.calculateSize(
         originalWidth,
         originalHeight,
@@ -104,7 +104,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         );
       }
 
-      return Uint8List.fromList(outputJBytes.toList());
+      return Uint8List.fromList(outputJBytes.getRange(0, outputJBytes.length));
     });
   }
 }
