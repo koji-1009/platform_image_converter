@@ -75,7 +75,9 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     canvas.width = destWidth;
     canvas.height = destHeight;
 
-    final ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    final ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+      ..imageSmoothingEnabled = true
+      ..imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, destWidth, destHeight);
 
     final encodeCompleter = Completer<Blob>();
