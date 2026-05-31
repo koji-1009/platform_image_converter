@@ -101,8 +101,9 @@ class UnsupportedPlatformException extends ImageConversionException {
   /// overriding the default [message].
   UnsupportedPlatformException(this.platform, [String? message])
     : super(
-        message ?? 'Image conversion is not supported on this platform: '
-            '$platform',
+        message ??
+            'Image conversion is not supported on this platform: '
+                '$platform',
       );
 
   /// The platform that has no image-conversion backend.
