@@ -92,6 +92,27 @@ jobs:
         working-directory: example
         run: flutter test integration_test/app_test.dart -d windows
 
+  drive_linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      # GTK build deps for the Linux desktop runner; libgtk-3-dev pulls in
+      # GdkPixbuf with its built-in JPEG/PNG loaders. The WebP/HEIF loaders are
+      # intentionally not installed, so the WebP path exercises the
+      # codecUnavailable branch. xvfb provides a headless display.
+      - name: Install Linux build and GTK dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev xvfb
+      - uses: koji-1009/setup-flutter@7e963b8ba06dfc8ea08c6d16371473b4a8b32819 # v1.1.5
+      - name: Run Flutter Integration tests
+        working-directory: example
+        run: xvfb-run -a flutter test integration_test/app_test.dart -d linux
+
   drive_web:
     name: Web
     runs-on: ubuntu-latest
