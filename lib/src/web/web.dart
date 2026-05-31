@@ -25,7 +25,7 @@ import 'package:web/web.dart';
 /// - `HTMLCanvasElement.toBlob`: Encode canvas to target format
 ///
 /// **Limitations:**
-/// - HEIC not supported (throws UnsupportedError)
+/// - HEIC not supported (throws UnsupportedFormatException)
 /// - Output format support depends on browser capabilities
 /// - JPEG and PNG are universally supported
 /// - WebP is widely supported in modern browsers
@@ -85,8 +85,10 @@ final class ImageConverterWeb implements ImageConverterPlatform {
       OutputFormat.jpeg => 'image/jpeg',
       OutputFormat.png => 'image/png',
       OutputFormat.webp => 'image/webp',
-      OutputFormat.heic => throw UnsupportedError(
-        'HEIC output format is not supported on Web.',
+      OutputFormat.heic => throw UnsupportedFormatException(
+        format,
+        UnsupportedFormatReason.platformUnsupported,
+        'HEIC output is not supported on Web.',
       ),
     };
 

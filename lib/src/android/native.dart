@@ -15,7 +15,7 @@ import 'package:platform_image_converter/src/output_resize.dart';
 /// **Features:**
 /// - Supports JPEG, PNG, WebP, GIF, BMP input formats
 /// - Can read HEIC files (Android 9+)
-/// - Cannot write HEIC (throws UnsupportedError)
+/// - Cannot write HEIC (throws UnsupportedFormatException)
 /// - Efficient memory usage with ByteArrayOutputStream
 ///
 /// **API Stack:**
@@ -81,8 +81,10 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         OutputFormat.png => Bitmap$CompressFormat.PNG,
         // TODO: WebP is deprecated since Android 10, consider using WebP_LOSSY or WebP_LOSSLESS
         OutputFormat.webp => Bitmap$CompressFormat.WEBP,
-        OutputFormat.heic => throw UnsupportedError(
-          'HEIC output format is not supported on Android.',
+        OutputFormat.heic => throw UnsupportedFormatException(
+          format,
+          UnsupportedFormatReason.platformUnsupported,
+          'HEIC output is not supported on Android.',
         ),
       }..releasedBy(arena);
 

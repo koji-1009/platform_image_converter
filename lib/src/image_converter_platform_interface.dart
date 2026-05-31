@@ -30,7 +30,8 @@ abstract interface class ImageConverterPlatform {
   ///
   /// **Throws:**
   /// - [UnimplementedError]: If not implemented by platform subclass
-  /// - [UnsupportedError]: If format is not supported
+  /// - [UnsupportedFormatException]: If the output format is not available in
+  ///   the current environment.
   /// - [ImageDecodingException]: If the input image data cannot be decoded.
   /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
   /// - [ImageConversionException]: For other general errors during the conversion process.

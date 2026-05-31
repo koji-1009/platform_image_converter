@@ -113,8 +113,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypeheic
         OutputFormat.heic => 'public.heic',
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypewebp
-        OutputFormat.webp => throw UnsupportedError(
-          'WebP output format is not supported on iOS/macOS via ImageIO.',
+        OutputFormat.webp => throw UnsupportedFormatException(
+          format,
+          UnsupportedFormatReason.platformUnsupported,
+          'WebP output is not supported on iOS/macOS via ImageIO.',
         ),
       };
       final cfString = CFStringCreateWithCString(
