@@ -168,7 +168,7 @@ The Linux implementation uses [GdkPixbuf](https://docs.gtk.org/gdk-pixbuf/), the
 2. **Resizing**: `gdk_pixbuf_scale_simple` with `GDK_INTERP_HYPER` (high-quality resampling) when the target size differs from the source.
 3. **Encoding**: `gdk_pixbuf_save_to_bufferv` writes the target format to an in-memory buffer. Quality for lossy formats (JPEG/WebP/HEIC) is passed via the `quality` option.
 
-**Note:** JPEG and PNG output are always available. WebP and HEIC depend on a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader), detected at runtime via `gdk_pixbuf_get_formats`. When none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. GdkPixbuf decodes to an 8-bit RGB/RGBA surface, keeping output consistent with the other backends.
+**Note:** JPEG and PNG output are always available. WebP and HEIC depend on a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader), detected at runtime via `gdk_pixbuf_get_formats`. When none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. GdkPixbuf decodes to an 8-bit RGB/RGBA surface (normalising bit depth like the other backends), but it performs no ICC colour management: unlike the iOS/macOS sRGB normalisation, non-sRGB or wide-gamut sources (e.g. Display P3, Adobe RGB) keep their original pixel values instead of being converted to sRGB. For the common case — sRGB or untagged JPEG/PNG, which is the bulk of real input — output matches the other backends; this caveat only affects colour-managed sources.
 
 ### Web Implementation
 
