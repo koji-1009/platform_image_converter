@@ -3,13 +3,13 @@
 [![pub package](https://img.shields.io/pub/v/platform_image_converter.svg)](https://pub.dev/packages/platform_image_converter)
 [![GitHub license](https://img.shields.io/github/license/koji-1009/platform_image_converter)](https://github.com/koji-1009/platform_image_converter/blob/main/LICENSE)
 
-A high-performance Flutter plugin for cross-platform image format conversion and resizing using native APIs on iOS, macOS, Android, and Web.
+A high-performance Flutter plugin for cross-platform image format conversion and resizing using native APIs on iOS, macOS, Android, Windows, and Web.
 
 ## Features
 
-- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS.
+- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS and Windows (where the OS HEVC/HEIF codec is present).
 - 📐 **High-Quality Resizing**: Resize images with different modes (`Fit`, `Exact`) while maintaining aspect ratio or targeting specific dimensions.
-- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `BitmapFactory` and `Bitmap` methods on Android, and the `Canvas API` on the Web.
+- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, and the `Canvas API` on the Web.
 - 🔒 **Efficient Native Interop**: Employs FFI and JNI to create a fast, type-safe bridge between Dart and native code, ensuring robust and reliable communication.
 
 ## Platform Support
@@ -19,11 +19,13 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 | iOS      | 14.0            | ImageIO, Core Graphics |
 | macOS    | 10.15           | ImageIO, Core Graphics |
 | Android  | 7               | BitmapFactory, Bitmap compression |
+| Windows  | 10              | Windows Imaging Component (WIC) |
 | Web      | -               | Canvas API |
 
 **Note:**
 - On iOS and macOS, WebP input is supported but WebP output is not supported.
 - On Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
+- On Windows, JPEG and PNG output are always supported. HEIC output is supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Microsoft Store "HEVC Video Extensions") — when the codec is absent, HEIC throws `UnsupportedError`. WebP output is not supported (Windows provides a WebP decoder but no encoder).
 - On Web, HEIC is not supported.
 
 ## Getting Started
@@ -60,6 +62,7 @@ final pngData = await ImageConverter.convert(
 ### Input Formats
 - **iOS/macOS**: JPEG, PNG, HEIC, WebP, BMP, GIF, TIFF, and more
 - **Android**: JPEG, PNG, WebP, GIF, BMP, HEIC (via BitmapFactory)
+- **Windows**: JPEG, PNG, GIF, BMP, TIFF, and (with the relevant OS codec) HEIC, WebP (via WIC)
 - **Web**: JPEG, PNG, WebP, GIF, BMP (via Canvas API)
 
 ### Output Formats
@@ -67,7 +70,7 @@ The supported output formats are defined by the `OutputFormat` enum, with platfo
 - **JPEG**: Supported on all platforms.
 - **PNG**: Supported on all platforms.
 - **WebP**: Supported on Android and Web.
-- **HEIC**: Supported on iOS/macOS only.
+- **HEIC**: Supported on iOS/macOS, and on Windows where the OS HEVC/HEIF codec is present.
 
 ## API Reference
 
@@ -140,6 +143,17 @@ The Android implementation uses [BitmapFactory](https://developer.android.com/re
 2. **Resizing**: `Bitmap.createScaledBitmap` is used to create a new, resized bitmap from the original, with filtering enabled for smoother results.
 3. **Compression**: `Bitmap.compress` encodes the final bitmap to the target format.
 4. **Buffer Management**: `ByteArrayOutputStream` manages output data.
+
+### Windows Implementation
+
+The Windows implementation uses the [Windows Imaging Component](https://learn.microsoft.com/en-us/windows/win32/wic/-wic-lib) (WIC), a COM-based imaging stack in `windowscodecs.dll`, bound directly via `dart:ffi` (no native build step):
+
+1. **Decoding**: `IWICImagingFactory::CreateDecoderFromStream` → `GetFrame` decodes the input.
+2. **Normalization**: `IWICFormatConverter` re-renders the frame to a fixed 32bpp BGRA surface, so output is independent of the source's pixel format (8/16-bit, grayscale, indexed, CMYK).
+3. **Resizing**: `IWICBitmapScaler` with high-quality cubic interpolation, when the target size differs.
+4. **Encoding**: `CreateEncoder` (by container GUID) → `IWICBitmapFrameEncode::WriteSource` encodes into an in-memory `IStream`. Quality for JPEG/HEIC is set via the encoder's `ImageQuality` property.
+
+**Note:** HEIC output requires the OS HEVC/HEIF codec. It ships with Windows 11 22H2+; on older Windows the encoder is absent and HEIC throws `UnsupportedError`. WebP output is not available (Windows provides a WebP decoder but no encoder). As with the other backends, every conversion renders through the fixed 8-bit surface even when no resize is requested.
 
 ### Web Implementation
 

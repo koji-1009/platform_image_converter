@@ -1,3 +1,7 @@
+## 1.3.0
+
+* Add Windows support via the Windows Imaging Component (WIC), bound directly with `dart:ffi` (no native build step). JPEG and PNG output are supported with the same resizing modes and quality control as the other platforms. HEIC output is also supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Store "HEVC Video Extensions") — when absent, HEIC throws `UnsupportedError`. WebP output is not supported (Windows has a WebP decoder but no encoder). As on the Darwin backend, every source is normalized to a fixed 8-bit surface before encoding.
+
 ## 1.2.1
 
 * Web: render resizes with `imageSmoothingQuality = 'high'` so downscaled output quality matches the iOS/macOS (`kCGInterpolationHigh`) and Android (`filter: true`) backends.
