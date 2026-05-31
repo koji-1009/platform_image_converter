@@ -10,6 +10,7 @@ import 'package:platform_image_converter/src/image_converter_platform_interface.
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:platform_image_converter/src/web/shared.dart';
+import 'package:platform_image_converter/src/windows/shared.dart';
 
 export 'src/image_conversion_exception.dart';
 export 'src/output_format.dart';
@@ -18,7 +19,7 @@ export 'src/output_resize.dart';
 /// Main entry point for image format conversion.
 ///
 /// Provides a platform-agnostic interface to convert images across iOS,
-/// macOS, and Android platforms using native APIs.
+/// macOS, Android, Windows, and Web platforms using native APIs.
 class ImageConverter {
   /// The platform-specific implementation of the image converter.
   ///
@@ -43,6 +44,7 @@ class ImageConverter {
   /// **Returns:** A [Future] that completes with the converted image data.
   ///
   /// **Throws:**
+  /// - [ArgumentError]: If [quality] is outside the 1-100 range.
   /// - [UnsupportedError]: If the platform or output format is not supported.
   /// - [ImageDecodingException]: If the input image data cannot be decoded.
   /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
@@ -72,10 +74,13 @@ class ImageConverter {
     ResizeMode resizeMode = const OriginalResizeMode(),
     bool runInIsolate = true,
   }) async {
-    assert(
-      quality >= 1 && quality <= 100,
-      'Quality must be between 1 and 100.',
-    );
+    if (quality < 1 || quality > 100) {
+      throw ArgumentError.value(
+        quality,
+        'quality',
+        'must be between 1 and 100',
+      );
+    }
     if (runInIsolate) {
       return await compute(_convertInIsolate, (
         inputData: inputData,
@@ -104,6 +109,7 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
   return switch (platform) {
     TargetPlatform.android => const ImageConverterAndroid(),
     TargetPlatform.iOS || TargetPlatform.macOS => const ImageConverterDarwin(),
+    TargetPlatform.windows => const ImageConverterWindows(),
     _ => throw UnsupportedError(
       'Image conversion is not supported on this platform: $platform',
     ),
