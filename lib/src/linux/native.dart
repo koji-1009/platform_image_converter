@@ -4,15 +4,19 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
-import 'package:platform_image_converter/src/linux/gdk_pixbuf.dart';
+import 'package:platform_image_converter/src/linux/bindings.g.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 
-extension on Pointer<Void> {
+// Narrowed to `Pointer<Opaque>` (the generated GdkPixbuf/GdkPixbufLoader handle
+// types extend `Opaque`) so this only applies to the owned object handles —
+// accidentally calling `..unrefBy` on an arena out-param (e.g. the GError**,
+// buffer, or size slots, which are not `Pointer<Opaque>`) is a compile error.
+extension on Pointer<Opaque> {
   /// Drops one GObject reference with `g_object_unref` when [arena] is released,
   /// mirroring the other FFI backends' `releasedBy`. Skips `nullptr`.
   void unrefBy(Arena arena) {
-    if (this != nullptr) arena.onReleaseAll(() => gObjectUnref(this));
+    if (this != nullptr) arena.onReleaseAll(() => g_object_unref(cast()));
   }
 }
 
@@ -54,7 +58,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     // modules whose presence — and save support — varies by distribution, so a
     // missing one is a recoverable codecUnavailable, not a hard error. This
     // also mirrors the other backends, which reject unsupported output up front.
-    if (!_writableTypes().contains(type)) {
+    if (!_hasWritableLoader(type)) {
       throw UnsupportedFormatException(
         format,
         UnsupportedFormatReason.codecUnavailable,
@@ -67,7 +71,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       final errorOut = arena<Pointer<GError>>();
 
       // Decode the input bytes through an in-memory loader.
-      final loader = gdkPixbufLoaderNew()..unrefBy(arena);
+      final loader = gdk_pixbuf_loader_new()..unrefBy(arena);
       if (loader == nullptr) {
         throw const ImageConversionException('Failed to create image loader.');
       }
@@ -75,32 +79,37 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       inputPtr.asTypedList(inputData.length).setAll(0, inputData);
       // close() must run even if write() succeeds; `||` short-circuits so close
       // is skipped when write already failed (and set *error).
-      if (gdkPixbufLoaderWrite(loader, inputPtr, inputData.length, errorOut) ==
+      if (gdk_pixbuf_loader_write(
+                loader,
+                inputPtr.cast(),
+                inputData.length,
+                errorOut,
+              ) ==
               0 ||
-          gdkPixbufLoaderClose(loader, errorOut) == 0) {
+          gdk_pixbuf_loader_close(loader, errorOut) == 0) {
         throw ImageDecodingException(
           _takeErrorMessage(errorOut) ?? 'Invalid image data.',
         );
       }
       // Borrowed reference owned by the loader; valid until the loader is unref.
-      final decoded = gdkPixbufLoaderGetPixbuf(loader);
+      final decoded = gdk_pixbuf_loader_get_pixbuf(loader);
       if (decoded == nullptr) {
         throw const ImageDecodingException();
       }
 
-      final width = gdkPixbufGetWidth(decoded);
-      final height = gdkPixbufGetHeight(decoded);
+      final width = gdk_pixbuf_get_width(decoded);
+      final height = gdk_pixbuf_get_height(decoded);
       final (newWidth, newHeight) = resizeMode.calculateSize(width, height);
 
       // Scale only when the size changes (high-quality resampling). The scaled
       // pixbuf is a new reference we own; the decoded one stays owned by loader.
       var pixbuf = decoded;
       if (newWidth != width || newHeight != height) {
-        pixbuf = gdkPixbufScaleSimple(
+        pixbuf = gdk_pixbuf_scale_simple(
           decoded,
           newWidth,
           newHeight,
-          gdkInterpHyper,
+          GdkInterpType.GDK_INTERP_HYPER,
         )..unrefBy(arena);
         if (pixbuf == nullptr) {
           throw const ImageConversionException('Failed to resize image.');
@@ -109,13 +118,13 @@ final class ImageConverterLinux implements ImageConverterPlatform {
 
       // Encode to an in-memory buffer.
       final (keys, values) = _encodeOptions(arena, format, quality);
-      final bufferOut = arena<Pointer<Uint8>>();
-      final sizeOut = arena<Size>();
-      if (gdkPixbufSaveToBufferv(
+      final bufferOut = arena<Pointer<Char>>();
+      final sizeOut = arena<UnsignedLong>();
+      if (gdk_pixbuf_save_to_bufferv(
             pixbuf,
             bufferOut,
             sizeOut,
-            type.toNativeUtf8(allocator: arena),
+            type.toNativeUtf8(allocator: arena).cast(),
             keys,
             values,
             errorOut,
@@ -128,37 +137,46 @@ final class ImageConverterLinux implements ImageConverterPlatform {
         throw ImageEncodingException(format, 'Encoder returned no data.');
       }
       try {
-        return Uint8List.fromList(buffer.asTypedList(sizeOut.value));
+        return Uint8List.fromList(
+          buffer.cast<Uint8>().asTypedList(sizeOut.value),
+        );
       } finally {
-        gFree(buffer.cast());
+        g_free(buffer.cast());
       }
     });
   }
 
-  /// The set of GdkPixbuf type names that have a *writable* loader installed.
-  Set<String> _writableTypes() {
-    final writable = <String>{};
-    final head = gdkPixbufGetFormats();
-    var node = head;
-    while (node != nullptr) {
-      final fmt = node.ref.data;
-      if (fmt != nullptr && gdkPixbufFormatIsWritable(fmt) != 0) {
-        final namePtr = gdkPixbufFormatGetName(fmt);
-        if (namePtr != nullptr) {
-          writable.add(namePtr.toDartString());
-          gFree(namePtr.cast());
+  /// Whether GdkPixbuf has a *writable* loader for the format's [type] name
+  /// (`jpeg`/`png`/`webp`/`heif`). JPEG/PNG are built in; WebP/HEIF are optional
+  /// modules whose presence varies by distribution. Walks the format list only
+  /// until the requested type is found, freeing each name and the list itself
+  /// even if a lookup throws.
+  bool _hasWritableLoader(String type) {
+    final head = gdk_pixbuf_get_formats();
+    try {
+      for (var node = head; node != nullptr; node = node.ref.next) {
+        final fmt = node.ref.data;
+        if (fmt == nullptr || gdk_pixbuf_format_is_writable(fmt.cast()) == 0) {
+          continue;
+        }
+        final namePtr = gdk_pixbuf_format_get_name(fmt.cast());
+        if (namePtr == nullptr) continue;
+        try {
+          if (namePtr.cast<Utf8>().toDartString() == type) return true;
+        } finally {
+          g_free(namePtr.cast());
         }
       }
-      node = node.ref.next;
+      return false;
+    } finally {
+      if (head != nullptr) g_slist_free(head);
     }
-    if (head != nullptr) gSListFree(head);
-    return writable;
   }
 
   /// Builds the NULL-terminated GdkPixbuf save option arrays. Lossy formats
   /// (JPEG/WebP/HEIC) take a `quality` (0-100); PNG is lossless and takes no
   /// options, so `gdk_pixbuf_save_to_bufferv` receives NULL arrays.
-  (Pointer<Pointer<Utf8>>, Pointer<Pointer<Utf8>>) _encodeOptions(
+  (Pointer<Pointer<Char>>, Pointer<Pointer<Char>>) _encodeOptions(
     Arena arena,
     OutputFormat format,
     int quality,
@@ -166,11 +184,11 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     if (format == OutputFormat.png) {
       return (nullptr, nullptr);
     }
-    final keys = arena<Pointer<Utf8>>(2);
-    keys[0] = 'quality'.toNativeUtf8(allocator: arena);
+    final keys = arena<Pointer<Char>>(2);
+    keys[0] = 'quality'.toNativeUtf8(allocator: arena).cast();
     keys[1] = nullptr;
-    final values = arena<Pointer<Utf8>>(2);
-    values[0] = '$quality'.toNativeUtf8(allocator: arena);
+    final values = arena<Pointer<Char>>(2);
+    values[0] = '$quality'.toNativeUtf8(allocator: arena).cast();
     values[1] = nullptr;
     return (keys, values);
   }
@@ -182,8 +200,10 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     final error = errorOut.value;
     if (error == nullptr) return null;
     final messagePtr = error.ref.message;
-    final message = messagePtr == nullptr ? null : messagePtr.toDartString();
-    gErrorFree(error);
+    final message = messagePtr == nullptr
+        ? null
+        : messagePtr.cast<Utf8>().toDartString();
+    g_error_free(error);
     errorOut.value = nullptr;
     return message;
   }
