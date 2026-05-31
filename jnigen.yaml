@@ -13,5 +13,8 @@ source_path:
   - 'java/'
 classes:
   - 'java.io.ByteArrayOutputStream'
+  - 'java.io.ByteArrayInputStream'
   - 'android/graphics/BitmapFactory'
   - 'android/graphics/Bitmap'
+  - 'android/graphics/Matrix'
+  - 'android/media/ExifInterface'

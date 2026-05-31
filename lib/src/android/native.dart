@@ -54,8 +54,15 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         throw const ImageDecodingException('Invalid image data.');
       }
 
-      final originalWidth = originalBitmap.width;
-      final originalHeight = originalBitmap.height;
+      // BitmapFactory ignores the EXIF orientation, so bake it into the pixels
+      // before measuring/resizing (a no-op for ORIENTATION_NORMAL or `ignore`).
+      // Resizing then operates on the oriented (display) dimensions.
+      final orientedBitmap = orientation == ExifOrientationPolicy.apply
+          ? _applyOrientation(arena, inputJBytes, originalBitmap)
+          : originalBitmap;
+
+      final originalWidth = orientedBitmap.width;
+      final originalHeight = orientedBitmap.height;
       final (newWidth, newHeight) = resizeMode.calculateSize(
         originalWidth,
         originalHeight,
@@ -63,10 +70,10 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
 
       final Bitmap? bitmapToCompress;
       if (newWidth == originalWidth && newHeight == originalHeight) {
-        bitmapToCompress = originalBitmap;
+        bitmapToCompress = orientedBitmap;
       } else {
         bitmapToCompress = Bitmap.createScaledBitmap(
-          originalBitmap,
+          orientedBitmap,
           newWidth,
           newHeight,
           true, // filter
@@ -110,5 +117,62 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
 
       return Uint8List.fromList(outputJBytes.getRange(0, outputJBytes.length));
     });
+  }
+
+  /// Reads the EXIF orientation from [inputJBytes] and, when it is not the
+  /// normal orientation, returns a new [Bitmap] with that rotation/mirror baked
+  /// into the pixels (via a [Matrix]); otherwise returns [src] unchanged.
+  ///
+  /// [ExifInterface] reads orientation from a stream over the original bytes;
+  /// formats without EXIF (or upright images) report `ORIENTATION_NORMAL`, so
+  /// this is a no-op for them. Every new JNI object is registered in [arena].
+  Bitmap _applyOrientation(Arena arena, JByteArray inputJBytes, Bitmap src) {
+    final exifStream = ByteArrayInputStream(inputJBytes)..releasedBy(arena);
+    final exif = ExifInterface.new$2(exifStream)..releasedBy(arena);
+    final tag = ExifInterface.TAG_ORIENTATION?..releasedBy(arena);
+    final value = exif.getAttributeInt(tag, ExifInterface.ORIENTATION_NORMAL);
+    if (value == ExifInterface.ORIENTATION_NORMAL || value < 1 || value > 8) {
+      return src;
+    }
+
+    // Canonical Android EXIF-orientation matrices (setRotate is exposed as the
+    // `rotate` setter by jnigen; degrees are clockwise).
+    final matrix = Matrix()..releasedBy(arena);
+    switch (value) {
+      case 2: // flip horizontal
+        matrix.setScale(-1.0, 1.0);
+      case 3: // rotate 180
+        matrix.rotate = 180.0;
+      case 4: // flip vertical
+        matrix
+          ..rotate = 180.0
+          ..postScale(-1.0, 1.0);
+      case 5: // transpose
+        matrix
+          ..rotate = 90.0
+          ..postScale(-1.0, 1.0);
+      case 6: // rotate 90 CW
+        matrix.rotate = 90.0;
+      case 7: // transverse
+        matrix
+          ..rotate = -90.0
+          ..postScale(-1.0, 1.0);
+      case 8: // rotate 270 CW
+        matrix.rotate = -90.0;
+    }
+
+    final oriented = Bitmap.createBitmap$2(
+      src,
+      0,
+      0,
+      src.width,
+      src.height,
+      matrix,
+      true, // filter
+    )?..releasedBy(arena);
+    if (oriented == null) {
+      throw const ImageConversionException('Failed to apply EXIF orientation.');
+    }
+    return oriented;
   }
 }

@@ -482,6 +482,426 @@ final class $ByteArrayOutputStream$Type$
   String get signature => r'Ljava/io/ByteArrayOutputStream;';
 }
 
+/// from: `java.io.ByteArrayInputStream`
+extension type ByteArrayInputStream._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(r'java/io/ByteArrayInputStream');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<ByteArrayInputStream> type =
+      $ByteArrayInputStream$Type$();
+  static final _id_new$ = _class.constructorId(r'([B)V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(byte[] bs)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ByteArrayInputStream(jni$_.JByteArray? bs) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    return _new$(
+      _class.reference.pointer,
+      _id_new$.pointer,
+      _$bs.pointer,
+    ).object<ByteArrayInputStream>();
+  }
+
+  static final _id_new$1 = _class.constructorId(r'([BII)V');
+
+  static final _new$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Int32, jni$_.Int32)
+                >,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void <init>(byte[] bs, int i, int i1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ByteArrayInputStream.new$1(
+    jni$_.JByteArray? bs,
+    core$_.int i,
+    core$_.int i1,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    return _new$1(
+      _class.reference.pointer,
+      _id_new$1.pointer,
+      _$bs.pointer,
+      i,
+      i1,
+    ).object<ByteArrayInputStream>();
+  }
+}
+
+extension ByteArrayInputStream$$Methods on ByteArrayInputStream {
+  static final _id_available = ByteArrayInputStream._class.instanceMethodId(
+    r'available',
+    r'()I',
+  );
+
+  static final _available =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public int available()`
+  core$_.int available() {
+    return _available(reference.pointer, _id_available.pointer).integer;
+  }
+
+  static final _id_close = ByteArrayInputStream._class.instanceMethodId(
+    r'close',
+    r'()V',
+  );
+
+  static final _close =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void close()`
+  void close() {
+    _close(reference.pointer, _id_close.pointer).check();
+  }
+
+  static final _id_mark = ByteArrayInputStream._class.instanceMethodId(
+    r'mark',
+    r'(I)V',
+  );
+
+  static final _mark =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int32,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void mark(int i)`
+  void mark(core$_.int i) {
+    _mark(reference.pointer, _id_mark.pointer, i).check();
+  }
+
+  static final _id_markSupported = ByteArrayInputStream._class.instanceMethodId(
+    r'markSupported',
+    r'()Z',
+  );
+
+  static final _markSupported =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean markSupported()`
+  core$_.bool markSupported() {
+    return _markSupported(reference.pointer, _id_markSupported.pointer).boolean;
+  }
+
+  static final _id_read = ByteArrayInputStream._class.instanceMethodId(
+    r'read',
+    r'()I',
+  );
+
+  static final _read =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public int read()`
+  core$_.int read() {
+    return _read(reference.pointer, _id_read.pointer).integer;
+  }
+
+  static final _id_read$1 = ByteArrayInputStream._class.instanceMethodId(
+    r'read',
+    r'([BII)I',
+  );
+
+  static final _read$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Int32, jni$_.Int32)
+                >,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public int read(byte[] bs, int i, int i1)`
+  core$_.int read$1(jni$_.JByteArray? bs, core$_.int i, core$_.int i1) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    return _read$1(
+      reference.pointer,
+      _id_read$1.pointer,
+      _$bs.pointer,
+      i,
+      i1,
+    ).integer;
+  }
+
+  static final _id_readAllBytes = ByteArrayInputStream._class.instanceMethodId(
+    r'readAllBytes',
+    r'()[B',
+  );
+
+  static final _readAllBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public byte[] readAllBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? readAllBytes() {
+    return _readAllBytes(
+      reference.pointer,
+      _id_readAllBytes.pointer,
+    ).object<jni$_.JByteArray?>();
+  }
+
+  static final _id_readNBytes = ByteArrayInputStream._class.instanceMethodId(
+    r'readNBytes',
+    r'([BII)I',
+  );
+
+  static final _readNBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Int32, jni$_.Int32)
+                >,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public int readNBytes(byte[] bs, int i, int i1)`
+  core$_.int readNBytes(jni$_.JByteArray? bs, core$_.int i, core$_.int i1) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    return _readNBytes(
+      reference.pointer,
+      _id_readNBytes.pointer,
+      _$bs.pointer,
+      i,
+      i1,
+    ).integer;
+  }
+
+  static final _id_reset = ByteArrayInputStream._class.instanceMethodId(
+    r'reset',
+    r'()V',
+  );
+
+  static final _reset =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void reset()`
+  void reset() {
+    _reset(reference.pointer, _id_reset.pointer).check();
+  }
+
+  static final _id_skip = ByteArrayInputStream._class.instanceMethodId(
+    r'skip',
+    r'(J)J',
+  );
+
+  static final _skip =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public long skip(long j)`
+  core$_.int skip(core$_.int j) {
+    return _skip(reference.pointer, _id_skip.pointer, j).long;
+  }
+
+  static final _id_transferTo = ByteArrayInputStream._class.instanceMethodId(
+    r'transferTo',
+    r'(Ljava/io/OutputStream;)J',
+  );
+
+  static final _transferTo =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public long transferTo(java.io.OutputStream outputStream)`
+  core$_.int transferTo(jni$_.JObject? outputStream) {
+    final _$outputStream = outputStream?.reference ?? jni$_.jNullReference;
+    return _transferTo(
+      reference.pointer,
+      _id_transferTo.pointer,
+      _$outputStream.pointer,
+    ).long;
+  }
+}
+
+final class $ByteArrayInputStream$Type$
+    extends jni$_.JType<ByteArrayInputStream> {
+  @jni$_.internal
+  const $ByteArrayInputStream$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Ljava/io/ByteArrayInputStream;';
+}
+
 /// from: `android.graphics.BitmapFactory$Options`
 extension type BitmapFactory$Options._(jni$_.JObject _$this)
     implements jni$_.JObject {
@@ -1825,7 +2245,7 @@ extension type Bitmap._(jni$_.JObject _$this) implements jni$_.JObject {
     core$_.int i1,
     core$_.int i2,
     core$_.int i3,
-    jni$_.JObject? matrix,
+    Matrix? matrix,
     core$_.bool z,
   ) {
     final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
@@ -4279,4 +4699,4404 @@ final class $Bitmap$Type$ extends jni$_.JType<Bitmap> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Landroid/graphics/Bitmap;';
+}
+
+/// from: `android.graphics.Matrix$ScaleToFit`
+extension type Matrix$ScaleToFit._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(
+    r'android/graphics/Matrix$ScaleToFit',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<Matrix$ScaleToFit> type = $Matrix$ScaleToFit$Type$();
+  static final _id_CENTER = _class.staticFieldId(
+    r'CENTER',
+    r'Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  /// from: `static public final android.graphics.Matrix$ScaleToFit CENTER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix$ScaleToFit get CENTER =>
+      _id_CENTER.get(_class, Matrix$ScaleToFit.type) as Matrix$ScaleToFit;
+
+  static final _id_END = _class.staticFieldId(
+    r'END',
+    r'Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  /// from: `static public final android.graphics.Matrix$ScaleToFit END`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix$ScaleToFit get END =>
+      _id_END.get(_class, Matrix$ScaleToFit.type) as Matrix$ScaleToFit;
+
+  static final _id_FILL = _class.staticFieldId(
+    r'FILL',
+    r'Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  /// from: `static public final android.graphics.Matrix$ScaleToFit FILL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix$ScaleToFit get FILL =>
+      _id_FILL.get(_class, Matrix$ScaleToFit.type) as Matrix$ScaleToFit;
+
+  static final _id_START = _class.staticFieldId(
+    r'START',
+    r'Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  /// from: `static public final android.graphics.Matrix$ScaleToFit START`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix$ScaleToFit get START =>
+      _id_START.get(_class, Matrix$ScaleToFit.type) as Matrix$ScaleToFit;
+
+  static final _id_values = _class.staticMethodId(
+    r'values',
+    r'()[Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  static final _values =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallStaticObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `static public android.graphics.Matrix$ScaleToFit[] values()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JArray<Matrix$ScaleToFit?>? values() {
+    return _values(
+      _class.reference.pointer,
+      _id_values.pointer,
+    ).object<jni$_.JArray<Matrix$ScaleToFit?>?>();
+  }
+
+  static final _id_valueOf = _class.staticMethodId(
+    r'valueOf',
+    r'(Ljava/lang/String;)Landroid/graphics/Matrix$ScaleToFit;',
+  );
+
+  static final _valueOf =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallStaticObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `static public android.graphics.Matrix$ScaleToFit valueOf(java.lang.String synthetic)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix$ScaleToFit? valueOf(jni$_.JString? synthetic) {
+    final _$synthetic = synthetic?.reference ?? jni$_.jNullReference;
+    return _valueOf(
+      _class.reference.pointer,
+      _id_valueOf.pointer,
+      _$synthetic.pointer,
+    ).object<Matrix$ScaleToFit?>();
+  }
+}
+
+final class $Matrix$ScaleToFit$Type$ extends jni$_.JType<Matrix$ScaleToFit> {
+  @jni$_.internal
+  const $Matrix$ScaleToFit$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/graphics/Matrix$ScaleToFit;';
+}
+
+/// from: `android.graphics.Matrix`
+extension type Matrix._(jni$_.JObject _$this) implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(r'android/graphics/Matrix');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<Matrix> type = $Matrix$Type$();
+  static final _id_IDENTITY_MATRIX = _class.staticFieldId(
+    r'IDENTITY_MATRIX',
+    r'Landroid/graphics/Matrix;',
+  );
+
+  /// from: `static public final android.graphics.Matrix IDENTITY_MATRIX`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Matrix? get IDENTITY_MATRIX =>
+      _id_IDENTITY_MATRIX.getNullable(_class, Matrix.type) as Matrix?;
+
+  /// from: `static public final int MPERSP_0`
+  static const MPERSP_0 = 6;
+
+  /// from: `static public final int MPERSP_1`
+  static const MPERSP_1 = 7;
+
+  /// from: `static public final int MPERSP_2`
+  static const MPERSP_2 = 8;
+
+  /// from: `static public final int MSCALE_X`
+  static const MSCALE_X = 0;
+
+  /// from: `static public final int MSCALE_Y`
+  static const MSCALE_Y = 4;
+
+  /// from: `static public final int MSKEW_X`
+  static const MSKEW_X = 1;
+
+  /// from: `static public final int MSKEW_Y`
+  static const MSKEW_Y = 3;
+
+  /// from: `static public final int MTRANS_X`
+  static const MTRANS_X = 2;
+
+  /// from: `static public final int MTRANS_Y`
+  static const MTRANS_Y = 5;
+  static final _id_new$ = _class.constructorId(r'()V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory Matrix() {
+    return _new$(_class.reference.pointer, _id_new$.pointer).object<Matrix>();
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(Landroid/graphics/Matrix;)V',
+  );
+
+  static final _new$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(android.graphics.Matrix matrix)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory Matrix.new$1(Matrix? matrix) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    return _new$1(
+      _class.reference.pointer,
+      _id_new$1.pointer,
+      _$matrix.pointer,
+    ).object<Matrix>();
+  }
+}
+
+extension Matrix$$Methods on Matrix {
+  static final _id_dump = Matrix._class.instanceMethodId(
+    r'dump',
+    r'(Ljava/io/PrintWriter;)V',
+  );
+
+  static final _dump =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public final void dump(java.io.PrintWriter printWriter)`
+  void dump(jni$_.JObject? printWriter) {
+    final _$printWriter = printWriter?.reference ?? jni$_.jNullReference;
+    _dump(reference.pointer, _id_dump.pointer, _$printWriter.pointer).check();
+  }
+
+  static final _id_equals = Matrix._class.instanceMethodId(
+    r'equals',
+    r'(Ljava/lang/Object;)Z',
+  );
+
+  static final _equals =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean equals(java.lang.Object object)`
+  core$_.bool equals(jni$_.JObject? object) {
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    return _equals(
+      reference.pointer,
+      _id_equals.pointer,
+      _$object.pointer,
+    ).boolean;
+  }
+
+  static final _id_getValues = Matrix._class.instanceMethodId(
+    r'getValues',
+    r'([F)V',
+  );
+
+  static final _getValues =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void getValues(float[] fs)`
+  void getValues(jni$_.JFloatArray? fs) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    _getValues(reference.pointer, _id_getValues.pointer, _$fs.pointer).check();
+  }
+
+  static final _id_hashCode$1 = Matrix._class.instanceMethodId(
+    r'hashCode',
+    r'()I',
+  );
+
+  static final _hashCode$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public int hashCode()`
+  core$_.int hashCode$1() {
+    return _hashCode$1(reference.pointer, _id_hashCode$1.pointer).integer;
+  }
+
+  static final _id_invert = Matrix._class.instanceMethodId(
+    r'invert',
+    r'(Landroid/graphics/Matrix;)Z',
+  );
+
+  static final _invert =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean invert(android.graphics.Matrix matrix)`
+  core$_.bool invert(Matrix? matrix) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    return _invert(
+      reference.pointer,
+      _id_invert.pointer,
+      _$matrix.pointer,
+    ).boolean;
+  }
+
+  static final _id_get$isAffine = Matrix._class.instanceMethodId(
+    r'isAffine',
+    r'()Z',
+  );
+
+  static final _get$isAffine =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isAffine()`
+  core$_.bool get isAffine {
+    return _get$isAffine(reference.pointer, _id_get$isAffine.pointer).boolean;
+  }
+
+  static final _id_get$isIdentity = Matrix._class.instanceMethodId(
+    r'isIdentity',
+    r'()Z',
+  );
+
+  static final _get$isIdentity =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isIdentity()`
+  core$_.bool get isIdentity {
+    return _get$isIdentity(
+      reference.pointer,
+      _id_get$isIdentity.pointer,
+    ).boolean;
+  }
+
+  static final _id_mapPoints = Matrix._class.instanceMethodId(
+    r'mapPoints',
+    r'([F)V',
+  );
+
+  static final _mapPoints =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void mapPoints(float[] fs)`
+  void mapPoints(jni$_.JFloatArray? fs) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    _mapPoints(reference.pointer, _id_mapPoints.pointer, _$fs.pointer).check();
+  }
+
+  static final _id_mapPoints$1 = Matrix._class.instanceMethodId(
+    r'mapPoints',
+    r'([F[F)V',
+  );
+
+  static final _mapPoints$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void mapPoints(float[] fs, float[] fs1)`
+  void mapPoints$1(jni$_.JFloatArray? fs, jni$_.JFloatArray? fs1) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    final _$fs1 = fs1?.reference ?? jni$_.jNullReference;
+    _mapPoints$1(
+      reference.pointer,
+      _id_mapPoints$1.pointer,
+      _$fs.pointer,
+      _$fs1.pointer,
+    ).check();
+  }
+
+  static final _id_mapPoints$2 = Matrix._class.instanceMethodId(
+    r'mapPoints',
+    r'([FI[FII)V',
+  );
+
+  static final _mapPoints$2 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Int32,
+                  )
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void mapPoints(float[] fs, int i, float[] fs1, int i1, int i2)`
+  void mapPoints$2(
+    jni$_.JFloatArray? fs,
+    core$_.int i,
+    jni$_.JFloatArray? fs1,
+    core$_.int i1,
+    core$_.int i2,
+  ) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    final _$fs1 = fs1?.reference ?? jni$_.jNullReference;
+    _mapPoints$2(
+      reference.pointer,
+      _id_mapPoints$2.pointer,
+      _$fs.pointer,
+      i,
+      _$fs1.pointer,
+      i1,
+      i2,
+    ).check();
+  }
+
+  static final _id_mapRadius = Matrix._class.instanceMethodId(
+    r'mapRadius',
+    r'(F)F',
+  );
+
+  static final _mapRadius =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallFloatMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public float mapRadius(float f)`
+  core$_.double mapRadius(core$_.double f) {
+    return _mapRadius(reference.pointer, _id_mapRadius.pointer, f).float;
+  }
+
+  static final _id_mapRect = Matrix._class.instanceMethodId(
+    r'mapRect',
+    r'(Landroid/graphics/RectF;)Z',
+  );
+
+  static final _mapRect =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean mapRect(android.graphics.RectF rectF)`
+  core$_.bool mapRect(jni$_.JObject? rectF) {
+    final _$rectF = rectF?.reference ?? jni$_.jNullReference;
+    return _mapRect(
+      reference.pointer,
+      _id_mapRect.pointer,
+      _$rectF.pointer,
+    ).boolean;
+  }
+
+  static final _id_mapRect$1 = Matrix._class.instanceMethodId(
+    r'mapRect',
+    r'(Landroid/graphics/RectF;Landroid/graphics/RectF;)Z',
+  );
+
+  static final _mapRect$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean mapRect(android.graphics.RectF rectF, android.graphics.RectF rectF1)`
+  core$_.bool mapRect$1(jni$_.JObject? rectF, jni$_.JObject? rectF1) {
+    final _$rectF = rectF?.reference ?? jni$_.jNullReference;
+    final _$rectF1 = rectF1?.reference ?? jni$_.jNullReference;
+    return _mapRect$1(
+      reference.pointer,
+      _id_mapRect$1.pointer,
+      _$rectF.pointer,
+      _$rectF1.pointer,
+    ).boolean;
+  }
+
+  static final _id_mapVectors = Matrix._class.instanceMethodId(
+    r'mapVectors',
+    r'([F)V',
+  );
+
+  static final _mapVectors =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void mapVectors(float[] fs)`
+  void mapVectors(jni$_.JFloatArray? fs) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    _mapVectors(
+      reference.pointer,
+      _id_mapVectors.pointer,
+      _$fs.pointer,
+    ).check();
+  }
+
+  static final _id_mapVectors$1 = Matrix._class.instanceMethodId(
+    r'mapVectors',
+    r'([F[F)V',
+  );
+
+  static final _mapVectors$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void mapVectors(float[] fs, float[] fs1)`
+  void mapVectors$1(jni$_.JFloatArray? fs, jni$_.JFloatArray? fs1) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    final _$fs1 = fs1?.reference ?? jni$_.jNullReference;
+    _mapVectors$1(
+      reference.pointer,
+      _id_mapVectors$1.pointer,
+      _$fs.pointer,
+      _$fs1.pointer,
+    ).check();
+  }
+
+  static final _id_mapVectors$2 = Matrix._class.instanceMethodId(
+    r'mapVectors',
+    r'([FI[FII)V',
+  );
+
+  static final _mapVectors$2 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Int32,
+                  )
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void mapVectors(float[] fs, int i, float[] fs1, int i1, int i2)`
+  void mapVectors$2(
+    jni$_.JFloatArray? fs,
+    core$_.int i,
+    jni$_.JFloatArray? fs1,
+    core$_.int i1,
+    core$_.int i2,
+  ) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    final _$fs1 = fs1?.reference ?? jni$_.jNullReference;
+    _mapVectors$2(
+      reference.pointer,
+      _id_mapVectors$2.pointer,
+      _$fs.pointer,
+      i,
+      _$fs1.pointer,
+      i1,
+      i2,
+    ).check();
+  }
+
+  static final _id_postConcat = Matrix._class.instanceMethodId(
+    r'postConcat',
+    r'(Landroid/graphics/Matrix;)Z',
+  );
+
+  static final _postConcat =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean postConcat(android.graphics.Matrix matrix)`
+  core$_.bool postConcat(Matrix? matrix) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    return _postConcat(
+      reference.pointer,
+      _id_postConcat.pointer,
+      _$matrix.pointer,
+    ).boolean;
+  }
+
+  static final _id_postRotate = Matrix._class.instanceMethodId(
+    r'postRotate',
+    r'(F)Z',
+  );
+
+  static final _postRotate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postRotate(float f)`
+  core$_.bool postRotate(core$_.double f) {
+    return _postRotate(reference.pointer, _id_postRotate.pointer, f).boolean;
+  }
+
+  static final _id_postRotate$1 = Matrix._class.instanceMethodId(
+    r'postRotate',
+    r'(FFF)Z',
+  );
+
+  static final _postRotate$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postRotate(float f, float f1, float f2)`
+  core$_.bool postRotate$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+  ) {
+    return _postRotate$1(
+      reference.pointer,
+      _id_postRotate$1.pointer,
+      f,
+      f1,
+      f2,
+    ).boolean;
+  }
+
+  static final _id_postScale = Matrix._class.instanceMethodId(
+    r'postScale',
+    r'(FF)Z',
+  );
+
+  static final _postScale =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postScale(float f, float f1)`
+  core$_.bool postScale(core$_.double f, core$_.double f1) {
+    return _postScale(reference.pointer, _id_postScale.pointer, f, f1).boolean;
+  }
+
+  static final _id_postScale$1 = Matrix._class.instanceMethodId(
+    r'postScale',
+    r'(FFFF)Z',
+  );
+
+  static final _postScale$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postScale(float f, float f1, float f2, float f3)`
+  core$_.bool postScale$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    return _postScale$1(
+      reference.pointer,
+      _id_postScale$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).boolean;
+  }
+
+  static final _id_postSkew = Matrix._class.instanceMethodId(
+    r'postSkew',
+    r'(FF)Z',
+  );
+
+  static final _postSkew =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postSkew(float f, float f1)`
+  core$_.bool postSkew(core$_.double f, core$_.double f1) {
+    return _postSkew(reference.pointer, _id_postSkew.pointer, f, f1).boolean;
+  }
+
+  static final _id_postSkew$1 = Matrix._class.instanceMethodId(
+    r'postSkew',
+    r'(FFFF)Z',
+  );
+
+  static final _postSkew$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postSkew(float f, float f1, float f2, float f3)`
+  core$_.bool postSkew$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    return _postSkew$1(
+      reference.pointer,
+      _id_postSkew$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).boolean;
+  }
+
+  static final _id_postTranslate = Matrix._class.instanceMethodId(
+    r'postTranslate',
+    r'(FF)Z',
+  );
+
+  static final _postTranslate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean postTranslate(float f, float f1)`
+  core$_.bool postTranslate(core$_.double f, core$_.double f1) {
+    return _postTranslate(
+      reference.pointer,
+      _id_postTranslate.pointer,
+      f,
+      f1,
+    ).boolean;
+  }
+
+  static final _id_preConcat = Matrix._class.instanceMethodId(
+    r'preConcat',
+    r'(Landroid/graphics/Matrix;)Z',
+  );
+
+  static final _preConcat =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean preConcat(android.graphics.Matrix matrix)`
+  core$_.bool preConcat(Matrix? matrix) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    return _preConcat(
+      reference.pointer,
+      _id_preConcat.pointer,
+      _$matrix.pointer,
+    ).boolean;
+  }
+
+  static final _id_preRotate = Matrix._class.instanceMethodId(
+    r'preRotate',
+    r'(F)Z',
+  );
+
+  static final _preRotate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preRotate(float f)`
+  core$_.bool preRotate(core$_.double f) {
+    return _preRotate(reference.pointer, _id_preRotate.pointer, f).boolean;
+  }
+
+  static final _id_preRotate$1 = Matrix._class.instanceMethodId(
+    r'preRotate',
+    r'(FFF)Z',
+  );
+
+  static final _preRotate$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preRotate(float f, float f1, float f2)`
+  core$_.bool preRotate$1(core$_.double f, core$_.double f1, core$_.double f2) {
+    return _preRotate$1(
+      reference.pointer,
+      _id_preRotate$1.pointer,
+      f,
+      f1,
+      f2,
+    ).boolean;
+  }
+
+  static final _id_preScale = Matrix._class.instanceMethodId(
+    r'preScale',
+    r'(FF)Z',
+  );
+
+  static final _preScale =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preScale(float f, float f1)`
+  core$_.bool preScale(core$_.double f, core$_.double f1) {
+    return _preScale(reference.pointer, _id_preScale.pointer, f, f1).boolean;
+  }
+
+  static final _id_preScale$1 = Matrix._class.instanceMethodId(
+    r'preScale',
+    r'(FFFF)Z',
+  );
+
+  static final _preScale$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preScale(float f, float f1, float f2, float f3)`
+  core$_.bool preScale$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    return _preScale$1(
+      reference.pointer,
+      _id_preScale$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).boolean;
+  }
+
+  static final _id_preSkew = Matrix._class.instanceMethodId(
+    r'preSkew',
+    r'(FF)Z',
+  );
+
+  static final _preSkew =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preSkew(float f, float f1)`
+  core$_.bool preSkew(core$_.double f, core$_.double f1) {
+    return _preSkew(reference.pointer, _id_preSkew.pointer, f, f1).boolean;
+  }
+
+  static final _id_preSkew$1 = Matrix._class.instanceMethodId(
+    r'preSkew',
+    r'(FFFF)Z',
+  );
+
+  static final _preSkew$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preSkew(float f, float f1, float f2, float f3)`
+  core$_.bool preSkew$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    return _preSkew$1(
+      reference.pointer,
+      _id_preSkew$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).boolean;
+  }
+
+  static final _id_preTranslate = Matrix._class.instanceMethodId(
+    r'preTranslate',
+    r'(FF)Z',
+  );
+
+  static final _preTranslate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public boolean preTranslate(float f, float f1)`
+  core$_.bool preTranslate(core$_.double f, core$_.double f1) {
+    return _preTranslate(
+      reference.pointer,
+      _id_preTranslate.pointer,
+      f,
+      f1,
+    ).boolean;
+  }
+
+  static final _id_rectStaysRect = Matrix._class.instanceMethodId(
+    r'rectStaysRect',
+    r'()Z',
+  );
+
+  static final _rectStaysRect =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean rectStaysRect()`
+  core$_.bool rectStaysRect() {
+    return _rectStaysRect(reference.pointer, _id_rectStaysRect.pointer).boolean;
+  }
+
+  static final _id_reset = Matrix._class.instanceMethodId(r'reset', r'()V');
+
+  static final _reset =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void reset()`
+  void reset() {
+    _reset(reference.pointer, _id_reset.pointer).check();
+  }
+
+  static final _id_set = Matrix._class.instanceMethodId(
+    r'set',
+    r'(Landroid/graphics/Matrix;)V',
+  );
+
+  static final _set =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void set(android.graphics.Matrix matrix)`
+  void set(Matrix? matrix) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    _set(reference.pointer, _id_set.pointer, _$matrix.pointer).check();
+  }
+
+  static final _id_setConcat = Matrix._class.instanceMethodId(
+    r'setConcat',
+    r'(Landroid/graphics/Matrix;Landroid/graphics/Matrix;)Z',
+  );
+
+  static final _setConcat =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean setConcat(android.graphics.Matrix matrix, android.graphics.Matrix matrix1)`
+  core$_.bool setConcat(Matrix? matrix, Matrix? matrix1) {
+    final _$matrix = matrix?.reference ?? jni$_.jNullReference;
+    final _$matrix1 = matrix1?.reference ?? jni$_.jNullReference;
+    return _setConcat(
+      reference.pointer,
+      _id_setConcat.pointer,
+      _$matrix.pointer,
+      _$matrix1.pointer,
+    ).boolean;
+  }
+
+  static final _id_setPolyToPoly = Matrix._class.instanceMethodId(
+    r'setPolyToPoly',
+    r'([FI[FII)Z',
+  );
+
+  static final _setPolyToPoly =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Int32,
+                    jni$_.Int32,
+                  )
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public boolean setPolyToPoly(float[] fs, int i, float[] fs1, int i1, int i2)`
+  core$_.bool setPolyToPoly(
+    jni$_.JFloatArray? fs,
+    core$_.int i,
+    jni$_.JFloatArray? fs1,
+    core$_.int i1,
+    core$_.int i2,
+  ) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    final _$fs1 = fs1?.reference ?? jni$_.jNullReference;
+    return _setPolyToPoly(
+      reference.pointer,
+      _id_setPolyToPoly.pointer,
+      _$fs.pointer,
+      i,
+      _$fs1.pointer,
+      i1,
+      i2,
+    ).boolean;
+  }
+
+  static final _id_setRectToRect = Matrix._class.instanceMethodId(
+    r'setRectToRect',
+    r'(Landroid/graphics/RectF;Landroid/graphics/RectF;Landroid/graphics/Matrix$ScaleToFit;)Z',
+  );
+
+  static final _setRectToRect =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Pointer<jni$_.Void>,
+                  )
+                >,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean setRectToRect(android.graphics.RectF rectF, android.graphics.RectF rectF1, android.graphics.Matrix$ScaleToFit scaleToFit)`
+  core$_.bool setRectToRect(
+    jni$_.JObject? rectF,
+    jni$_.JObject? rectF1,
+    Matrix$ScaleToFit? scaleToFit,
+  ) {
+    final _$rectF = rectF?.reference ?? jni$_.jNullReference;
+    final _$rectF1 = rectF1?.reference ?? jni$_.jNullReference;
+    final _$scaleToFit = scaleToFit?.reference ?? jni$_.jNullReference;
+    return _setRectToRect(
+      reference.pointer,
+      _id_setRectToRect.pointer,
+      _$rectF.pointer,
+      _$rectF1.pointer,
+      _$scaleToFit.pointer,
+    ).boolean;
+  }
+
+  static final _id_set$rotate = Matrix._class.instanceMethodId(
+    r'setRotate',
+    r'(F)V',
+  );
+
+  static final _set$rotate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setRotate(float f)`
+  set rotate(core$_.double f) {
+    _set$rotate(reference.pointer, _id_set$rotate.pointer, f).check();
+  }
+
+  static final _id_setRotate = Matrix._class.instanceMethodId(
+    r'setRotate',
+    r'(FFF)V',
+  );
+
+  static final _setRotate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setRotate(float f, float f1, float f2)`
+  void setRotate(core$_.double f, core$_.double f1, core$_.double f2) {
+    _setRotate(reference.pointer, _id_setRotate.pointer, f, f1, f2).check();
+  }
+
+  static final _id_setScale = Matrix._class.instanceMethodId(
+    r'setScale',
+    r'(FF)V',
+  );
+
+  static final _setScale =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setScale(float f, float f1)`
+  void setScale(core$_.double f, core$_.double f1) {
+    _setScale(reference.pointer, _id_setScale.pointer, f, f1).check();
+  }
+
+  static final _id_setScale$1 = Matrix._class.instanceMethodId(
+    r'setScale',
+    r'(FFFF)V',
+  );
+
+  static final _setScale$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setScale(float f, float f1, float f2, float f3)`
+  void setScale$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    _setScale$1(
+      reference.pointer,
+      _id_setScale$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).check();
+  }
+
+  static final _id_setSinCos = Matrix._class.instanceMethodId(
+    r'setSinCos',
+    r'(FF)V',
+  );
+
+  static final _setSinCos =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setSinCos(float f, float f1)`
+  void setSinCos(core$_.double f, core$_.double f1) {
+    _setSinCos(reference.pointer, _id_setSinCos.pointer, f, f1).check();
+  }
+
+  static final _id_setSinCos$1 = Matrix._class.instanceMethodId(
+    r'setSinCos',
+    r'(FFFF)V',
+  );
+
+  static final _setSinCos$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setSinCos(float f, float f1, float f2, float f3)`
+  void setSinCos$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    _setSinCos$1(
+      reference.pointer,
+      _id_setSinCos$1.pointer,
+      f,
+      f1,
+      f2,
+      f3,
+    ).check();
+  }
+
+  static final _id_setSkew = Matrix._class.instanceMethodId(
+    r'setSkew',
+    r'(FF)V',
+  );
+
+  static final _setSkew =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setSkew(float f, float f1)`
+  void setSkew(core$_.double f, core$_.double f1) {
+    _setSkew(reference.pointer, _id_setSkew.pointer, f, f1).check();
+  }
+
+  static final _id_setSkew$1 = Matrix._class.instanceMethodId(
+    r'setSkew',
+    r'(FFFF)V',
+  );
+
+  static final _setSkew$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Double, jni$_.Double, jni$_.Double, jni$_.Double)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setSkew(float f, float f1, float f2, float f3)`
+  void setSkew$1(
+    core$_.double f,
+    core$_.double f1,
+    core$_.double f2,
+    core$_.double f3,
+  ) {
+    _setSkew$1(reference.pointer, _id_setSkew$1.pointer, f, f1, f2, f3).check();
+  }
+
+  static final _id_setTranslate = Matrix._class.instanceMethodId(
+    r'setTranslate',
+    r'(FF)V',
+  );
+
+  static final _setTranslate =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setTranslate(float f, float f1)`
+  void setTranslate(core$_.double f, core$_.double f1) {
+    _setTranslate(reference.pointer, _id_setTranslate.pointer, f, f1).check();
+  }
+
+  static final _id_set$values = Matrix._class.instanceMethodId(
+    r'setValues',
+    r'([F)V',
+  );
+
+  static final _set$values =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setValues(float[] fs)`
+  set values(jni$_.JFloatArray? fs) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    _set$values(
+      reference.pointer,
+      _id_set$values.pointer,
+      _$fs.pointer,
+    ).check();
+  }
+
+  static final _id_toShortString = Matrix._class.instanceMethodId(
+    r'toShortString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toShortString =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String toShortString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? toShortString() {
+    return _toShortString(
+      reference.pointer,
+      _id_toShortString.pointer,
+    ).object<jni$_.JString?>();
+  }
+
+  static final _id_toString$1 = Matrix._class.instanceMethodId(
+    r'toString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toString$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String toString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? toString$1() {
+    return _toString$1(
+      reference.pointer,
+      _id_toString$1.pointer,
+    ).object<jni$_.JString?>();
+  }
+}
+
+final class $Matrix$Type$ extends jni$_.JType<Matrix> {
+  @jni$_.internal
+  const $Matrix$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/graphics/Matrix;';
+}
+
+/// from: `android.media.ExifInterface`
+extension type ExifInterface._(jni$_.JObject _$this) implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(r'android/media/ExifInterface');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<ExifInterface> type = $ExifInterface$Type$();
+
+  /// from: `static public final int ORIENTATION_FLIP_HORIZONTAL`
+  static const ORIENTATION_FLIP_HORIZONTAL = 2;
+
+  /// from: `static public final int ORIENTATION_FLIP_VERTICAL`
+  static const ORIENTATION_FLIP_VERTICAL = 4;
+
+  /// from: `static public final int ORIENTATION_NORMAL`
+  static const ORIENTATION_NORMAL = 1;
+
+  /// from: `static public final int ORIENTATION_ROTATE_180`
+  static const ORIENTATION_ROTATE_180 = 3;
+
+  /// from: `static public final int ORIENTATION_ROTATE_270`
+  static const ORIENTATION_ROTATE_270 = 8;
+
+  /// from: `static public final int ORIENTATION_ROTATE_90`
+  static const ORIENTATION_ROTATE_90 = 6;
+
+  /// from: `static public final int ORIENTATION_TRANSPOSE`
+  static const ORIENTATION_TRANSPOSE = 5;
+
+  /// from: `static public final int ORIENTATION_TRANSVERSE`
+  static const ORIENTATION_TRANSVERSE = 7;
+
+  /// from: `static public final int ORIENTATION_UNDEFINED`
+  static const ORIENTATION_UNDEFINED = 0;
+
+  /// from: `static public final int STREAM_TYPE_EXIF_DATA_ONLY`
+  static const STREAM_TYPE_EXIF_DATA_ONLY = 1;
+
+  /// from: `static public final int STREAM_TYPE_FULL_IMAGE_DATA`
+  static const STREAM_TYPE_FULL_IMAGE_DATA = 0;
+  static final _id_TAG_APERTURE = _class.staticFieldId(
+    r'TAG_APERTURE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_APERTURE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_APERTURE =>
+      _id_TAG_APERTURE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_APERTURE_VALUE = _class.staticFieldId(
+    r'TAG_APERTURE_VALUE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_APERTURE_VALUE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_APERTURE_VALUE =>
+      _id_TAG_APERTURE_VALUE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ARTIST = _class.staticFieldId(
+    r'TAG_ARTIST',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ARTIST`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ARTIST =>
+      _id_TAG_ARTIST.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_BITS_PER_SAMPLE = _class.staticFieldId(
+    r'TAG_BITS_PER_SAMPLE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_BITS_PER_SAMPLE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_BITS_PER_SAMPLE =>
+      _id_TAG_BITS_PER_SAMPLE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_BRIGHTNESS_VALUE = _class.staticFieldId(
+    r'TAG_BRIGHTNESS_VALUE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_BRIGHTNESS_VALUE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_BRIGHTNESS_VALUE =>
+      _id_TAG_BRIGHTNESS_VALUE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_CFA_PATTERN = _class.staticFieldId(
+    r'TAG_CFA_PATTERN',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_CFA_PATTERN`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_CFA_PATTERN =>
+      _id_TAG_CFA_PATTERN.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_COLOR_SPACE = _class.staticFieldId(
+    r'TAG_COLOR_SPACE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_COLOR_SPACE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_COLOR_SPACE =>
+      _id_TAG_COLOR_SPACE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_COMPONENTS_CONFIGURATION = _class.staticFieldId(
+    r'TAG_COMPONENTS_CONFIGURATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_COMPONENTS_CONFIGURATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_COMPONENTS_CONFIGURATION =>
+      _id_TAG_COMPONENTS_CONFIGURATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_COMPRESSED_BITS_PER_PIXEL = _class.staticFieldId(
+    r'TAG_COMPRESSED_BITS_PER_PIXEL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_COMPRESSED_BITS_PER_PIXEL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_COMPRESSED_BITS_PER_PIXEL =>
+      _id_TAG_COMPRESSED_BITS_PER_PIXEL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_COMPRESSION = _class.staticFieldId(
+    r'TAG_COMPRESSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_COMPRESSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_COMPRESSION =>
+      _id_TAG_COMPRESSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_CONTRAST = _class.staticFieldId(
+    r'TAG_CONTRAST',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_CONTRAST`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_CONTRAST =>
+      _id_TAG_CONTRAST.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_COPYRIGHT = _class.staticFieldId(
+    r'TAG_COPYRIGHT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_COPYRIGHT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_COPYRIGHT =>
+      _id_TAG_COPYRIGHT.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_CUSTOM_RENDERED = _class.staticFieldId(
+    r'TAG_CUSTOM_RENDERED',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_CUSTOM_RENDERED`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_CUSTOM_RENDERED =>
+      _id_TAG_CUSTOM_RENDERED.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DATETIME = _class.staticFieldId(
+    r'TAG_DATETIME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DATETIME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DATETIME =>
+      _id_TAG_DATETIME.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DATETIME_DIGITIZED = _class.staticFieldId(
+    r'TAG_DATETIME_DIGITIZED',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DATETIME_DIGITIZED`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DATETIME_DIGITIZED =>
+      _id_TAG_DATETIME_DIGITIZED.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DATETIME_ORIGINAL = _class.staticFieldId(
+    r'TAG_DATETIME_ORIGINAL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DATETIME_ORIGINAL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DATETIME_ORIGINAL =>
+      _id_TAG_DATETIME_ORIGINAL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DEFAULT_CROP_SIZE = _class.staticFieldId(
+    r'TAG_DEFAULT_CROP_SIZE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DEFAULT_CROP_SIZE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DEFAULT_CROP_SIZE =>
+      _id_TAG_DEFAULT_CROP_SIZE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DEVICE_SETTING_DESCRIPTION = _class.staticFieldId(
+    r'TAG_DEVICE_SETTING_DESCRIPTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DEVICE_SETTING_DESCRIPTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DEVICE_SETTING_DESCRIPTION =>
+      _id_TAG_DEVICE_SETTING_DESCRIPTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DIGITAL_ZOOM_RATIO = _class.staticFieldId(
+    r'TAG_DIGITAL_ZOOM_RATIO',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DIGITAL_ZOOM_RATIO`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DIGITAL_ZOOM_RATIO =>
+      _id_TAG_DIGITAL_ZOOM_RATIO.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_DNG_VERSION = _class.staticFieldId(
+    r'TAG_DNG_VERSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_DNG_VERSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_DNG_VERSION =>
+      _id_TAG_DNG_VERSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXIF_VERSION = _class.staticFieldId(
+    r'TAG_EXIF_VERSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXIF_VERSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXIF_VERSION =>
+      _id_TAG_EXIF_VERSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXPOSURE_BIAS_VALUE = _class.staticFieldId(
+    r'TAG_EXPOSURE_BIAS_VALUE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXPOSURE_BIAS_VALUE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXPOSURE_BIAS_VALUE =>
+      _id_TAG_EXPOSURE_BIAS_VALUE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXPOSURE_INDEX = _class.staticFieldId(
+    r'TAG_EXPOSURE_INDEX',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXPOSURE_INDEX`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXPOSURE_INDEX =>
+      _id_TAG_EXPOSURE_INDEX.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXPOSURE_MODE = _class.staticFieldId(
+    r'TAG_EXPOSURE_MODE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXPOSURE_MODE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXPOSURE_MODE =>
+      _id_TAG_EXPOSURE_MODE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXPOSURE_PROGRAM = _class.staticFieldId(
+    r'TAG_EXPOSURE_PROGRAM',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXPOSURE_PROGRAM`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXPOSURE_PROGRAM =>
+      _id_TAG_EXPOSURE_PROGRAM.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_EXPOSURE_TIME = _class.staticFieldId(
+    r'TAG_EXPOSURE_TIME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_EXPOSURE_TIME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_EXPOSURE_TIME =>
+      _id_TAG_EXPOSURE_TIME.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FILE_SOURCE = _class.staticFieldId(
+    r'TAG_FILE_SOURCE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FILE_SOURCE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FILE_SOURCE =>
+      _id_TAG_FILE_SOURCE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FLASH = _class.staticFieldId(
+    r'TAG_FLASH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FLASH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FLASH =>
+      _id_TAG_FLASH.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_FLASHPIX_VERSION = _class.staticFieldId(
+    r'TAG_FLASHPIX_VERSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FLASHPIX_VERSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FLASHPIX_VERSION =>
+      _id_TAG_FLASHPIX_VERSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FLASH_ENERGY = _class.staticFieldId(
+    r'TAG_FLASH_ENERGY',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FLASH_ENERGY`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FLASH_ENERGY =>
+      _id_TAG_FLASH_ENERGY.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FOCAL_LENGTH = _class.staticFieldId(
+    r'TAG_FOCAL_LENGTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FOCAL_LENGTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FOCAL_LENGTH =>
+      _id_TAG_FOCAL_LENGTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FOCAL_LENGTH_IN_35MM_FILM = _class.staticFieldId(
+    r'TAG_FOCAL_LENGTH_IN_35MM_FILM',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FOCAL_LENGTH_IN_35MM_FILM`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FOCAL_LENGTH_IN_35MM_FILM =>
+      _id_TAG_FOCAL_LENGTH_IN_35MM_FILM.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FOCAL_PLANE_RESOLUTION_UNIT = _class.staticFieldId(
+    r'TAG_FOCAL_PLANE_RESOLUTION_UNIT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FOCAL_PLANE_RESOLUTION_UNIT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FOCAL_PLANE_RESOLUTION_UNIT =>
+      _id_TAG_FOCAL_PLANE_RESOLUTION_UNIT.getNullable(
+            _class,
+            jni$_.JString.type,
+          )
+          as jni$_.JString?;
+
+  static final _id_TAG_FOCAL_PLANE_X_RESOLUTION = _class.staticFieldId(
+    r'TAG_FOCAL_PLANE_X_RESOLUTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FOCAL_PLANE_X_RESOLUTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FOCAL_PLANE_X_RESOLUTION =>
+      _id_TAG_FOCAL_PLANE_X_RESOLUTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_FOCAL_PLANE_Y_RESOLUTION = _class.staticFieldId(
+    r'TAG_FOCAL_PLANE_Y_RESOLUTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_FOCAL_PLANE_Y_RESOLUTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_FOCAL_PLANE_Y_RESOLUTION =>
+      _id_TAG_FOCAL_PLANE_Y_RESOLUTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_F_NUMBER = _class.staticFieldId(
+    r'TAG_F_NUMBER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_F_NUMBER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_F_NUMBER =>
+      _id_TAG_F_NUMBER.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GAIN_CONTROL = _class.staticFieldId(
+    r'TAG_GAIN_CONTROL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GAIN_CONTROL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GAIN_CONTROL =>
+      _id_TAG_GAIN_CONTROL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_ALTITUDE = _class.staticFieldId(
+    r'TAG_GPS_ALTITUDE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_ALTITUDE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_ALTITUDE =>
+      _id_TAG_GPS_ALTITUDE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_ALTITUDE_REF = _class.staticFieldId(
+    r'TAG_GPS_ALTITUDE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_ALTITUDE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_ALTITUDE_REF =>
+      _id_TAG_GPS_ALTITUDE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_AREA_INFORMATION = _class.staticFieldId(
+    r'TAG_GPS_AREA_INFORMATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_AREA_INFORMATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_AREA_INFORMATION =>
+      _id_TAG_GPS_AREA_INFORMATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DATESTAMP = _class.staticFieldId(
+    r'TAG_GPS_DATESTAMP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DATESTAMP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DATESTAMP =>
+      _id_TAG_GPS_DATESTAMP.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_BEARING = _class.staticFieldId(
+    r'TAG_GPS_DEST_BEARING',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_BEARING`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_BEARING =>
+      _id_TAG_GPS_DEST_BEARING.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_BEARING_REF = _class.staticFieldId(
+    r'TAG_GPS_DEST_BEARING_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_BEARING_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_BEARING_REF =>
+      _id_TAG_GPS_DEST_BEARING_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_DISTANCE = _class.staticFieldId(
+    r'TAG_GPS_DEST_DISTANCE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_DISTANCE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_DISTANCE =>
+      _id_TAG_GPS_DEST_DISTANCE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_DISTANCE_REF = _class.staticFieldId(
+    r'TAG_GPS_DEST_DISTANCE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_DISTANCE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_DISTANCE_REF =>
+      _id_TAG_GPS_DEST_DISTANCE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_LATITUDE = _class.staticFieldId(
+    r'TAG_GPS_DEST_LATITUDE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_LATITUDE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_LATITUDE =>
+      _id_TAG_GPS_DEST_LATITUDE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_LATITUDE_REF = _class.staticFieldId(
+    r'TAG_GPS_DEST_LATITUDE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_LATITUDE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_LATITUDE_REF =>
+      _id_TAG_GPS_DEST_LATITUDE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_LONGITUDE = _class.staticFieldId(
+    r'TAG_GPS_DEST_LONGITUDE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_LONGITUDE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_LONGITUDE =>
+      _id_TAG_GPS_DEST_LONGITUDE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DEST_LONGITUDE_REF = _class.staticFieldId(
+    r'TAG_GPS_DEST_LONGITUDE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DEST_LONGITUDE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DEST_LONGITUDE_REF =>
+      _id_TAG_GPS_DEST_LONGITUDE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DIFFERENTIAL = _class.staticFieldId(
+    r'TAG_GPS_DIFFERENTIAL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DIFFERENTIAL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DIFFERENTIAL =>
+      _id_TAG_GPS_DIFFERENTIAL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_DOP = _class.staticFieldId(
+    r'TAG_GPS_DOP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_DOP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_DOP =>
+      _id_TAG_GPS_DOP.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_GPS_IMG_DIRECTION = _class.staticFieldId(
+    r'TAG_GPS_IMG_DIRECTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_IMG_DIRECTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_IMG_DIRECTION =>
+      _id_TAG_GPS_IMG_DIRECTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_IMG_DIRECTION_REF = _class.staticFieldId(
+    r'TAG_GPS_IMG_DIRECTION_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_IMG_DIRECTION_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_IMG_DIRECTION_REF =>
+      _id_TAG_GPS_IMG_DIRECTION_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_LATITUDE = _class.staticFieldId(
+    r'TAG_GPS_LATITUDE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_LATITUDE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_LATITUDE =>
+      _id_TAG_GPS_LATITUDE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_LATITUDE_REF = _class.staticFieldId(
+    r'TAG_GPS_LATITUDE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_LATITUDE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_LATITUDE_REF =>
+      _id_TAG_GPS_LATITUDE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_LONGITUDE = _class.staticFieldId(
+    r'TAG_GPS_LONGITUDE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_LONGITUDE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_LONGITUDE =>
+      _id_TAG_GPS_LONGITUDE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_LONGITUDE_REF = _class.staticFieldId(
+    r'TAG_GPS_LONGITUDE_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_LONGITUDE_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_LONGITUDE_REF =>
+      _id_TAG_GPS_LONGITUDE_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_MAP_DATUM = _class.staticFieldId(
+    r'TAG_GPS_MAP_DATUM',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_MAP_DATUM`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_MAP_DATUM =>
+      _id_TAG_GPS_MAP_DATUM.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_MEASURE_MODE = _class.staticFieldId(
+    r'TAG_GPS_MEASURE_MODE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_MEASURE_MODE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_MEASURE_MODE =>
+      _id_TAG_GPS_MEASURE_MODE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_PROCESSING_METHOD = _class.staticFieldId(
+    r'TAG_GPS_PROCESSING_METHOD',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_PROCESSING_METHOD`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_PROCESSING_METHOD =>
+      _id_TAG_GPS_PROCESSING_METHOD.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_SATELLITES = _class.staticFieldId(
+    r'TAG_GPS_SATELLITES',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_SATELLITES`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_SATELLITES =>
+      _id_TAG_GPS_SATELLITES.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_SPEED = _class.staticFieldId(
+    r'TAG_GPS_SPEED',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_SPEED`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_SPEED =>
+      _id_TAG_GPS_SPEED.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_SPEED_REF = _class.staticFieldId(
+    r'TAG_GPS_SPEED_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_SPEED_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_SPEED_REF =>
+      _id_TAG_GPS_SPEED_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_STATUS = _class.staticFieldId(
+    r'TAG_GPS_STATUS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_STATUS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_STATUS =>
+      _id_TAG_GPS_STATUS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_TIMESTAMP = _class.staticFieldId(
+    r'TAG_GPS_TIMESTAMP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_TIMESTAMP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_TIMESTAMP =>
+      _id_TAG_GPS_TIMESTAMP.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_TRACK = _class.staticFieldId(
+    r'TAG_GPS_TRACK',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_TRACK`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_TRACK =>
+      _id_TAG_GPS_TRACK.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_TRACK_REF = _class.staticFieldId(
+    r'TAG_GPS_TRACK_REF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_TRACK_REF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_TRACK_REF =>
+      _id_TAG_GPS_TRACK_REF.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_GPS_VERSION_ID = _class.staticFieldId(
+    r'TAG_GPS_VERSION_ID',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_GPS_VERSION_ID`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_GPS_VERSION_ID =>
+      _id_TAG_GPS_VERSION_ID.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_IMAGE_DESCRIPTION = _class.staticFieldId(
+    r'TAG_IMAGE_DESCRIPTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_IMAGE_DESCRIPTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_IMAGE_DESCRIPTION =>
+      _id_TAG_IMAGE_DESCRIPTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_IMAGE_LENGTH = _class.staticFieldId(
+    r'TAG_IMAGE_LENGTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_IMAGE_LENGTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_IMAGE_LENGTH =>
+      _id_TAG_IMAGE_LENGTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_IMAGE_UNIQUE_ID = _class.staticFieldId(
+    r'TAG_IMAGE_UNIQUE_ID',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_IMAGE_UNIQUE_ID`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_IMAGE_UNIQUE_ID =>
+      _id_TAG_IMAGE_UNIQUE_ID.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_IMAGE_WIDTH = _class.staticFieldId(
+    r'TAG_IMAGE_WIDTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_IMAGE_WIDTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_IMAGE_WIDTH =>
+      _id_TAG_IMAGE_WIDTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_INTEROPERABILITY_INDEX = _class.staticFieldId(
+    r'TAG_INTEROPERABILITY_INDEX',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_INTEROPERABILITY_INDEX`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_INTEROPERABILITY_INDEX =>
+      _id_TAG_INTEROPERABILITY_INDEX.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ISO = _class.staticFieldId(
+    r'TAG_ISO',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ISO`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ISO =>
+      _id_TAG_ISO.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_ISO_SPEED_RATINGS = _class.staticFieldId(
+    r'TAG_ISO_SPEED_RATINGS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ISO_SPEED_RATINGS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ISO_SPEED_RATINGS =>
+      _id_TAG_ISO_SPEED_RATINGS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_JPEG_INTERCHANGE_FORMAT = _class.staticFieldId(
+    r'TAG_JPEG_INTERCHANGE_FORMAT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_JPEG_INTERCHANGE_FORMAT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_JPEG_INTERCHANGE_FORMAT =>
+      _id_TAG_JPEG_INTERCHANGE_FORMAT.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH = _class.staticFieldId(
+    r'TAG_JPEG_INTERCHANGE_FORMAT_LENGTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_JPEG_INTERCHANGE_FORMAT_LENGTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_JPEG_INTERCHANGE_FORMAT_LENGTH =>
+      _id_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH.getNullable(
+            _class,
+            jni$_.JString.type,
+          )
+          as jni$_.JString?;
+
+  static final _id_TAG_LIGHT_SOURCE = _class.staticFieldId(
+    r'TAG_LIGHT_SOURCE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_LIGHT_SOURCE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_LIGHT_SOURCE =>
+      _id_TAG_LIGHT_SOURCE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_MAKE = _class.staticFieldId(
+    r'TAG_MAKE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_MAKE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_MAKE =>
+      _id_TAG_MAKE.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_MAKER_NOTE = _class.staticFieldId(
+    r'TAG_MAKER_NOTE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_MAKER_NOTE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_MAKER_NOTE =>
+      _id_TAG_MAKER_NOTE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_MAX_APERTURE_VALUE = _class.staticFieldId(
+    r'TAG_MAX_APERTURE_VALUE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_MAX_APERTURE_VALUE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_MAX_APERTURE_VALUE =>
+      _id_TAG_MAX_APERTURE_VALUE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_METERING_MODE = _class.staticFieldId(
+    r'TAG_METERING_MODE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_METERING_MODE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_METERING_MODE =>
+      _id_TAG_METERING_MODE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_MODEL = _class.staticFieldId(
+    r'TAG_MODEL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_MODEL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_MODEL =>
+      _id_TAG_MODEL.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_NEW_SUBFILE_TYPE = _class.staticFieldId(
+    r'TAG_NEW_SUBFILE_TYPE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_NEW_SUBFILE_TYPE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_NEW_SUBFILE_TYPE =>
+      _id_TAG_NEW_SUBFILE_TYPE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_OECF = _class.staticFieldId(
+    r'TAG_OECF',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_OECF`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_OECF =>
+      _id_TAG_OECF.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_OFFSET_TIME = _class.staticFieldId(
+    r'TAG_OFFSET_TIME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_OFFSET_TIME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_OFFSET_TIME =>
+      _id_TAG_OFFSET_TIME.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_OFFSET_TIME_DIGITIZED = _class.staticFieldId(
+    r'TAG_OFFSET_TIME_DIGITIZED',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_OFFSET_TIME_DIGITIZED`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_OFFSET_TIME_DIGITIZED =>
+      _id_TAG_OFFSET_TIME_DIGITIZED.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_OFFSET_TIME_ORIGINAL = _class.staticFieldId(
+    r'TAG_OFFSET_TIME_ORIGINAL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_OFFSET_TIME_ORIGINAL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_OFFSET_TIME_ORIGINAL =>
+      _id_TAG_OFFSET_TIME_ORIGINAL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ORF_ASPECT_FRAME = _class.staticFieldId(
+    r'TAG_ORF_ASPECT_FRAME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ORF_ASPECT_FRAME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ORF_ASPECT_FRAME =>
+      _id_TAG_ORF_ASPECT_FRAME.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ORF_PREVIEW_IMAGE_LENGTH = _class.staticFieldId(
+    r'TAG_ORF_PREVIEW_IMAGE_LENGTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ORF_PREVIEW_IMAGE_LENGTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ORF_PREVIEW_IMAGE_LENGTH =>
+      _id_TAG_ORF_PREVIEW_IMAGE_LENGTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ORF_PREVIEW_IMAGE_START = _class.staticFieldId(
+    r'TAG_ORF_PREVIEW_IMAGE_START',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ORF_PREVIEW_IMAGE_START`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ORF_PREVIEW_IMAGE_START =>
+      _id_TAG_ORF_PREVIEW_IMAGE_START.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ORF_THUMBNAIL_IMAGE = _class.staticFieldId(
+    r'TAG_ORF_THUMBNAIL_IMAGE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ORF_THUMBNAIL_IMAGE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ORF_THUMBNAIL_IMAGE =>
+      _id_TAG_ORF_THUMBNAIL_IMAGE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ORIENTATION = _class.staticFieldId(
+    r'TAG_ORIENTATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ORIENTATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ORIENTATION =>
+      _id_TAG_ORIENTATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_PHOTOMETRIC_INTERPRETATION = _class.staticFieldId(
+    r'TAG_PHOTOMETRIC_INTERPRETATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_PHOTOMETRIC_INTERPRETATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_PHOTOMETRIC_INTERPRETATION =>
+      _id_TAG_PHOTOMETRIC_INTERPRETATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_PIXEL_X_DIMENSION = _class.staticFieldId(
+    r'TAG_PIXEL_X_DIMENSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_PIXEL_X_DIMENSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_PIXEL_X_DIMENSION =>
+      _id_TAG_PIXEL_X_DIMENSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_PIXEL_Y_DIMENSION = _class.staticFieldId(
+    r'TAG_PIXEL_Y_DIMENSION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_PIXEL_Y_DIMENSION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_PIXEL_Y_DIMENSION =>
+      _id_TAG_PIXEL_Y_DIMENSION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_PLANAR_CONFIGURATION = _class.staticFieldId(
+    r'TAG_PLANAR_CONFIGURATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_PLANAR_CONFIGURATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_PLANAR_CONFIGURATION =>
+      _id_TAG_PLANAR_CONFIGURATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_PRIMARY_CHROMATICITIES = _class.staticFieldId(
+    r'TAG_PRIMARY_CHROMATICITIES',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_PRIMARY_CHROMATICITIES`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_PRIMARY_CHROMATICITIES =>
+      _id_TAG_PRIMARY_CHROMATICITIES.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_REFERENCE_BLACK_WHITE = _class.staticFieldId(
+    r'TAG_REFERENCE_BLACK_WHITE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_REFERENCE_BLACK_WHITE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_REFERENCE_BLACK_WHITE =>
+      _id_TAG_REFERENCE_BLACK_WHITE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RELATED_SOUND_FILE = _class.staticFieldId(
+    r'TAG_RELATED_SOUND_FILE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RELATED_SOUND_FILE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RELATED_SOUND_FILE =>
+      _id_TAG_RELATED_SOUND_FILE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RESOLUTION_UNIT = _class.staticFieldId(
+    r'TAG_RESOLUTION_UNIT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RESOLUTION_UNIT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RESOLUTION_UNIT =>
+      _id_TAG_RESOLUTION_UNIT.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_ROWS_PER_STRIP = _class.staticFieldId(
+    r'TAG_ROWS_PER_STRIP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_ROWS_PER_STRIP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_ROWS_PER_STRIP =>
+      _id_TAG_ROWS_PER_STRIP.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RW2_ISO = _class.staticFieldId(
+    r'TAG_RW2_ISO',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_ISO`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_ISO =>
+      _id_TAG_RW2_ISO.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_RW2_JPG_FROM_RAW = _class.staticFieldId(
+    r'TAG_RW2_JPG_FROM_RAW',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_JPG_FROM_RAW`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_JPG_FROM_RAW =>
+      _id_TAG_RW2_JPG_FROM_RAW.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RW2_SENSOR_BOTTOM_BORDER = _class.staticFieldId(
+    r'TAG_RW2_SENSOR_BOTTOM_BORDER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_SENSOR_BOTTOM_BORDER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_SENSOR_BOTTOM_BORDER =>
+      _id_TAG_RW2_SENSOR_BOTTOM_BORDER.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RW2_SENSOR_LEFT_BORDER = _class.staticFieldId(
+    r'TAG_RW2_SENSOR_LEFT_BORDER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_SENSOR_LEFT_BORDER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_SENSOR_LEFT_BORDER =>
+      _id_TAG_RW2_SENSOR_LEFT_BORDER.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RW2_SENSOR_RIGHT_BORDER = _class.staticFieldId(
+    r'TAG_RW2_SENSOR_RIGHT_BORDER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_SENSOR_RIGHT_BORDER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_SENSOR_RIGHT_BORDER =>
+      _id_TAG_RW2_SENSOR_RIGHT_BORDER.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_RW2_SENSOR_TOP_BORDER = _class.staticFieldId(
+    r'TAG_RW2_SENSOR_TOP_BORDER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_RW2_SENSOR_TOP_BORDER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_RW2_SENSOR_TOP_BORDER =>
+      _id_TAG_RW2_SENSOR_TOP_BORDER.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SAMPLES_PER_PIXEL = _class.staticFieldId(
+    r'TAG_SAMPLES_PER_PIXEL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SAMPLES_PER_PIXEL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SAMPLES_PER_PIXEL =>
+      _id_TAG_SAMPLES_PER_PIXEL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SATURATION = _class.staticFieldId(
+    r'TAG_SATURATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SATURATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SATURATION =>
+      _id_TAG_SATURATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SCENE_CAPTURE_TYPE = _class.staticFieldId(
+    r'TAG_SCENE_CAPTURE_TYPE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SCENE_CAPTURE_TYPE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SCENE_CAPTURE_TYPE =>
+      _id_TAG_SCENE_CAPTURE_TYPE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SCENE_TYPE = _class.staticFieldId(
+    r'TAG_SCENE_TYPE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SCENE_TYPE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SCENE_TYPE =>
+      _id_TAG_SCENE_TYPE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SENSING_METHOD = _class.staticFieldId(
+    r'TAG_SENSING_METHOD',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SENSING_METHOD`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SENSING_METHOD =>
+      _id_TAG_SENSING_METHOD.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SHARPNESS = _class.staticFieldId(
+    r'TAG_SHARPNESS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SHARPNESS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SHARPNESS =>
+      _id_TAG_SHARPNESS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SHUTTER_SPEED_VALUE = _class.staticFieldId(
+    r'TAG_SHUTTER_SPEED_VALUE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SHUTTER_SPEED_VALUE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SHUTTER_SPEED_VALUE =>
+      _id_TAG_SHUTTER_SPEED_VALUE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SOFTWARE = _class.staticFieldId(
+    r'TAG_SOFTWARE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SOFTWARE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SOFTWARE =>
+      _id_TAG_SOFTWARE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SPATIAL_FREQUENCY_RESPONSE = _class.staticFieldId(
+    r'TAG_SPATIAL_FREQUENCY_RESPONSE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SPATIAL_FREQUENCY_RESPONSE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SPATIAL_FREQUENCY_RESPONSE =>
+      _id_TAG_SPATIAL_FREQUENCY_RESPONSE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SPECTRAL_SENSITIVITY = _class.staticFieldId(
+    r'TAG_SPECTRAL_SENSITIVITY',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SPECTRAL_SENSITIVITY`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SPECTRAL_SENSITIVITY =>
+      _id_TAG_SPECTRAL_SENSITIVITY.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_STRIP_BYTE_COUNTS = _class.staticFieldId(
+    r'TAG_STRIP_BYTE_COUNTS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_STRIP_BYTE_COUNTS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_STRIP_BYTE_COUNTS =>
+      _id_TAG_STRIP_BYTE_COUNTS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_STRIP_OFFSETS = _class.staticFieldId(
+    r'TAG_STRIP_OFFSETS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_STRIP_OFFSETS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_STRIP_OFFSETS =>
+      _id_TAG_STRIP_OFFSETS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBFILE_TYPE = _class.staticFieldId(
+    r'TAG_SUBFILE_TYPE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBFILE_TYPE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBFILE_TYPE =>
+      _id_TAG_SUBFILE_TYPE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBJECT_AREA = _class.staticFieldId(
+    r'TAG_SUBJECT_AREA',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBJECT_AREA`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBJECT_AREA =>
+      _id_TAG_SUBJECT_AREA.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBJECT_DISTANCE = _class.staticFieldId(
+    r'TAG_SUBJECT_DISTANCE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBJECT_DISTANCE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBJECT_DISTANCE =>
+      _id_TAG_SUBJECT_DISTANCE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBJECT_DISTANCE_RANGE = _class.staticFieldId(
+    r'TAG_SUBJECT_DISTANCE_RANGE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBJECT_DISTANCE_RANGE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBJECT_DISTANCE_RANGE =>
+      _id_TAG_SUBJECT_DISTANCE_RANGE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBJECT_LOCATION = _class.staticFieldId(
+    r'TAG_SUBJECT_LOCATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBJECT_LOCATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBJECT_LOCATION =>
+      _id_TAG_SUBJECT_LOCATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBSEC_TIME = _class.staticFieldId(
+    r'TAG_SUBSEC_TIME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBSEC_TIME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBSEC_TIME =>
+      _id_TAG_SUBSEC_TIME.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBSEC_TIME_DIG = _class.staticFieldId(
+    r'TAG_SUBSEC_TIME_DIG',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBSEC_TIME_DIG`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBSEC_TIME_DIG =>
+      _id_TAG_SUBSEC_TIME_DIG.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBSEC_TIME_DIGITIZED = _class.staticFieldId(
+    r'TAG_SUBSEC_TIME_DIGITIZED',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBSEC_TIME_DIGITIZED`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBSEC_TIME_DIGITIZED =>
+      _id_TAG_SUBSEC_TIME_DIGITIZED.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBSEC_TIME_ORIG = _class.staticFieldId(
+    r'TAG_SUBSEC_TIME_ORIG',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBSEC_TIME_ORIG`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBSEC_TIME_ORIG =>
+      _id_TAG_SUBSEC_TIME_ORIG.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_SUBSEC_TIME_ORIGINAL = _class.staticFieldId(
+    r'TAG_SUBSEC_TIME_ORIGINAL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_SUBSEC_TIME_ORIGINAL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_SUBSEC_TIME_ORIGINAL =>
+      _id_TAG_SUBSEC_TIME_ORIGINAL.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_THUMBNAIL_IMAGE_LENGTH = _class.staticFieldId(
+    r'TAG_THUMBNAIL_IMAGE_LENGTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_THUMBNAIL_IMAGE_LENGTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_THUMBNAIL_IMAGE_LENGTH =>
+      _id_TAG_THUMBNAIL_IMAGE_LENGTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_THUMBNAIL_IMAGE_WIDTH = _class.staticFieldId(
+    r'TAG_THUMBNAIL_IMAGE_WIDTH',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_THUMBNAIL_IMAGE_WIDTH`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_THUMBNAIL_IMAGE_WIDTH =>
+      _id_TAG_THUMBNAIL_IMAGE_WIDTH.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_THUMBNAIL_ORIENTATION = _class.staticFieldId(
+    r'TAG_THUMBNAIL_ORIENTATION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_THUMBNAIL_ORIENTATION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_THUMBNAIL_ORIENTATION =>
+      _id_TAG_THUMBNAIL_ORIENTATION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_TRANSFER_FUNCTION = _class.staticFieldId(
+    r'TAG_TRANSFER_FUNCTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_TRANSFER_FUNCTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_TRANSFER_FUNCTION =>
+      _id_TAG_TRANSFER_FUNCTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_USER_COMMENT = _class.staticFieldId(
+    r'TAG_USER_COMMENT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_USER_COMMENT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_USER_COMMENT =>
+      _id_TAG_USER_COMMENT.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_WHITE_BALANCE = _class.staticFieldId(
+    r'TAG_WHITE_BALANCE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_WHITE_BALANCE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_WHITE_BALANCE =>
+      _id_TAG_WHITE_BALANCE.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_WHITE_POINT = _class.staticFieldId(
+    r'TAG_WHITE_POINT',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_WHITE_POINT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_WHITE_POINT =>
+      _id_TAG_WHITE_POINT.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_XMP = _class.staticFieldId(
+    r'TAG_XMP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_XMP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_XMP =>
+      _id_TAG_XMP.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_TAG_X_RESOLUTION = _class.staticFieldId(
+    r'TAG_X_RESOLUTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_X_RESOLUTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_X_RESOLUTION =>
+      _id_TAG_X_RESOLUTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_Y_CB_CR_COEFFICIENTS = _class.staticFieldId(
+    r'TAG_Y_CB_CR_COEFFICIENTS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_Y_CB_CR_COEFFICIENTS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_Y_CB_CR_COEFFICIENTS =>
+      _id_TAG_Y_CB_CR_COEFFICIENTS.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_Y_CB_CR_POSITIONING = _class.staticFieldId(
+    r'TAG_Y_CB_CR_POSITIONING',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_Y_CB_CR_POSITIONING`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_Y_CB_CR_POSITIONING =>
+      _id_TAG_Y_CB_CR_POSITIONING.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_Y_CB_CR_SUB_SAMPLING = _class.staticFieldId(
+    r'TAG_Y_CB_CR_SUB_SAMPLING',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_Y_CB_CR_SUB_SAMPLING`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_Y_CB_CR_SUB_SAMPLING =>
+      _id_TAG_Y_CB_CR_SUB_SAMPLING.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_TAG_Y_RESOLUTION = _class.staticFieldId(
+    r'TAG_Y_RESOLUTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TAG_Y_RESOLUTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TAG_Y_RESOLUTION =>
+      _id_TAG_Y_RESOLUTION.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  /// from: `static public final int WHITEBALANCE_AUTO`
+  static const WHITEBALANCE_AUTO = 0;
+
+  /// from: `static public final int WHITEBALANCE_MANUAL`
+  static const WHITEBALANCE_MANUAL = 1;
+  static final _id_new$ = _class.constructorId(r'(Ljava/io/File;)V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(java.io.File file)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ExifInterface(jni$_.JObject? file) {
+    final _$file = file?.reference ?? jni$_.jNullReference;
+    return _new$(
+      _class.reference.pointer,
+      _id_new$.pointer,
+      _$file.pointer,
+    ).object<ExifInterface>();
+  }
+
+  static final _id_new$1 = _class.constructorId(r'(Ljava/io/FileDescriptor;)V');
+
+  static final _new$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(java.io.FileDescriptor fileDescriptor)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ExifInterface.new$1(jni$_.JObject? fileDescriptor) {
+    final _$fileDescriptor = fileDescriptor?.reference ?? jni$_.jNullReference;
+    return _new$1(
+      _class.reference.pointer,
+      _id_new$1.pointer,
+      _$fileDescriptor.pointer,
+    ).object<ExifInterface>();
+  }
+
+  static final _id_new$2 = _class.constructorId(r'(Ljava/io/InputStream;)V');
+
+  static final _new$2 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(java.io.InputStream inputStream)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ExifInterface.new$2(jni$_.JObject? inputStream) {
+    final _$inputStream = inputStream?.reference ?? jni$_.jNullReference;
+    return _new$2(
+      _class.reference.pointer,
+      _id_new$2.pointer,
+      _$inputStream.pointer,
+    ).object<ExifInterface>();
+  }
+
+  static final _id_new$3 = _class.constructorId(r'(Ljava/io/InputStream;I)V');
+
+  static final _new$3 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void <init>(java.io.InputStream inputStream, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ExifInterface.new$3(jni$_.JObject? inputStream, core$_.int i) {
+    final _$inputStream = inputStream?.reference ?? jni$_.jNullReference;
+    return _new$3(
+      _class.reference.pointer,
+      _id_new$3.pointer,
+      _$inputStream.pointer,
+      i,
+    ).object<ExifInterface>();
+  }
+
+  static final _id_new$4 = _class.constructorId(r'(Ljava/lang/String;)V');
+
+  static final _new$4 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void <init>(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ExifInterface.new$4(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _new$4(
+      _class.reference.pointer,
+      _id_new$4.pointer,
+      _$string.pointer,
+    ).object<ExifInterface>();
+  }
+
+  static final _id_isSupportedMimeType = _class.staticMethodId(
+    r'isSupportedMimeType',
+    r'(Ljava/lang/String;)Z',
+  );
+
+  static final _isSupportedMimeType =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallStaticBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `static public boolean isSupportedMimeType(java.lang.String string)`
+  static core$_.bool isSupportedMimeType(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _isSupportedMimeType(
+      _class.reference.pointer,
+      _id_isSupportedMimeType.pointer,
+      _$string.pointer,
+    ).boolean;
+  }
+}
+
+extension ExifInterface$$Methods on ExifInterface {
+  static final _id_getAltitude = ExifInterface._class.instanceMethodId(
+    r'getAltitude',
+    r'(D)D',
+  );
+
+  static final _getAltitude =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallDoubleMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public double getAltitude(double d)`
+  core$_.double getAltitude(core$_.double d) {
+    return _getAltitude(
+      reference.pointer,
+      _id_getAltitude.pointer,
+      d,
+    ).doubleFloat;
+  }
+
+  static final _id_getAttribute = ExifInterface._class.instanceMethodId(
+    r'getAttribute',
+    r'(Ljava/lang/String;)Ljava/lang/String;',
+  );
+
+  static final _getAttribute =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public java.lang.String getAttribute(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getAttribute(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getAttribute(
+      reference.pointer,
+      _id_getAttribute.pointer,
+      _$string.pointer,
+    ).object<jni$_.JString?>();
+  }
+
+  static final _id_getAttributeBytes = ExifInterface._class.instanceMethodId(
+    r'getAttributeBytes',
+    r'(Ljava/lang/String;)[B',
+  );
+
+  static final _getAttributeBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public byte[] getAttributeBytes(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? getAttributeBytes(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getAttributeBytes(
+      reference.pointer,
+      _id_getAttributeBytes.pointer,
+      _$string.pointer,
+    ).object<jni$_.JByteArray?>();
+  }
+
+  static final _id_getAttributeDouble = ExifInterface._class.instanceMethodId(
+    r'getAttributeDouble',
+    r'(Ljava/lang/String;D)D',
+  );
+
+  static final _getAttributeDouble =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Double)>,
+              )
+            >
+          >('globalEnv_CallDoubleMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public double getAttributeDouble(java.lang.String string, double d)`
+  core$_.double getAttributeDouble(jni$_.JString? string, core$_.double d) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getAttributeDouble(
+      reference.pointer,
+      _id_getAttributeDouble.pointer,
+      _$string.pointer,
+      d,
+    ).doubleFloat;
+  }
+
+  static final _id_getAttributeInt = ExifInterface._class.instanceMethodId(
+    r'getAttributeInt',
+    r'(Ljava/lang/String;I)I',
+  );
+
+  static final _getAttributeInt =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>,
+              )
+            >
+          >('globalEnv_CallIntMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public int getAttributeInt(java.lang.String string, int i)`
+  core$_.int getAttributeInt(jni$_.JString? string, core$_.int i) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getAttributeInt(
+      reference.pointer,
+      _id_getAttributeInt.pointer,
+      _$string.pointer,
+      i,
+    ).integer;
+  }
+
+  static final _id_getAttributeRange = ExifInterface._class.instanceMethodId(
+    r'getAttributeRange',
+    r'(Ljava/lang/String;)[J',
+  );
+
+  static final _getAttributeRange =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public long[] getAttributeRange(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JLongArray? getAttributeRange(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getAttributeRange(
+      reference.pointer,
+      _id_getAttributeRange.pointer,
+      _$string.pointer,
+    ).object<jni$_.JLongArray?>();
+  }
+
+  static final _id_get$dateTime = ExifInterface._class.instanceMethodId(
+    r'getDateTime',
+    r'()J',
+  );
+
+  static final _get$dateTime =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getDateTime()`
+  core$_.int get dateTime {
+    return _get$dateTime(reference.pointer, _id_get$dateTime.pointer).long;
+  }
+
+  static final _id_get$dateTimeDigitized = ExifInterface._class
+      .instanceMethodId(r'getDateTimeDigitized', r'()J');
+
+  static final _get$dateTimeDigitized =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getDateTimeDigitized()`
+  core$_.int get dateTimeDigitized {
+    return _get$dateTimeDigitized(
+      reference.pointer,
+      _id_get$dateTimeDigitized.pointer,
+    ).long;
+  }
+
+  static final _id_get$dateTimeOriginal = ExifInterface._class.instanceMethodId(
+    r'getDateTimeOriginal',
+    r'()J',
+  );
+
+  static final _get$dateTimeOriginal =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getDateTimeOriginal()`
+  core$_.int get dateTimeOriginal {
+    return _get$dateTimeOriginal(
+      reference.pointer,
+      _id_get$dateTimeOriginal.pointer,
+    ).long;
+  }
+
+  static final _id_get$gpsDateTime = ExifInterface._class.instanceMethodId(
+    r'getGpsDateTime',
+    r'()J',
+  );
+
+  static final _get$gpsDateTime =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getGpsDateTime()`
+  core$_.int get gpsDateTime {
+    return _get$gpsDateTime(
+      reference.pointer,
+      _id_get$gpsDateTime.pointer,
+    ).long;
+  }
+
+  static final _id_getLatLong = ExifInterface._class.instanceMethodId(
+    r'getLatLong',
+    r'([F)Z',
+  );
+
+  static final _getLatLong =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean getLatLong(float[] fs)`
+  core$_.bool getLatLong(jni$_.JFloatArray? fs) {
+    final _$fs = fs?.reference ?? jni$_.jNullReference;
+    return _getLatLong(
+      reference.pointer,
+      _id_getLatLong.pointer,
+      _$fs.pointer,
+    ).boolean;
+  }
+
+  static final _id_get$thumbnail = ExifInterface._class.instanceMethodId(
+    r'getThumbnail',
+    r'()[B',
+  );
+
+  static final _get$thumbnail =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public byte[] getThumbnail()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? get thumbnail {
+    return _get$thumbnail(
+      reference.pointer,
+      _id_get$thumbnail.pointer,
+    ).object<jni$_.JByteArray?>();
+  }
+
+  static final _id_get$thumbnailBitmap = ExifInterface._class.instanceMethodId(
+    r'getThumbnailBitmap',
+    r'()Landroid/graphics/Bitmap;',
+  );
+
+  static final _get$thumbnailBitmap =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public android.graphics.Bitmap getThumbnailBitmap()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Bitmap? get thumbnailBitmap {
+    return _get$thumbnailBitmap(
+      reference.pointer,
+      _id_get$thumbnailBitmap.pointer,
+    ).object<Bitmap?>();
+  }
+
+  static final _id_get$thumbnailBytes = ExifInterface._class.instanceMethodId(
+    r'getThumbnailBytes',
+    r'()[B',
+  );
+
+  static final _get$thumbnailBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public byte[] getThumbnailBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? get thumbnailBytes {
+    return _get$thumbnailBytes(
+      reference.pointer,
+      _id_get$thumbnailBytes.pointer,
+    ).object<jni$_.JByteArray?>();
+  }
+
+  static final _id_get$thumbnailRange = ExifInterface._class.instanceMethodId(
+    r'getThumbnailRange',
+    r'()[J',
+  );
+
+  static final _get$thumbnailRange =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long[] getThumbnailRange()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JLongArray? get thumbnailRange {
+    return _get$thumbnailRange(
+      reference.pointer,
+      _id_get$thumbnailRange.pointer,
+    ).object<jni$_.JLongArray?>();
+  }
+
+  static final _id_hasAttribute = ExifInterface._class.instanceMethodId(
+    r'hasAttribute',
+    r'(Ljava/lang/String;)Z',
+  );
+
+  static final _hasAttribute =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public boolean hasAttribute(java.lang.String string)`
+  core$_.bool hasAttribute(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _hasAttribute(
+      reference.pointer,
+      _id_hasAttribute.pointer,
+      _$string.pointer,
+    ).boolean;
+  }
+
+  static final _id_hasThumbnail = ExifInterface._class.instanceMethodId(
+    r'hasThumbnail',
+    r'()Z',
+  );
+
+  static final _hasThumbnail =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean hasThumbnail()`
+  core$_.bool hasThumbnail() {
+    return _hasThumbnail(reference.pointer, _id_hasThumbnail.pointer).boolean;
+  }
+
+  static final _id_get$isThumbnailCompressed = ExifInterface._class
+      .instanceMethodId(r'isThumbnailCompressed', r'()Z');
+
+  static final _get$isThumbnailCompressed =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isThumbnailCompressed()`
+  core$_.bool get isThumbnailCompressed {
+    return _get$isThumbnailCompressed(
+      reference.pointer,
+      _id_get$isThumbnailCompressed.pointer,
+    ).boolean;
+  }
+
+  static final _id_saveAttributes = ExifInterface._class.instanceMethodId(
+    r'saveAttributes',
+    r'()V',
+  );
+
+  static final _saveAttributes =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void saveAttributes()`
+  void saveAttributes() {
+    _saveAttributes(reference.pointer, _id_saveAttributes.pointer).check();
+  }
+
+  static final _id_setAttribute = ExifInterface._class.instanceMethodId(
+    r'setAttribute',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
+  );
+
+  static final _setAttribute =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setAttribute(java.lang.String string, java.lang.String string1)`
+  void setAttribute(jni$_.JString? string, jni$_.JString? string1) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _setAttribute(
+      reference.pointer,
+      _id_setAttribute.pointer,
+      _$string.pointer,
+      _$string1.pointer,
+    ).check();
+  }
+}
+
+final class $ExifInterface$Type$ extends jni$_.JType<ExifInterface> {
+  @jni$_.internal
+  const $ExifInterface$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/media/ExifInterface;';
 }
