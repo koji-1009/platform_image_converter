@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
@@ -43,6 +44,7 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
   }) async {
     final img = HTMLImageElement();
     final decodeCompleter = Completer<void>();
