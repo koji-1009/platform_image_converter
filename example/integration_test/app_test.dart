@@ -279,7 +279,7 @@ void main() {
             format: OutputFormat.webp,
             quality: 100,
           ),
-          throwsA(isA<UnsupportedError>()),
+          throwsA(isA<UnsupportedFormatException>()),
           reason: 'WebP output is only supported on Android and Web.',
         );
       }
@@ -316,7 +316,7 @@ void main() {
               format: OutputFormat.webp,
               quality: 50,
             ),
-            throwsA(isA<UnsupportedError>()),
+            throwsA(isA<UnsupportedFormatException>()),
             reason: 'WebP output is only supported on Android and Web.',
           );
         }
@@ -371,7 +371,7 @@ void main() {
             format: OutputFormat.webp,
             quality: 100,
           ),
-          throwsA(isA<UnsupportedError>()),
+          throwsA(isA<UnsupportedFormatException>()),
           reason: 'WebP output is only supported on Android and Web.',
         );
       }
@@ -413,7 +413,7 @@ void main() {
             inputData: jpegData,
             format: OutputFormat.webp,
           ),
-          throwsA(isA<UnsupportedError>()),
+          throwsA(isA<UnsupportedFormatException>()),
           reason: 'WebP output is not supported on this platform.',
         );
       }

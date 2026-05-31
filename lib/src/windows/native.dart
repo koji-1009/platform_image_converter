@@ -41,7 +41,8 @@ extension on Pointer<Void> {
 /// - HEIC: available where the OS ships the HEVC/HEIF codec — Windows 11 22H2+
 ///   out of the box, older Windows via the Store "HEVC Video Extensions". When
 ///   the codec is missing or fails to initialize, `CreateEncoder` reports it and
-///   we throw [UnsupportedError] (graceful degradation rather than a hard crash).
+///   we throw an [UnsupportedFormatException] with reason `codecUnavailable`
+///   (graceful degradation rather than a hard crash).
 /// - WebP: not supported — Windows ships a WebP *decoder* but no encoder.
 final class ImageConverterWindows implements ImageConverterPlatform {
   const ImageConverterWindows();
@@ -55,7 +56,9 @@ final class ImageConverterWindows implements ImageConverterPlatform {
   }) {
     // Reject unsupported output before any native side effect (CoInitialize)
     if (format == .webp) {
-      throw UnsupportedError(
+      throw UnsupportedFormatException(
+        format,
+        UnsupportedFormatReason.platformUnsupported,
         'WebP output is not supported on Windows: the OS provides a WebP '
         'decoder but no encoder.',
       );
@@ -107,7 +110,9 @@ final class ImageConverterWindows implements ImageConverterPlatform {
         );
         if (encoderHr == wincodecErrComponentNotFound ||
             encoderHr == wincodecErrComponentInitializeFailure) {
-          throw UnsupportedError(
+          throw UnsupportedFormatException(
+            format,
+            UnsupportedFormatReason.codecUnavailable,
             '${format.name.toUpperCase()} encoding is unavailable on this '
             'Windows: the required codec is not available. HEIC needs the '
             'HEVC/HEIF codec (Windows 11 22H2+ ships it; older Windows can '

@@ -45,7 +45,9 @@ class ImageConverter {
   ///
   /// **Throws:**
   /// - [ArgumentError]: If [quality] is outside the 1-100 range.
-  /// - [UnsupportedError]: If the platform or output format is not supported.
+  /// - [UnsupportedPlatformException]: If the current platform has no backend.
+  /// - [UnsupportedFormatException]: If the output format is not available in
+  ///   the current environment.
   /// - [ImageDecodingException]: If the input image data cannot be decoded.
   /// - [ImageEncodingException]: If the image cannot be encoded to the target format.
   /// - [ImageConversionException]: For other general errors during the conversion process.
@@ -110,9 +112,7 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
     TargetPlatform.android => const ImageConverterAndroid(),
     TargetPlatform.iOS || TargetPlatform.macOS => const ImageConverterDarwin(),
     TargetPlatform.windows => const ImageConverterWindows(),
-    _ => throw UnsupportedError(
-      'Image conversion is not supported on this platform: $platform',
-    ),
+    _ => throw UnsupportedPlatformException(platform),
   };
 }
 

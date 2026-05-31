@@ -11,7 +11,8 @@
 /// | heic   | ✓         |         | ✓†      |     |
 ///
 /// † Windows HEIC output requires the OS HEVC/HEIF codec (Windows 11 22H2+, or
-///   the Store "HEVC Video Extensions"); otherwise it throws [UnsupportedError].
+///   the Store "HEVC Video Extensions"); otherwise it throws an
+///   `UnsupportedFormatException` with reason `codecUnavailable`.
 ///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality

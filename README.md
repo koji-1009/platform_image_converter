@@ -25,7 +25,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 **Note:**
 - On iOS and macOS, WebP input is supported but WebP output is not supported.
 - On Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
-- On Windows, JPEG and PNG output are always supported. HEIC output is supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Microsoft Store "HEVC Video Extensions") — when the codec is absent, HEIC throws `UnsupportedError`. WebP output is not supported (Windows provides a WebP decoder but no encoder).
+- On Windows, JPEG and PNG output are always supported. HEIC output is supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Microsoft Store "HEVC Video Extensions") — when the codec is absent, HEIC throws `UnsupportedFormatException` with reason `codecUnavailable`. WebP output is not supported (Windows provides a WebP decoder but no encoder).
 - On Web, HEIC is not supported.
 
 ## Getting Started
@@ -93,8 +93,10 @@ static Future<Uint8List> convert({
 
 **Returns:** `Future<Uint8List>` containing the converted image data.
 
-**Throws:**
-- `UnsupportedError`: If the platform or output format is not supported.
+**Throws:** (all conversion failures share the `ImageConversionException` base type)
+- `ArgumentError`: If `quality` is outside the 1-100 range.
+- `UnsupportedPlatformException`: If the current platform has no conversion backend.
+- `UnsupportedFormatException`: If the output format is not available in the current environment. Inspect `reason` to tell a permanent platform limitation (`platformUnsupported`) from a missing codec the user could install (`codecUnavailable`).
 - `ImageDecodingException`: If the input image data cannot be decoded.
 - `ImageEncodingException`: If the image cannot be encoded to the target format.
 - `ImageConversionException`: For other general errors during the conversion process.
@@ -153,7 +155,7 @@ The Windows implementation uses the [Windows Imaging Component](https://learn.mi
 3. **Resizing**: `IWICBitmapScaler` with high-quality cubic interpolation, when the target size differs.
 4. **Encoding**: `CreateEncoder` (by container GUID) → `IWICBitmapFrameEncode::WriteSource` encodes into an in-memory `IStream`. Quality for JPEG/HEIC is set via the encoder's `ImageQuality` property.
 
-**Note:** HEIC output requires the OS HEVC/HEIF codec. It ships with Windows 11 22H2+; on older Windows the encoder is absent and HEIC throws `UnsupportedError`. WebP output is not available (Windows provides a WebP decoder but no encoder). As with the other backends, every conversion renders through the fixed 8-bit surface even when no resize is requested.
+**Note:** HEIC output requires the OS HEVC/HEIF codec. It ships with Windows 11 22H2+; on older Windows the encoder is absent and HEIC throws `UnsupportedFormatException` with reason `codecUnavailable`. WebP output is not available (Windows provides a WebP decoder but no encoder). As with the other backends, every conversion renders through the fixed 8-bit surface even when no resize is requested.
 
 ### Web Implementation
 
