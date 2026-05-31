@@ -7,6 +7,7 @@ import 'package:platform_image_converter/src/android/shared.dart';
 import 'package:platform_image_converter/src/darwin/shared.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/linux/shared.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:platform_image_converter/src/web/shared.dart';
@@ -19,7 +20,7 @@ export 'src/output_resize.dart';
 /// Main entry point for image format conversion.
 ///
 /// Provides a platform-agnostic interface to convert images across iOS,
-/// macOS, Android, Windows, and Web platforms using native APIs.
+/// macOS, Android, Windows, Linux, and Web platforms using native APIs.
 class ImageConverter {
   /// The platform-specific implementation of the image converter.
   ///
@@ -112,6 +113,7 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
     TargetPlatform.android => const ImageConverterAndroid(),
     TargetPlatform.iOS || TargetPlatform.macOS => const ImageConverterDarwin(),
     TargetPlatform.windows => const ImageConverterWindows(),
+    TargetPlatform.linux => const ImageConverterLinux(),
     _ => throw UnsupportedPlatformException(platform),
   };
 }
