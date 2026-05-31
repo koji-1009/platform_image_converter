@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:platform_image_converter/platform_image_converter.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
+import 'package:platform_image_converter/src/output_format.dart';
+import 'package:platform_image_converter/src/output_resize.dart';
 
 final class ImageConverterAndroid implements ImageConverterPlatform {
   const ImageConverterAndroid();
