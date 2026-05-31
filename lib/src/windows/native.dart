@@ -166,9 +166,24 @@ final class ImageConverterWindows implements ImageConverterPlatform {
         if (wicGetSize(frame, widthPtr, heightPtr) != sOk) {
           throw const ImageDecodingException('Failed to read image size.');
         }
+
+        // EXIF orientation: 1 (identity) when ignoring it or when absent. WIC
+        // does not auto-apply it, so the tag is read here and baked into the
+        // pixels with an IWICBitmapFlipRotator below.
+        final exifOrientation = orientation == ExifOrientationPolicy.apply
+            ? _readOrientation(arena, frame)
+            : 1;
+
+        // Orientations 5-8 are 90/270 degree rotations, which swap the displayed
+        // width and height relative to the decoded buffer. Evaluate the resize
+        // against the oriented (display) dimensions so the request is intuitive,
+        // matching the Darwin/Web backends.
+        final swapsAxes = exifOrientation >= 5 && exifOrientation <= 8;
+        final displayWidth = swapsAxes ? heightPtr.value : widthPtr.value;
+        final displayHeight = swapsAxes ? widthPtr.value : heightPtr.value;
         final (newWidth, newHeight) = resizeMode.calculateSize(
-          widthPtr.value,
-          heightPtr.value,
+          displayWidth,
+          displayHeight,
         );
 
         // Normalize to a fixed 32bpp premultiplied-BGRA surface: output no
@@ -196,9 +211,32 @@ final class ImageConverterWindows implements ImageConverterPlatform {
           );
         }
 
-        // Scale only when the target size differs (high-quality cubic).
+        // Bake the EXIF orientation into the pixels. Placed right after the
+        // format converter so the rotator transforms the normalized 32bpp
+        // surface, ahead of any scaling. WIC applies the flip before the
+        // rotation; [_orientationTransform] encodes that. Identity (orientation
+        // 1) skips the rotator entirely, leaving the non-oriented path unchanged.
         var source = converter;
-        if (newWidth != widthPtr.value || newHeight != heightPtr.value) {
+        final transform = _orientationTransform(exifOrientation);
+        if (transform != wicBitmapTransformRotate0) {
+          final pRotator = arena<Pointer<Void>>();
+          if (wicCreateBitmapFlipRotator(factory, pRotator) != sOk) {
+            throw const ImageConversionException(
+              'Failed to create flip/rotator.',
+            );
+          }
+          final rotator = pRotator.value..releasedBy(arena);
+          if (wicFlipRotatorInitialize(rotator, source, transform) != sOk) {
+            throw const ImageConversionException(
+              'Failed to apply EXIF orientation.',
+            );
+          }
+          source = rotator;
+        }
+
+        // Scale only when the target size differs from the oriented source size
+        // (high-quality cubic).
+        if (newWidth != displayWidth || newHeight != displayHeight) {
           final pScaler = arena<Pointer<Void>>();
           if (wicCreateBitmapScaler(factory, pScaler) != sOk) {
             throw const ImageConversionException(
@@ -206,8 +244,7 @@ final class ImageConverterWindows implements ImageConverterPlatform {
             );
           }
           final scaler = pScaler.value..releasedBy(arena);
-          if (wicScalerInitialize(scaler, converter, newWidth, newHeight) !=
-              sOk) {
+          if (wicScalerInitialize(scaler, source, newWidth, newHeight) != sOk) {
             throw const ImageConversionException('Failed to resize image.');
           }
           source = scaler;
@@ -307,4 +344,57 @@ final class ImageConverterWindows implements ImageConverterPlatform {
       globalUnlock(hGlobalPtr.value);
     }
   }
+
+  /// Reads the EXIF orientation (1-8) from the decoded [frame]'s metadata,
+  /// returning 1 when absent or unreadable. WIC has no container-agnostic
+  /// accessor for the tag, so the JPEG (App1/IFD0) and TIFF metadata paths for
+  /// tag 274 are tried in turn. The query reader is released via [arena]; each
+  /// returned PROPVARIANT is cleared before the next read.
+  int _readOrientation(Arena arena, Pointer<Void> frame) {
+    final pReader = arena<Pointer<Void>>();
+    // Containers without metadata (e.g. BMP) fail here — treat as upright.
+    if (wicFrameGetMetadataQueryReader(frame, pReader) != sOk ||
+        pReader.value == nullptr) {
+      return 1;
+    }
+    final reader = pReader.value..releasedBy(arena);
+
+    // PROPVARIANT is 24 bytes on x64: vt @0 (u16), value union @8. Reused across
+    // paths, zeroed before each read so a failed query leaves it VT_EMPTY.
+    final propVariant = arena<Uint8>(24);
+    const paths = ['/app1/ifd/{ushort=274}', '/ifd/{ushort=274}'];
+    for (final path in paths) {
+      propVariant.asTypedList(24).fillRange(0, 24, 0);
+      final namePtr = path.toNativeUtf16(allocator: arena);
+      if (wicReaderGetMetadataByName(reader, namePtr, propVariant) != sOk) {
+        continue;
+      }
+      final vt = propVariant.cast<Uint16>().value;
+      final value = (propVariant + 8).cast<Uint16>().value;
+      propVariantClear(propVariant);
+      // Orientation is stored as VT_UI2; accept only an in-range value.
+      if (vt == vtUi2 && value >= 1 && value <= 8) {
+        return value;
+      }
+    }
+    return 1;
+  }
+
+  /// Maps an EXIF orientation (1-8) to the `WICBitmapTransformOptions` that bakes
+  /// it into upright pixels. `IWICBitmapFlipRotator` applies the flip *before*
+  /// the clockwise rotation, so the EXIF "mirror, then rotate" wording maps
+  /// directly: orientation 5/7 pair a horizontal flip with a 270/90 rotation
+  /// (verified by the corner mapping — flip-first yields the transpose for 5 and
+  /// the transverse for 7). Returns [wicBitmapTransformRotate0] (identity) for 1
+  /// and any unexpected value, so the caller skips the rotator.
+  int _orientationTransform(int orientation) => switch (orientation) {
+    2 => wicBitmapTransformFlipHorizontal,
+    3 => wicBitmapTransformRotate180,
+    4 => wicBitmapTransformFlipVertical,
+    5 => wicBitmapTransformFlipHorizontal | wicBitmapTransformRotate270,
+    6 => wicBitmapTransformRotate90,
+    7 => wicBitmapTransformFlipHorizontal | wicBitmapTransformRotate90,
+    8 => wicBitmapTransformRotate270,
+    _ => wicBitmapTransformRotate0,
+  };
 }
