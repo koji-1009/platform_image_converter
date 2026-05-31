@@ -33,3 +33,26 @@ final class CGRect extends ffi.Struct {
 
   external CGSize size;
 }
+
+/// CoreGraphics `CGAffineTransform` (`{CGFloat a, b, c, d, tx, ty;}`). Maps a
+/// user-space point `(x, y)` to `(a*x + c*y + tx, b*x + d*y + ty)`. Passed by
+/// value to `CGContextConcatCTM` to apply the EXIF orientation transform.
+final class CGAffineTransform extends ffi.Struct {
+  @ffi.Double()
+  external double a;
+
+  @ffi.Double()
+  external double b;
+
+  @ffi.Double()
+  external double c;
+
+  @ffi.Double()
+  external double d;
+
+  @ffi.Double()
+  external double tx;
+
+  @ffi.Double()
+  external double ty;
+}

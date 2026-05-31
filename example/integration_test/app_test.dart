@@ -515,6 +515,95 @@ void main() {
       expect(decoded.height, 128);
     });
   });
+
+  group('EXIF orientation', () {
+    // A 64x32 image split into four solid-color quadrants. Non-square so the
+    // axis swap of 90/270 rotations is observable, and four distinct colors so
+    // the corner mapping (rotation direction and mirroring) is observable too.
+    img.Image buildQuadrants() {
+      final image = img.Image(width: 64, height: 32);
+      for (final p in image) {
+        final left = p.x < 32;
+        final top = p.y < 16;
+        if (top && left) {
+          p.setRgb(255, 0, 0); // top-left: red
+        } else if (top && !left) {
+          p.setRgb(0, 255, 0); // top-right: green
+        } else if (!top && left) {
+          p.setRgb(0, 0, 255); // bottom-left: blue
+        } else {
+          p.setRgb(255, 255, 0); // bottom-right: yellow
+        }
+      }
+      return image;
+    }
+
+    // Center of a quadrant, sampled well away from boundaries so JPEG ringing
+    // does not bleed across colors.
+    ({int r, int g, int b}) quadrant(
+      img.Image im, {
+      required bool top,
+      required bool left,
+    }) {
+      final x = left ? im.width ~/ 4 : im.width * 3 ~/ 4;
+      final y = top ? im.height ~/ 4 : im.height * 3 ~/ 4;
+      final p = im.getPixel(x, y);
+      return (r: p.r.toInt(), g: p.g.toInt(), b: p.b.toInt());
+    }
+
+    for (var o = 1; o <= 8; o++) {
+      test('orientation $o: apply matches the baked orientation', () async {
+        final tagged = buildQuadrants()..exif.imageIfd.orientation = o;
+        final input = img.encodeJpg(tagged, quality: 100);
+
+        // Oracle: the image package bakes the same EXIF orientation into pixels.
+        final expected = img.bakeOrientation(img.decodeJpg(input)!);
+
+        final outBytes = await ImageConverter.convert(
+          inputData: input,
+          format: OutputFormat.png,
+          orientation: ExifOrientationPolicy.apply,
+        );
+        final out = img.decodeImage(outBytes)!;
+
+        expect(out.width, expected.width, reason: 'orientation $o width');
+        expect(out.height, expected.height, reason: 'orientation $o height');
+
+        for (final top in const [true, false]) {
+          for (final left in const [true, false]) {
+            final a = quadrant(out, top: top, left: left);
+            final b = quadrant(expected, top: top, left: left);
+            final where =
+                'o$o ${top ? 'top' : 'bottom'}-${left ? 'left' : 'right'}';
+            expect(a.r, closeTo(b.r, 48), reason: '$where R');
+            expect(a.g, closeTo(b.g, 48), reason: '$where G');
+            expect(a.b, closeTo(b.b, 48), reason: '$where B');
+          }
+        }
+      });
+    }
+
+    test('ignore keeps the raw buffer layout for a 90-degree tag', () async {
+      final tagged = buildQuadrants()..exif.imageIfd.orientation = 6;
+      final input = img.encodeJpg(tagged, quality: 100);
+
+      final outBytes = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.png,
+        orientation: ExifOrientationPolicy.ignore,
+      );
+      final out = img.decodeImage(outBytes)!;
+
+      // No rotation: the raw 64x32 buffer is preserved (not swapped to 32x64),
+      // and the red quadrant stays in the top-left.
+      expect(out.width, 64);
+      expect(out.height, 32);
+      final tl = quadrant(out, top: true, left: true);
+      expect(tl.r, closeTo(255, 48));
+      expect(tl.g, closeTo(0, 48));
+      expect(tl.b, closeTo(0, 48));
+    });
+  });
 }
 
 /// Load an image from assets and return as [Uint8List]
