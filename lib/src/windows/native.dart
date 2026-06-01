@@ -51,16 +51,16 @@ final class ImageConverterWindows implements ImageConverterPlatform {
   @override
   Uint8List convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) {
     // Reject unsupported output before any native side effect (CoInitialize)
     if (format == .webp) {
       throw UnsupportedFormatException(
         format,
-        UnsupportedFormatReason.platformUnsupported,
+        .platformUnsupported,
         'WebP output is not supported on Windows: the OS provides a WebP '
         'decoder but no encoder.',
       );
@@ -114,7 +114,7 @@ final class ImageConverterWindows implements ImageConverterPlatform {
             encoderHr == wincodecErrComponentInitializeFailure) {
           throw UnsupportedFormatException(
             format,
-            UnsupportedFormatReason.codecUnavailable,
+            .codecUnavailable,
             '${format.name.toUpperCase()} encoding is unavailable on this '
             'Windows: the required codec is not available. HEIC needs the '
             'HEVC/HEIF codec (Windows 11 22H2+ ships it; older Windows can '
@@ -170,7 +170,7 @@ final class ImageConverterWindows implements ImageConverterPlatform {
         // EXIF orientation: 1 (identity) when ignoring it or when absent. WIC
         // does not auto-apply it, so the tag is read here and baked into the
         // pixels with an IWICBitmapFlipRotator below.
-        final exifOrientation = orientation == ExifOrientationPolicy.apply
+        final exifOrientation = orientation == .apply
             ? _readOrientation(arena, frame)
             : 1;
 

@@ -41,10 +41,10 @@ final class ImageConverterWeb implements ImageConverterPlatform {
   @override
   Future<Uint8List> convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) async {
     final blob = Blob([inputData.toJS].toJS);
 
@@ -59,9 +59,7 @@ final class ImageConverterWeb implements ImageConverterPlatform {
           .createImageBitmap(
             blob,
             ImageBitmapOptions(
-              imageOrientation: orientation == ExifOrientationPolicy.apply
-                  ? 'from-image'
-                  : 'none',
+              imageOrientation: orientation == .apply ? 'from-image' : 'none',
             ),
           )
           .toDart;
@@ -86,12 +84,12 @@ final class ImageConverterWeb implements ImageConverterPlatform {
 
     final encodeCompleter = Completer<Blob>();
     final type = switch (format) {
-      OutputFormat.jpeg => 'image/jpeg',
-      OutputFormat.png => 'image/png',
-      OutputFormat.webp => 'image/webp',
-      OutputFormat.heic => throw UnsupportedFormatException(
+      .jpeg => 'image/jpeg',
+      .png => 'image/png',
+      .webp => 'image/webp',
+      .heic => throw UnsupportedFormatException(
         format,
-        UnsupportedFormatReason.platformUnsupported,
+        .platformUnsupported,
         'HEIC output is not supported on Web.',
       ),
     };

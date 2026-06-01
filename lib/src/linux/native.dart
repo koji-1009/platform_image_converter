@@ -24,10 +24,10 @@ extension on Pointer<Opaque> {
 /// GdkPixbuf encoder type name for each [OutputFormat]. GdkPixbuf names the
 /// HEIF/HEIC handler `heif`.
 String _typeName(OutputFormat format) => switch (format) {
-  OutputFormat.jpeg => 'jpeg',
-  OutputFormat.png => 'png',
-  OutputFormat.webp => 'webp',
-  OutputFormat.heic => 'heif',
+  .jpeg => 'jpeg',
+  .png => 'png',
+  .webp => 'webp',
+  .heic => 'heif',
 };
 
 /// Linux image converter using GdkPixbuf from the GLib/GTK stack.
@@ -48,10 +48,10 @@ final class ImageConverterLinux implements ImageConverterPlatform {
   @override
   Uint8List convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) {
     final type = _typeName(format);
 
@@ -63,7 +63,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     if (!_hasWritableLoader(type)) {
       throw UnsupportedFormatException(
         format,
-        UnsupportedFormatReason.codecUnavailable,
+        .codecUnavailable,
         '${format.name} output is unavailable on this system: no writable '
         'GdkPixbuf loader for "$type" is installed.',
       );
@@ -108,7 +108,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       // evaluated against the oriented (display) dimensions, matching the other
       // backends. With `ignore` we skip it and keep the raw buffer layout.
       var oriented = decoded;
-      if (orientation == ExifOrientationPolicy.apply) {
+      if (orientation == .apply) {
         oriented = gdk_pixbuf_apply_embedded_orientation(decoded)
           ..unrefBy(arena);
         if (oriented == nullptr) {
@@ -203,7 +203,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     OutputFormat format,
     int quality,
   ) {
-    if (format == OutputFormat.png) {
+    if (format == .png) {
       return (nullptr, nullptr);
     }
     final keys = arena<Pointer<Char>>(2);
