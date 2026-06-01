@@ -131,6 +131,16 @@ final int Function(Pointer<Void>) globalUnlock = _kernel32
       'GlobalUnlock',
     );
 
+/// `PropVariantClear` — frees any memory a PROPVARIANT owns and resets it to
+/// `VT_EMPTY`. For the inline integer the orientation tag returns (VT_UI2) this
+/// is effectively a no-op, but it is called for hygiene so a path that happened
+/// to yield an allocated type would not leak.
+final int Function(Pointer<Uint8>) propVariantClear = _ole32
+    .lookupFunction<
+      Int32 Function(Pointer<Uint8>),
+      int Function(Pointer<Uint8>)
+    >('PropVariantClear');
+
 // ---------------------------------------------------------------------------
 // GUIDs
 // ---------------------------------------------------------------------------
@@ -213,6 +223,22 @@ const int wicBitmapDitherTypeNone = 0;
 const int wicBitmapPaletteTypeCustom = 0;
 const int wicBitmapInterpolationModeHighQualityCubic = 4;
 const int wicBitmapEncoderNoCache = 2;
+
+/// `WICBitmapTransformOptions` (wincodec.h). Rotations are clockwise and occupy
+/// the low two bits; the two flips are independent flag bits that OR cleanly
+/// with a rotation. `IWICBitmapFlipRotator` applies the FLIP FIRST, then the
+/// rotation — so the EXIF "mirror, then rotate" wording (orientations 5 and 7)
+/// maps directly onto `FlipHorizontal | Rotate270` / `FlipHorizontal | Rotate90`.
+const int wicBitmapTransformRotate0 = 0x0;
+const int wicBitmapTransformRotate90 = 0x1;
+const int wicBitmapTransformRotate180 = 0x2;
+const int wicBitmapTransformRotate270 = 0x3;
+const int wicBitmapTransformFlipHorizontal = 0x8;
+const int wicBitmapTransformFlipVertical = 0x10;
+
+/// `VT_UI2` — the VARIANT type the EXIF orientation tag (274) comes back as from
+/// the metadata query reader (a 16-bit unsigned integer).
+const int vtUi2 = 18;
 
 // ---------------------------------------------------------------------------
 // COM vtable dispatch
@@ -315,6 +341,19 @@ int wicCreateBitmapScaler(Pointer<Void> factory, Pointer<Pointer<Void>> out) =>
       out,
     );
 
+/// `CreateBitmapFlipRotator` (slot 13). Slot 12 is `CreateBitmapClipper`.
+int wicCreateBitmapFlipRotator(
+  Pointer<Void> factory,
+  Pointer<Pointer<Void>> out,
+) =>
+    Pointer<
+          NativeFunction<Int32 Function(Pointer<Void>, Pointer<Pointer<Void>>)>
+        >.fromAddress(_slot(factory, 13))
+        .asFunction<int Function(Pointer<Void>, Pointer<Pointer<Void>>)>()(
+      factory,
+      out,
+    );
+
 /// `CreateEncoder` (slot 8). Reports a missing or unusable codec for
 /// [containerGuid] via [wincodecErrComponentNotFound] (not registered) or
 /// [wincodecErrComponentInitializeFailure] (registered but fails to initialize).
@@ -377,6 +416,42 @@ int wicDecoderGetFrame(
       index,
       out,
     );
+
+// ---- IWICBitmapFrameDecode ----
+
+/// `GetMetadataQueryReader` (slot 8) — the frame's metadata reader. Fails for
+/// containers that carry no metadata (e.g. BMP), which the caller treats as
+/// "no orientation".
+int wicFrameGetMetadataQueryReader(
+  Pointer<Void> frame,
+  Pointer<Pointer<Void>> out,
+) =>
+    Pointer<
+          NativeFunction<Int32 Function(Pointer<Void>, Pointer<Pointer<Void>>)>
+        >.fromAddress(_slot(frame, 8))
+        .asFunction<int Function(Pointer<Void>, Pointer<Pointer<Void>>)>()(
+      frame,
+      out,
+    );
+
+// ---- IWICMetadataQueryReader ----
+
+/// `GetMetadataByName` (slot 5) — read one metadata item by its query-path
+/// [name] (LPCWSTR) into the caller-allocated [propVariant]. Returns a non-`sOk`
+/// HRESULT (e.g. `WINCODEC_ERR_PROPERTYNOTFOUND`) when the path is absent.
+int wicReaderGetMetadataByName(
+  Pointer<Void> reader,
+  Pointer<Utf16> name,
+  Pointer<Uint8> propVariant,
+) =>
+    Pointer<
+          NativeFunction<
+            Int32 Function(Pointer<Void>, Pointer<Utf16>, Pointer<Uint8>)
+          >
+        >.fromAddress(_slot(reader, 5))
+        .asFunction<
+          int Function(Pointer<Void>, Pointer<Utf16>, Pointer<Uint8>)
+        >()(reader, name, propVariant);
 
 // ---- IWICBitmapSource (frame / converter / scaler) ----
 
@@ -449,6 +524,24 @@ int wicScalerInitialize(
         .asFunction<
           int Function(Pointer<Void>, Pointer<Void>, int, int, int)
         >()(scaler, source, w, h, wicBitmapInterpolationModeHighQualityCubic);
+
+// ---- IWICBitmapFlipRotator ----
+
+/// `Initialize` (slot 8): flip/rotate [source] per [options], a
+/// `WICBitmapTransformOptions` value. The flip is applied before the rotation.
+int wicFlipRotatorInitialize(
+  Pointer<Void> rotator,
+  Pointer<Void> source,
+  int options,
+) =>
+    Pointer<
+          NativeFunction<Int32 Function(Pointer<Void>, Pointer<Void>, Int32)>
+        >.fromAddress(_slot(rotator, 8))
+        .asFunction<int Function(Pointer<Void>, Pointer<Void>, int)>()(
+      rotator,
+      source,
+      options,
+    );
 
 // ---- IWICBitmapEncoder ----
 

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:platform_image_converter/src/darwin/apple_cf_types.dart';
 import 'package:platform_image_converter/src/darwin/bindings.g.dart';
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
@@ -51,6 +52,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
   }) {
     return using((arena) {
       final inputPtr = arena<Uint8>(inputData.length);
@@ -82,11 +84,23 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         throw const ImageDecodingException();
       }
 
-      final originalWidth = CGImageGetWidth(originalImage);
-      final originalHeight = CGImageGetHeight(originalImage);
+      final rawWidth = CGImageGetWidth(originalImage);
+      final rawHeight = CGImageGetHeight(originalImage);
+
+      // EXIF orientation: 1 (no transform) when ignoring it or when absent.
+      final exifOrientation = orientation == ExifOrientationPolicy.apply
+          ? _readOrientation(arena, imageSource)
+          : 1;
+
+      // Orientations 5-8 are 90/270 degree rotations, which swap the displayed
+      // width and height relative to the decoded buffer. Evaluate the resize
+      // against the oriented (display) dimensions so the request is intuitive.
+      final swapsAxes = exifOrientation >= 5 && exifOrientation <= 8;
+      final displayWidth = swapsAxes ? rawHeight : rawWidth;
+      final displayHeight = swapsAxes ? rawWidth : rawHeight;
       final (newWidth, newHeight) = resizeMode.calculateSize(
-        originalWidth,
-        originalHeight,
+        displayWidth,
+        displayHeight,
       );
 
       // Always render through the sRGB context (even at the original size) so
@@ -95,8 +109,11 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       final imageToEncode = _renderToSRGB(
         arena,
         originalImage,
+        rawWidth,
+        rawHeight,
         newWidth,
         newHeight,
+        exifOrientation,
       );
 
       final outputData = CFDataCreateMutable(kCFAllocatorDefault, 0)
@@ -210,18 +227,25 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     );
   }
 
-  /// Draws [originalImage] into a fixed 8-bpc sRGB premultiplied-RGBA context at
-  /// [width]x[height], normalizing any source format (16-bpc / grayscale / CMYK
-  /// / indexed sources otherwise make CGBitmapContextCreate return NULL) and
-  /// scaling in the same pass. Output is always 8-bit sRGB.
+  /// Draws [originalImage] into a fixed 8-bpc sRGB premultiplied-RGBA context
+  /// sized [width]x[height] (the oriented, resized output), normalizing any
+  /// source format (16-bpc / grayscale / CMYK / indexed sources otherwise make
+  /// CGBitmapContextCreate return NULL), applying the [exifOrientation]
+  /// transform, and scaling — all in the same pass. Output is always 8-bit sRGB.
+  ///
+  /// [rawWidth]/[rawHeight] are the decoded buffer's dimensions; the image is
+  /// drawn at that size and the CTM maps it onto the oriented output box.
   ///
   /// The returned image is registered in [arena]; it is released when [arena]
   /// is released, so callers must not release it themselves.
   CGImageRef _renderToSRGB(
     Arena arena,
     CGImageRef originalImage,
+    int rawWidth,
+    int rawHeight,
     int width,
     int height,
+    int exifOrientation,
   ) {
     final colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
       ..releasedBy(arena);
@@ -248,11 +272,25 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
     CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
 
+    // Concatenate scale-then-orient so the raw image, drawn at its own size,
+    // lands upright and resized in the oriented output box. Identity for
+    // orientation 1, so the non-oriented path is unchanged.
+    CGContextConcatCTM(
+      context,
+      _orientationTransform(
+        exifOrientation,
+        rawWidth,
+        rawHeight,
+        width,
+        height,
+      ),
+    );
+
     final rect = Struct.create<CGRect>()
       ..origin.x = 0
       ..origin.y = 0
-      ..size.width = width.toDouble()
-      ..size.height = height.toDouble();
+      ..size.width = rawWidth.toDouble()
+      ..size.height = rawHeight.toDouble();
 
     CGContextDrawImage(context, rect, originalImage);
 
@@ -263,5 +301,83 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       );
     }
     return resizedImage;
+  }
+
+  /// Reads the EXIF orientation (1-8) from the image source's properties,
+  /// returning 1 when absent or unreadable. The copied properties dictionary is
+  /// owned and registered in [arena]; the value fetched from it is borrowed.
+  int _readOrientation(Arena arena, CGImageSourceRef imageSource) {
+    final props = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nullptr)
+      ..releasedBy(arena);
+    if (props == nullptr) {
+      return 1;
+    }
+    final value = CFDictionaryGetValue(
+      props,
+      kCGImagePropertyOrientation.cast(),
+    );
+    if (value == nullptr) {
+      return 1;
+    }
+    final out = arena<Int32>();
+    final ok = CFNumberGetValue(value.cast(), kCFNumberIntType, out.cast());
+    if (ok == 0) {
+      return 1;
+    }
+    final orientation = out.value;
+    return (orientation >= 1 && orientation <= 8) ? orientation : 1;
+  }
+
+  /// Builds the `CGAffineTransform` that maps the raw [rawWidth]x[rawHeight]
+  /// image onto the [outWidth]x[outHeight] oriented output box for the given
+  /// EXIF [orientation] (1-8). The transform composes the orientation's
+  /// rotation/mirror with the scale to the output size.
+  ///
+  /// The orientation's linear part is `(x, y) -> (a0*x + c0*y, b0*x + d0*y)` in
+  /// the context's bottom-left, y-up space (identity reproduces the input). The
+  /// four corners of the raw box are mapped to find the translation that seats
+  /// the result in the positive quadrant; the scale to the output is folded in.
+  CGAffineTransform _orientationTransform(
+    int orientation,
+    int rawWidth,
+    int rawHeight,
+    int outWidth,
+    int outHeight,
+  ) {
+    // Linear part per EXIF orientation: [a0 (x<-x), c0 (x<-y), b0 (y<-x),
+    // d0 (y<-y)]. 1 none, 2 flipH, 3 rot180, 4 flipV, 5 transpose,
+    // 6 rotate 90 CW, 7 transverse, 8 rotate 90 CCW.
+    final (a0, c0, b0, d0) = switch (orientation) {
+      2 => (-1, 0, 0, 1),
+      3 => (-1, 0, 0, -1),
+      4 => (1, 0, 0, -1),
+      5 => (0, -1, -1, 0),
+      6 => (0, 1, -1, 0),
+      7 => (0, 1, 1, 0),
+      8 => (0, -1, 1, 0),
+      _ => (1, 0, 0, 1), // 1 and any unexpected value
+    };
+
+    final w = rawWidth.toDouble();
+    final h = rawHeight.toDouble();
+    // Map the four corners through the linear part to find the bounding box.
+    final xs = [0.0, a0 * w, c0 * h, a0 * w + c0 * h];
+    final ys = [0.0, b0 * w, d0 * h, b0 * w + d0 * h];
+    final minX = xs.reduce((p, q) => p < q ? p : q);
+    final minY = ys.reduce((p, q) => p < q ? p : q);
+    final maxX = xs.reduce((p, q) => p > q ? p : q);
+    final maxY = ys.reduce((p, q) => p > q ? p : q);
+
+    // Scale the oriented full-res box (maxX-minX) x (maxY-minY) to the output.
+    final sx = outWidth / (maxX - minX);
+    final sy = outHeight / (maxY - minY);
+
+    return Struct.create<CGAffineTransform>()
+      ..a = sx * a0
+      ..b = sy * b0
+      ..c = sx * c0
+      ..d = sy * d0
+      ..tx = sx * -minX
+      ..ty = sy * -minY;
   }
 }

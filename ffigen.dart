@@ -46,6 +46,13 @@ final config = FfiGenerator(
       'CGRect',
       importedDartType: true,
     ),
+    'c:@S@CGAffineTransform': ImportedType(
+      _appleTypes,
+      'CGAffineTransform',
+      'CGAffineTransform',
+      'CGAffineTransform',
+      importedDartType: true,
+    ),
   },
   functions: Functions.includeSet({
     // CFData operations
@@ -55,12 +62,16 @@ final config = FfiGenerator(
     'CFDataGetLength',
     // CFDictionary operations
     'CFDictionaryCreate',
+    'CFDictionaryGetValue',
     // CFString / CFNumber value creation (replaces objective_c NSString/NSNumber)
     'CFStringCreateWithCString',
     'CFNumberCreate',
+    'CFNumberGetValue',
     // CGImageSource operations (decoding)
     'CGImageSourceCreateWithData',
     'CGImageSourceCreateImageAtIndex',
+    // EXIF orientation lookup from the source's properties
+    'CGImageSourceCopyPropertiesAtIndex',
     // CGImageDestination operations (encoding)
     'CGImageDestinationCreateWithData',
     'CGImageDestinationAddImage',
@@ -73,6 +84,7 @@ final config = FfiGenerator(
     // CGContext operations
     'CGContextDrawImage',
     'CGContextSetInterpolationQuality',
+    'CGContextConcatCTM',
     // CGBitmapContext operations
     'CGBitmapContextCreateImage',
     'CGBitmapContextCreate',
@@ -83,12 +95,14 @@ final config = FfiGenerator(
     'kCFAllocatorDefault',
     'kCGImageDestinationLossyCompressionQuality',
     'kCGColorSpaceSRGB',
+    'kCGImagePropertyOrientation',
   }),
   // The CF/CG enum constants used are surfaced as top-level `const int`s via
   // unnamedEnums (their named enums are not emitted as Dart enums in C mode).
   unnamedEnums: UnnamedEnums.includeSet({
     'kCFStringEncodingUTF8',
     'kCFNumberFloat64Type',
+    'kCFNumberIntType',
     'kCGImageAlphaPremultipliedLast',
     'kCGInterpolationHigh',
   }),

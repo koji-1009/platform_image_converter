@@ -67,6 +67,11 @@ ffi.Pointer<GdkPixbuf> gdk_pixbuf_scale_simple(
   GdkInterpType interp_type,
 ) => _gdk_pixbuf_scale_simple(src, dest_width, dest_height, interp_type.value);
 
+@ffi.Native<ffi.Pointer<GdkPixbuf> Function(ffi.Pointer<GdkPixbuf>)>()
+external ffi.Pointer<GdkPixbuf> gdk_pixbuf_apply_embedded_orientation(
+  ffi.Pointer<GdkPixbuf> src,
+);
+
 @ffi.Native<
   gboolean Function(
     ffi.Pointer<GdkPixbuf>,

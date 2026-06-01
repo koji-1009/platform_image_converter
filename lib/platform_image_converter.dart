@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:platform_image_converter/src/android/shared.dart';
 import 'package:platform_image_converter/src/darwin/shared.dart';
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/linux/shared.dart';
@@ -13,6 +14,7 @@ import 'package:platform_image_converter/src/output_resize.dart';
 import 'package:platform_image_converter/src/web/shared.dart';
 import 'package:platform_image_converter/src/windows/shared.dart';
 
+export 'src/exif_orientation_policy.dart';
 export 'src/image_conversion_exception.dart';
 export 'src/output_format.dart';
 export 'src/output_resize.dart';
@@ -39,6 +41,9 @@ class ImageConverter {
   /// - [format]: Target [OutputFormat]. Defaults to [OutputFormat.jpeg].
   /// - [quality]: Compression quality for lossy formats (1-100).
   /// - [resizeMode]: The resize mode to apply to the image.
+  /// - [orientation]: How to handle the source's EXIF orientation tag. Defaults
+  ///   to [ExifOrientationPolicy.apply], which bakes the orientation into the
+  ///   output pixels so the result is upright on every platform.
   /// - [runInIsolate]: Whether to run the conversion in a separate isolate.
   ///   Defaults to `true`.
   ///
@@ -75,6 +80,7 @@ class ImageConverter {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
     bool runInIsolate = true,
   }) async {
     if (quality < 1 || quality > 100) {
@@ -90,6 +96,7 @@ class ImageConverter {
         format: format,
         quality: quality,
         resizeMode: resizeMode,
+        orientation: orientation,
         platform: defaultTargetPlatform,
       ));
     } else {
@@ -99,6 +106,7 @@ class ImageConverter {
         format: format,
         quality: quality,
         resizeMode: resizeMode,
+        orientation: orientation,
       );
     }
   }
@@ -125,6 +133,7 @@ FutureOr<Uint8List> _convertInIsolate(
     OutputFormat format,
     int quality,
     ResizeMode resizeMode,
+    ExifOrientationPolicy orientation,
     TargetPlatform platform,
   })
   request,
@@ -133,4 +142,5 @@ FutureOr<Uint8List> _convertInIsolate(
   format: request.format,
   quality: request.quality,
   resizeMode: request.resizeMode,
+  orientation: request.orientation,
 );

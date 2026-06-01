@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
@@ -26,6 +27,8 @@ abstract interface class ImageConverterPlatform {
   /// - [format]: Target [OutputFormat] (default: [OutputFormat.jpeg])
   /// - [quality]: Compression quality 1-100 for lossy formats (default: 100)
   /// - [resizeMode]: The resize mode to apply to the image.
+  /// - [orientation]: How to handle the source's EXIF orientation tag
+  ///   (default: [ExifOrientationPolicy.apply]).
   ///
   /// **Returns:** Converted image data as [Uint8List]
   ///
@@ -41,6 +44,7 @@ abstract interface class ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
   }) {
     throw UnimplementedError('convert() has not been implemented.');
   }

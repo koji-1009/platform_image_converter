@@ -9,6 +9,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 
 - 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable libheif GdkPixbuf loader is installed).
 - 📐 **High-Quality Resizing**: Resize images with different modes (`Fit`, `Exact`) while maintaining aspect ratio or targeting specific dimensions.
+- 🧭 **EXIF Orientation**: Bakes the source's EXIF orientation into the output by default (`ExifOrientationPolicy.apply`) so camera photos come out upright and consistent on every platform; opt out with `ExifOrientationPolicy.ignore`.
 - ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
 - 🔒 **Efficient Native Interop**: Employs FFI and JNI to create a fast, type-safe bridge between Dart and native code, ensuring robust and reliable communication.
 
@@ -85,6 +86,8 @@ static Future<Uint8List> convert({
   OutputFormat format = OutputFormat.jpeg,
   int quality = 100,
   ResizeMode resizeMode = const OriginalResizeMode(),
+  ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+  bool runInIsolate = true,
 }) async
 ```
 
@@ -93,6 +96,8 @@ static Future<Uint8List> convert({
 - `format` (`OutputFormat`): Target image format (default: JPEG).
 - `quality` (`int`): Compression quality 1-100 (default: 100, only for lossy formats).
 - `resizeMode` (`ResizeMode`): The resize mode to apply. Defaults to `OriginalResizeMode`, which keeps the original dimensions.
+- `orientation` (`ExifOrientationPolicy`): How to handle the source's EXIF orientation tag. Defaults to `ExifOrientationPolicy.apply`, which bakes the orientation into the output pixels (a 90°/270° tag swaps the output width/height, and the resize is evaluated against the oriented dimensions). Use `ExifOrientationPolicy.ignore` to encode the raw decoded buffer instead.
+- `runInIsolate` (`bool`): Whether to run the conversion in a background isolate (default: `true`). Set to `false` only for very small images where isolate overhead is a concern.
 
 **Returns:** `Future<Uint8List>` containing the converted image data.
 
@@ -122,6 +127,13 @@ A sealed class representing different ways to resize an image.
 - **`OriginalResizeMode()`**: Keeps the original dimensions of the image.
 - **`ExactResizeMode({required int width, required int height})`**: Resizes the image to exact dimensions, possibly changing the aspect ratio.
 - **`FitResizeMode({int? width, int? height})`**: Fits the image within the specified dimensions while maintaining the aspect ratio. At least one of `width` or `height` must be provided. If only one dimension is provided, the other is scaled proportionally. If the image is smaller than the specified dimensions, it will not be scaled up.
+
+### `ExifOrientationPolicy` Enum
+
+Controls how the source's EXIF orientation tag is handled. Output never carries orientation metadata (this package strips metadata), so the tag must be baked into the pixels to survive conversion.
+
+- **`apply`** (default): Bakes the EXIF orientation into the output pixels so the result is visually upright on every platform. A 90°/270° rotation swaps the output width and height, and the resize is evaluated against the oriented (display) dimensions.
+- **`ignore`**: Encodes the decoded pixel buffer as-is, ignoring the orientation tag. Use this to keep the raw pixel layout when orientation is handled elsewhere.
 
 
 ## Implementation Details

@@ -63,6 +63,7 @@ int gdk_pixbuf_get_width(const GdkPixbuf *pixbuf);
 int gdk_pixbuf_get_height(const GdkPixbuf *pixbuf);
 GdkPixbuf *gdk_pixbuf_scale_simple(const GdkPixbuf *src, int dest_width,
                                    int dest_height, GdkInterpType interp_type);
+GdkPixbuf *gdk_pixbuf_apply_embedded_orientation(GdkPixbuf *src);
 gboolean gdk_pixbuf_save_to_bufferv(GdkPixbuf *pixbuf, gchar **buffer,
                                     gsize *buffer_size, const char *type,
                                     char **option_keys, char **option_values,

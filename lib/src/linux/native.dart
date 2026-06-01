@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/linux/bindings.g.dart';
@@ -50,6 +51,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
   }) {
     final type = _typeName(format);
 
@@ -97,16 +99,36 @@ final class ImageConverterLinux implements ImageConverterPlatform {
         throw const ImageDecodingException();
       }
 
-      final width = gdk_pixbuf_get_width(decoded);
-      final height = gdk_pixbuf_get_height(decoded);
+      // EXIF orientation: the JPEG/TIFF loaders attach the raw orientation tag
+      // as a GdkPixbuf "orientation" option but do NOT rotate the pixels.
+      // `gdk_pixbuf_apply_embedded_orientation` bakes that tag into a new,
+      // upright pixbuf (transfer-full — we own it, so unref it via the arena);
+      // when no tag is present it just returns an unmodified copy. Done before
+      // measuring so 90/270 rotations swap width/height and the resize is
+      // evaluated against the oriented (display) dimensions, matching the other
+      // backends. With `ignore` we skip it and keep the raw buffer layout.
+      var oriented = decoded;
+      if (orientation == ExifOrientationPolicy.apply) {
+        oriented = gdk_pixbuf_apply_embedded_orientation(decoded)
+          ..unrefBy(arena);
+        if (oriented == nullptr) {
+          throw const ImageConversionException(
+            'Failed to apply EXIF orientation.',
+          );
+        }
+      }
+
+      final width = gdk_pixbuf_get_width(oriented);
+      final height = gdk_pixbuf_get_height(oriented);
       final (newWidth, newHeight) = resizeMode.calculateSize(width, height);
 
       // Scale only when the size changes (high-quality resampling). The scaled
-      // pixbuf is a new reference we own; the decoded one stays owned by loader.
-      var pixbuf = decoded;
+      // pixbuf is a new reference we own; the oriented one is either owned by
+      // the loader (orientation ignored) or by the arena (orientation applied).
+      var pixbuf = oriented;
       if (newWidth != width || newHeight != height) {
         pixbuf = gdk_pixbuf_scale_simple(
-          decoded,
+          oriented,
           newWidth,
           newHeight,
           GdkInterpType.GDK_INTERP_HYPER,

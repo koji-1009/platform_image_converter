@@ -32,6 +32,14 @@ external CFDictionaryRef CFDictionaryCreate(
 );
 
 @ffi.Native<
+  ffi.Pointer<ffi.Void> Function(CFDictionaryRef, ffi.Pointer<ffi.Void>)
+>()
+external ffi.Pointer<ffi.Void> CFDictionaryGetValue(
+  CFDictionaryRef theDict,
+  ffi.Pointer<ffi.Void> key,
+);
+
+@ffi.Native<
   CFDataRef Function(
     ffi.Pointer<__CFAllocator>,
     ffi.Pointer<ffi.UnsignedChar>,
@@ -82,6 +90,15 @@ external CFNumberRef CFNumberCreate(
   ffi.Pointer<ffi.Void> valuePtr,
 );
 
+@ffi.Native<
+  ffi.UnsignedChar Function(CFNumberRef, ffi.Long, ffi.Pointer<ffi.Void>)
+>()
+external int CFNumberGetValue(
+  CFNumberRef number,
+  int theType,
+  ffi.Pointer<ffi.Void> valuePtr,
+);
+
 @ffi.Native<CFStringRef>()
 external CFStringRef kCGColorSpaceSRGB;
 
@@ -93,6 +110,12 @@ external int CGImageGetWidth(CGImageRef image);
 
 @ffi.Native<ffi.Size Function(CGImageRef)>()
 external int CGImageGetHeight(CGImageRef image);
+
+@ffi.Native<ffi.Void Function(CGContextRef, appleCf.CGAffineTransform)>()
+external void CGContextConcatCTM(
+  CGContextRef c,
+  appleCf.CGAffineTransform transform,
+);
 
 @ffi.Native<ffi.Void Function(CGContextRef, appleCf.CGRect, CGImageRef)>()
 external void CGContextDrawImage(
@@ -134,6 +157,15 @@ external CGImageSourceRef CGImageSourceCreateWithData(
   CFDictionaryRef options,
 );
 
+@ffi.Native<
+  CFDictionaryRef Function(CGImageSourceRef, ffi.Size, CFDictionaryRef)
+>()
+external CFDictionaryRef CGImageSourceCopyPropertiesAtIndex(
+  CGImageSourceRef isrc,
+  int index,
+  CFDictionaryRef options,
+);
+
 @ffi.Native<CGImageRef Function(CGImageSourceRef, ffi.Size, CFDictionaryRef)>()
 external CGImageRef CGImageSourceCreateImageAtIndex(
   CGImageSourceRef isrc,
@@ -170,6 +202,9 @@ external void CGImageDestinationAddImage(
 
 @ffi.Native<ffi.Bool Function(CGImageDestinationRef)>()
 external bool CGImageDestinationFinalize(CGImageDestinationRef idst);
+
+@ffi.Native<CFStringRef>()
+external CFStringRef kCGImagePropertyOrientation;
 
 typedef CFStringRef = ffi.Pointer<appleCf.CFString>;
 
@@ -215,6 +250,8 @@ typedef CGImageDestinationRef = ffi.Pointer<CGImageDestination>;
 const int kCFStringEncodingUTF8 = 134217984;
 
 const int kCFNumberFloat64Type = 6;
+
+const int kCFNumberIntType = 9;
 
 const int kCGImageAlphaPremultipliedLast = 1;
 

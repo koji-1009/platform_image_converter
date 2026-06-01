@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
+import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/output_format.dart';
@@ -43,42 +44,45 @@ final class ImageConverterWeb implements ImageConverterPlatform {
     OutputFormat format = OutputFormat.jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
+    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
   }) async {
-    final img = HTMLImageElement();
-    final decodeCompleter = Completer<void>();
     final blob = Blob([inputData.toJS].toJS);
-    final url = URL.createObjectURL(blob);
-    img
-      ..onLoad.listen((_) {
-        decodeCompleter.complete();
-      })
-      ..onError.listen((event) {
-        decodeCompleter.completeError(
-          const ImageDecodingException('Failed to load image from data.'),
-        );
-      });
-    img.src = url;
 
+    // Decode via createImageBitmap so the EXIF orientation can be applied
+    // (`from-image`) or ignored (`none`) explicitly. An <img> element always
+    // applies it, which would make `ignore` impossible and the default differ
+    // from the native backends. With `from-image` the bitmap's width/height are
+    // already the oriented (displayed) dimensions, so the resize matches.
+    final ImageBitmap bitmap;
     try {
-      await decodeCompleter.future;
-    } finally {
-      URL.revokeObjectURL(url);
+      bitmap = await window
+          .createImageBitmap(
+            blob,
+            ImageBitmapOptions(
+              imageOrientation: orientation == ExifOrientationPolicy.apply
+                  ? 'from-image'
+                  : 'none',
+            ),
+          )
+          .toDart;
+    } catch (_) {
+      throw const ImageDecodingException('Failed to load image from data.');
     }
 
-    final canvas = HTMLCanvasElement();
-
     final (destWidth, destHeight) = resizeMode.calculateSize(
-      img.width,
-      img.height,
+      bitmap.width,
+      bitmap.height,
     );
 
+    final canvas = HTMLCanvasElement();
     canvas.width = destWidth;
     canvas.height = destHeight;
 
     final ctx = canvas.getContext('2d') as CanvasRenderingContext2D
       ..imageSmoothingEnabled = true
       ..imageSmoothingQuality = 'high';
-    ctx.drawImage(img, 0, 0, destWidth, destHeight);
+    ctx.drawImage(bitmap, 0, 0, destWidth, destHeight);
+    bitmap.close();
 
     final encodeCompleter = Completer<Blob>();
     final type = switch (format) {
