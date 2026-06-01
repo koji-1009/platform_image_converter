@@ -199,12 +199,11 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     // a lossy compression-quality dictionary. Exhaustive over OutputFormat so a
     // future format forces a decision here instead of silently being treated as
     // lossy.
-    final isLossy = switch (format) {
-      .jpeg || .heic => true,
-      .png || .webp => false,
-    };
-    if (!isLossy) {
-      return null;
+    switch (format) {
+      case .png || .webp:
+        return null;
+      case .jpeg || .heic:
+        break;
     }
 
     final keys = arena<CFStringRef>(1);

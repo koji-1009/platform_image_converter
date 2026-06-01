@@ -203,8 +203,13 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     OutputFormat format,
     int quality,
   ) {
-    if (format == .png) {
-      return (nullptr, nullptr);
+    // Exhaustive over OutputFormat so a future format forces a decision here
+    // instead of silently receiving a `quality` option it may not accept.
+    switch (format) {
+      case .png:
+        return (nullptr, nullptr);
+      case .jpeg || .webp || .heic:
+        break;
     }
     final keys = arena<Pointer<Char>>(2);
     keys[0] = 'quality'.toNativeUtf8(allocator: arena).cast();
