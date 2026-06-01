@@ -55,16 +55,12 @@ class FitResizeMode extends ResizeMode {
 
   @override
   (int, int) calculateSize(int originalWidth, int originalHeight) {
-    double scale = 1.0;
-    if (width != null && height != null) {
-      final widthScale = width! / originalWidth;
-      final heightScale = height! / originalHeight;
-      scale = min(widthScale, heightScale);
-    } else if (width != null) {
-      scale = width! / originalWidth;
-    } else if (height != null) {
-      scale = height! / originalHeight;
-    }
+    final scale = switch ((width, height)) {
+      (final w?, final h?) => min(w / originalWidth, h / originalHeight),
+      (final w?, null) => w / originalWidth,
+      (null, final h?) => h / originalHeight,
+      _ => 1.0,
+    };
 
     if (scale >= 1.0) {
       return (originalWidth, originalHeight);

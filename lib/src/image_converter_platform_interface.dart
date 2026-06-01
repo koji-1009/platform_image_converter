@@ -41,10 +41,10 @@ abstract interface class ImageConverterPlatform {
   /// - [ImageConversionException]: For other general errors during the conversion process.
   FutureOr<Uint8List> convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) {
     throw UnimplementedError('convert() has not been implemented.');
   }

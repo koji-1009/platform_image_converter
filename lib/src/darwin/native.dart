@@ -49,10 +49,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   @override
   Uint8List convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) {
     return using((arena) {
       final inputPtr = arena<Uint8>(inputData.length);
@@ -88,7 +88,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       final rawHeight = CGImageGetHeight(originalImage);
 
       // EXIF orientation: 1 (no transform) when ignoring it or when absent.
-      final exifOrientation = orientation == ExifOrientationPolicy.apply
+      final exifOrientation = orientation == .apply
           ? _readOrientation(arena, imageSource)
           : 1;
 
@@ -124,15 +124,15 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
       final utiStr = switch (format) {
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypejpeg
-        OutputFormat.jpeg => 'public.jpeg',
+        .jpeg => 'public.jpeg',
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypepng
-        OutputFormat.png => 'public.png',
+        .png => 'public.png',
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypeheic
-        OutputFormat.heic => 'public.heic',
+        .heic => 'public.heic',
         // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypewebp
-        OutputFormat.webp => throw UnsupportedFormatException(
+        .webp => throw UnsupportedFormatException(
           format,
-          UnsupportedFormatReason.platformUnsupported,
+          .platformUnsupported,
           'WebP output is not supported on iOS/macOS via ImageIO.',
         ),
       };
@@ -195,8 +195,15 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     OutputFormat format,
     int quality,
   ) {
-    if (format == OutputFormat.png || format == OutputFormat.webp) {
-      return null;
+    // PNG is lossless and WebP is unsupported on this backend; neither carries
+    // a lossy compression-quality dictionary. Exhaustive over OutputFormat so a
+    // future format forces a decision here instead of silently being treated as
+    // lossy.
+    switch (format) {
+      case .png || .webp:
+        return null;
+      case .jpeg || .heic:
+        break;
     }
 
     final keys = arena<CFStringRef>(1);

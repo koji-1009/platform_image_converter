@@ -77,10 +77,10 @@ class ImageConverter {
   /// ```
   static Future<Uint8List> convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
     bool runInIsolate = true,
   }) async {
     if (quality < 1 || quality > 100) {
@@ -118,10 +118,10 @@ ImageConverterPlatform _getPlatformForTarget(TargetPlatform platform) {
     return const ImageConverterWeb();
   }
   return switch (platform) {
-    TargetPlatform.android => const ImageConverterAndroid(),
-    TargetPlatform.iOS || TargetPlatform.macOS => const ImageConverterDarwin(),
-    TargetPlatform.windows => const ImageConverterWindows(),
-    TargetPlatform.linux => const ImageConverterLinux(),
+    .android => const ImageConverterAndroid(),
+    .iOS || .macOS => const ImageConverterDarwin(),
+    .windows => const ImageConverterWindows(),
+    .linux => const ImageConverterLinux(),
     _ => throw UnsupportedPlatformException(platform),
   };
 }

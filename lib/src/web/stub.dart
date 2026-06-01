@@ -11,9 +11,9 @@ final class ImageConverterWeb implements ImageConverterPlatform {
   @override
   Uint8List convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) => throw UnimplementedError();
 }

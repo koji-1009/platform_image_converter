@@ -81,9 +81,9 @@ class UnsupportedFormatException extends ImageConversionException {
     OutputFormat format,
     UnsupportedFormatReason reason,
   ) => switch (reason) {
-    UnsupportedFormatReason.platformUnsupported =>
+    .platformUnsupported =>
       '${format.name} output is not supported on this platform.',
-    UnsupportedFormatReason.codecUnavailable =>
+    .codecUnavailable =>
       '${format.name} output requires a codec that is not available in this '
           'environment.',
   };

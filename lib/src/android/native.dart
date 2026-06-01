@@ -38,10 +38,10 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
   @override
   Uint8List convert({
     required Uint8List inputData,
-    OutputFormat format = OutputFormat.jpeg,
+    OutputFormat format = .jpeg,
     int quality = 100,
     ResizeMode resizeMode = const OriginalResizeMode(),
-    ExifOrientationPolicy orientation = ExifOrientationPolicy.apply,
+    ExifOrientationPolicy orientation = .apply,
   }) {
     return using((arena) {
       final inputJBytes = JByteArray.of(inputData)..releasedBy(arena);
@@ -57,7 +57,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       // BitmapFactory ignores the EXIF orientation, so bake it into the pixels
       // before measuring/resizing (a no-op for ORIENTATION_NORMAL or `ignore`).
       // Resizing then operates on the oriented (display) dimensions.
-      final orientedBitmap = orientation == ExifOrientationPolicy.apply
+      final orientedBitmap = orientation == .apply
           ? _applyOrientation(arena, inputJBytes, originalBitmap)
           : originalBitmap;
 
@@ -86,13 +86,13 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       }
 
       final compressFormat = switch (format) {
-        OutputFormat.jpeg => Bitmap$CompressFormat.JPEG,
-        OutputFormat.png => Bitmap$CompressFormat.PNG,
+        .jpeg => Bitmap$CompressFormat.JPEG,
+        .png => Bitmap$CompressFormat.PNG,
         // TODO: WebP is deprecated since Android 10, consider using WebP_LOSSY or WebP_LOSSLESS
-        OutputFormat.webp => Bitmap$CompressFormat.WEBP,
-        OutputFormat.heic => throw UnsupportedFormatException(
+        .webp => Bitmap$CompressFormat.WEBP,
+        .heic => throw UnsupportedFormatException(
           format,
-          UnsupportedFormatReason.platformUnsupported,
+          .platformUnsupported,
           'HEIC output is not supported on Android.',
         ),
       }..releasedBy(arena);
