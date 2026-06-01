@@ -195,7 +195,15 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     OutputFormat format,
     int quality,
   ) {
-    if (format == .png || format == .webp) {
+    // PNG is lossless and WebP is unsupported on this backend; neither carries
+    // a lossy compression-quality dictionary. Exhaustive over OutputFormat so a
+    // future format forces a decision here instead of silently being treated as
+    // lossy.
+    final isLossy = switch (format) {
+      .jpeg || .heic => true,
+      .png || .webp => false,
+    };
+    if (!isLossy) {
       return null;
     }
 

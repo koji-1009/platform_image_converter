@@ -59,7 +59,7 @@ class FitResizeMode extends ResizeMode {
       (final w?, final h?) => min(w / originalWidth, h / originalHeight),
       (final w?, null) => w / originalWidth,
       (null, final h?) => h / originalHeight,
-      (null, null) => 1.0,
+      _ => 1.0,
     };
 
     if (scale >= 1.0) {
