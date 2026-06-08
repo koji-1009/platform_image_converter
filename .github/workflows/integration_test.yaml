@@ -22,7 +22,7 @@ jobs:
         api-level: [29]
       fail-fast: false
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: "temurin"
@@ -51,7 +51,7 @@ jobs:
         simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}]
       fail-fast: false
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
       - uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5
         with:
@@ -73,7 +73,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
       - name: Run Flutter Integration tests
         working-directory: example
@@ -86,7 +86,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
       - name: Run Flutter Integration tests
         working-directory: example
@@ -99,7 +99,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       # GTK build deps for the Linux desktop runner; libgtk-3-dev pulls in
       # GdkPixbuf with its built-in JPEG/PNG loaders. The WebP/HEIF loaders are
       # intentionally not installed, so the WebP path exercises the
@@ -120,7 +120,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
       - name: Setup chromedriver
         run: |
