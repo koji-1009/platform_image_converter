@@ -44,7 +44,7 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
     ExifOrientationPolicy orientation = .apply,
   }) {
     return using((arena) {
-      final inputJBytes = JByteArray.of(inputData)..releasedBy(arena);
+      final inputJBytes = JByteArray.from(inputData)..releasedBy(arena);
       final originalBitmap = BitmapFactory.decodeByteArray(
         inputJBytes,
         0,
@@ -61,8 +61,8 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
           ? _applyOrientation(arena, inputJBytes, originalBitmap)
           : originalBitmap;
 
-      final originalWidth = orientedBitmap.width;
-      final originalHeight = orientedBitmap.height;
+      final originalWidth = orientedBitmap.getWidth();
+      final originalHeight = orientedBitmap.getHeight();
       final (newWidth, newHeight) = resizeMode.calculateSize(
         originalWidth,
         originalHeight,
@@ -135,38 +135,37 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       return src;
     }
 
-    // Canonical Android EXIF-orientation matrices (setRotate is exposed as the
-    // `rotate` setter by jnigen; degrees are clockwise).
+    // Canonical Android EXIF-orientation matrices (degrees are clockwise).
     final matrix = Matrix()..releasedBy(arena);
     switch (value) {
       case 2: // flip horizontal
         matrix.setScale(-1.0, 1.0);
       case 3: // rotate 180
-        matrix.rotate = 180.0;
+        matrix.setRotate(180.0);
       case 4: // flip vertical
         matrix
-          ..rotate = 180.0
+          ..setRotate(180.0)
           ..postScale(-1.0, 1.0);
       case 5: // transpose
         matrix
-          ..rotate = 90.0
+          ..setRotate(90.0)
           ..postScale(-1.0, 1.0);
       case 6: // rotate 90 CW
-        matrix.rotate = 90.0;
+        matrix.setRotate(90.0);
       case 7: // transverse
         matrix
-          ..rotate = -90.0
+          ..setRotate(-90.0)
           ..postScale(-1.0, 1.0);
       case 8: // rotate 270 CW
-        matrix.rotate = -90.0;
+        matrix.setRotate(-90.0);
     }
 
     final oriented = Bitmap.createBitmap$2(
       src,
       0,
       0,
-      src.width,
-      src.height,
+      src.getWidth(),
+      src.getHeight(),
       matrix,
       true, // filter
     )?..releasedBy(arena);
