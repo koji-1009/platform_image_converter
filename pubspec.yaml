@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  jni: ^0.15.0
+  jni: ^1.0.0
   ffi: ^2.1.4
   web: ^1.0.0
   
@@ -27,5 +27,5 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  jnigen: ^0.15.0
+  jnigen: ^0.16.0
   ffigen: ^20.1.1
