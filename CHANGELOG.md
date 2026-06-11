@@ -1,3 +1,7 @@
+## 2.1.2
+
+* Restore the `jni` dependency to `^1.0.0` (and the Android bindings generated with `jnigen` 0.16.0), reverting the temporary downgrade shipped in 2.1.1. Projects that also depend on packages still on `jni` 0.15.x (such as `cronet_http`) will keep resolving to 2.1.1 automatically until those packages migrate.
+
 ## 2.1.1
 
 * Downgrade the `jni` dependency to `^0.15.0` (and regenerate the Android bindings with `jnigen` 0.15.0) so this package can be used alongside packages that still depend on `jni` 0.15.x, such as `cronet_http`. This is a temporary compatibility release; a future release will return to `jni` 1.0.0 once the ecosystem has migrated.
