@@ -1,3 +1,7 @@
+## 2.1.1
+
+* Downgrade the `jni` dependency to `^0.15.0` (and regenerate the Android bindings with `jnigen` 0.15.0) so this package can be used alongside packages that still depend on `jni` 0.15.x, such as `cronet_http`. This is a temporary compatibility release; a future release will return to `jni` 1.0.0 once the ecosystem has migrated.
+
 ## 2.1.0
 
 * Add EXIF orientation handling via a new `orientation` parameter on `ImageConverter.convert`, controlled by the `ExifOrientationPolicy` enum. `apply` (the default) bakes the source's EXIF orientation into the output pixels so the result is upright on every platform; `ignore` encodes the decoded buffer as-is. Implemented on every backend: Darwin (CoreGraphics CTM), Android (`ExifInterface` + `Matrix`), Windows (`IWICBitmapFlipRotator` + metadata query reader), Linux (`gdk_pixbuf_apply_embedded_orientation`), and Web (`createImageBitmap` `imageOrientation`).
