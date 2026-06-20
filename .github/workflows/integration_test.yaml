@@ -32,7 +32,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5
         with:
           wait_for_boot: true
@@ -74,7 +74,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter test integration_test/app_test.dart -d macos
@@ -87,7 +87,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - name: Run Flutter Integration tests
         working-directory: example
         run: flutter test integration_test/app_test.dart -d windows
@@ -108,7 +108,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev xvfb
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - name: Run Flutter Integration tests
         working-directory: example
         run: xvfb-run -a flutter test integration_test/app_test.dart -d linux
@@ -121,7 +121,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: koji-1009/setup-flutter@9204099837f17eb9ae05760a52360f85640de02d # v1.1.6
+      - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
       - name: Setup chromedriver
         run: |
           npx @puppeteer/browsers install chromedriver@stable
