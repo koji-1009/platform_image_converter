@@ -1,3 +1,8 @@
+## 2.1.3
+
+* Fix a memory leak on iOS/macOS: the `CFDictionary` holding the JPEG/HEIC compression quality was created but never released, leaking one dictionary per lossy conversion. It is now released together with the surrounding arena.
+* Guarantee resize output is at least 1x1px. An extreme aspect ratio could round a dimension down to 0 (for example fitting a 4000x3 image to width 5), producing a zero-sized surface that the native encoders reject; `ResizeMode.calculateSize` now clamps both dimensions to a minimum of 1px across every resize mode and platform.
+
 ## 2.1.2
 
 * Restore the `jni` dependency to `^1.0.0` (and the Android bindings generated with `jnigen` 0.16.0), reverting the temporary downgrade shipped in 2.1.1. Projects that also depend on packages still on `jni` 0.15.x (such as `cronet_http`) will keep resolving to 2.1.1 automatically until those packages migrate.
