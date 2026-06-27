@@ -46,25 +46,35 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-    strategy:
-      matrix:
-        simulator: [{os: "18.6", model: "iPhone SE (3rd generation)"}]
-      fail-fast: false
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: koji-1009/setup-flutter@a66a3ff390f07e139285012467025b12778e2b9f # v1.2.0
+      - name: Select an available iPhone simulator on iOS 26.x
+        id: simulator
+        run: |
+          udid=$(xcrun simctl list devices --json \
+            | jq -r '[ .devices | to_entries[]
+                       | select(.key | contains("iOS-26-"))
+                       | .value[]
+                       | select(.isAvailable and (.name | contains("iPhone"))) ]
+                     | .[0].udid // empty')
+          if [ -z "$udid" ]; then
+            echo "::error::No available iPhone simulator found for iOS 26.x"
+            xcrun simctl list devices
+            exit 1
+          fi
+          echo "Selected iPhone simulator (iOS 26.x): $udid"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
       - uses: futureware-tech/simulator-action@e89aa8f93d3aec35083ff49d2854d07f7186f7f5 # v5
         with:
           wait_for_boot: true
-          os: iOS
-          os_version: ${{ matrix.simulator.os }}
-          model: ${{ matrix.simulator.model }}
+          udid: ${{ steps.simulator.outputs.udid }}
       - name: Pre-build the app
         working-directory: example
         run: flutter build ios --simulator --target=integration_test/app_test.dart
       - name: Run flutter integration tests
         working-directory: example
-        run: flutter test integration_test/app_test.dart -d iphone
+        run: flutter test integration_test/app_test.dart -d ${{ steps.simulator.outputs.udid }}
 
   drive_macos:
     name: macOS
