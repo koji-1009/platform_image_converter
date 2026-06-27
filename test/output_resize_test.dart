@@ -137,5 +137,35 @@ void main() {
       expect(() => FitResizeMode(width: 0), throwsA(isA<AssertionError>()));
       expect(() => FitResizeMode(height: -5), throwsA(isA<AssertionError>()));
     });
+
+    // An extreme aspect ratio rounds one side down to round(3 * 5 / 4000) == 0,
+    // which the native encoders reject. calculateSize clamps each dimension
+    // independently, so both the height side and the symmetric width side must
+    // come back as 1.
+    const clampCases = [
+      (
+        side: 'height',
+        mode: FitResizeMode(width: 5),
+        w: 4000,
+        h: 3,
+        expW: 5,
+        expH: 1,
+      ),
+      (
+        side: 'width',
+        mode: FitResizeMode(height: 5),
+        w: 3,
+        h: 4000,
+        expW: 1,
+        expH: 5,
+      ),
+    ];
+    for (final c in clampCases) {
+      test('FitResizeMode clamps a rounded-to-zero ${c.side} up to 1', () {
+        final (width, height) = c.mode.calculateSize(c.w, c.h);
+        expect(width, c.expW);
+        expect(height, c.expH);
+      });
+    }
   });
 }

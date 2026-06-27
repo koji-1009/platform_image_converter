@@ -5,7 +5,21 @@ sealed class ResizeMode {
   const ResizeMode();
 
   /// Calculates the target size for the image based on the original dimensions.
-  (int, int) calculateSize(int originalWidth, int originalHeight);
+  ///
+  /// The returned width and height are clamped to a minimum of 1px. An extreme
+  /// aspect ratio can otherwise round a side down to 0 — fitting a 4000x3 image
+  /// to width 5 yields a height of `round(3 * 5 / 4000) == 0` — and every native
+  /// encoder rejects a zero-sized surface. Clamping here keeps that invariant in
+  /// one place for all modes, including release builds where the subclasses'
+  /// positive-dimension asserts are stripped.
+  (int, int) calculateSize(int originalWidth, int originalHeight) {
+    final (width, height) = _computeSize(originalWidth, originalHeight);
+    return (max(1, width), max(1, height));
+  }
+
+  /// The unclamped target size for this mode; [calculateSize] applies the
+  /// minimum-dimension clamp around it.
+  (int, int) _computeSize(int originalWidth, int originalHeight);
 }
 
 /// A resize mode that keeps the original dimensions of the image.
@@ -13,7 +27,7 @@ class OriginalResizeMode extends ResizeMode {
   const OriginalResizeMode();
 
   @override
-  (int, int) calculateSize(int originalWidth, int originalHeight) {
+  (int, int) _computeSize(int originalWidth, int originalHeight) {
     return (originalWidth, originalHeight);
   }
 }
@@ -31,7 +45,7 @@ class ExactResizeMode extends ResizeMode {
   final int height;
 
   @override
-  (int, int) calculateSize(int originalWidth, int originalHeight) {
+  (int, int) _computeSize(int originalWidth, int originalHeight) {
     return (width, height);
   }
 }
@@ -54,7 +68,7 @@ class FitResizeMode extends ResizeMode {
   final int? height;
 
   @override
-  (int, int) calculateSize(int originalWidth, int originalHeight) {
+  (int, int) _computeSize(int originalWidth, int originalHeight) {
     final scale = switch ((width, height)) {
       (final w?, final h?) => min(w / originalWidth, h / originalHeight),
       (final w?, null) => w / originalWidth,
