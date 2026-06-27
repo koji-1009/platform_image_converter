@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:platform_image_converter/src/darwin/apple_cf_types.dart';
 import 'package:platform_image_converter/src/darwin/bindings.g.dart';
 import 'package:platform_image_converter/src/exif_orientation_policy.dart';
@@ -286,13 +287,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     // orientation 1, so the non-oriented path is unchanged.
     CGContextConcatCTM(
       context,
-      _orientationTransform(
-        exifOrientation,
-        rawWidth,
-        rawHeight,
-        width,
-        height,
-      ),
+      orientationTransform(exifOrientation, rawWidth, rawHeight, width, height),
     );
 
     final rect = Struct.create<CGRect>()
@@ -346,7 +341,10 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   /// the context's bottom-left, y-up space (identity reproduces the input). The
   /// four corners of the raw box are mapped to find the translation that seats
   /// the result in the positive quadrant; the scale to the output is folded in.
-  CGAffineTransform _orientationTransform(
+  ///
+  /// Pure math (no native call), so it is exposed for host unit testing.
+  @visibleForTesting
+  CGAffineTransform orientationTransform(
     int orientation,
     int rawWidth,
     int rawHeight,
