@@ -187,9 +187,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
   }
 
   /// Builds the encoding options dictionary, or `null` for formats without
-  /// options (PNG/WebP). The quality [CFNumberRef] is registered in [arena]
-  /// (the caller's) so it outlives the dictionary's use during encoding; the
-  /// dictionary itself is returned for the caller to register.
+  /// options (PNG/WebP). Both the dictionary and its quality [CFNumberRef] are
+  /// registered in [arena] (the caller's), so they are released when it drains —
+  /// after the dictionary's use during encoding.
   CFDictionaryRef? _createPropertiesForFormat(
     Arena arena,
     OutputFormat format,
@@ -223,7 +223,9 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     values[0] = number.cast<Void>();
 
     // Null callbacks: the dictionary neither retains nor releases its key/value
-    // (their lifetimes are managed by the arena).
+    // (their lifetimes are managed by the arena). Register the dictionary in the
+    // arena too, beside its CFNumber — `releasedBy` skips a nullptr, so a failed
+    // create is still returned for the caller's null check.
     return CFDictionaryCreate(
       kCFAllocatorDefault,
       keys.cast(),
@@ -231,7 +233,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
       1,
       nullptr,
       nullptr,
-    );
+    )..releasedBy(arena);
   }
 
   /// Draws [originalImage] into a fixed 8-bpc sRGB premultiplied-RGBA context
