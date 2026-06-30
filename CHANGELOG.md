@@ -1,3 +1,7 @@
+## Unreleased
+
+* Add host-runnable unit tests for the EXIF orientation transforms on the Darwin and Windows backends. The pure transform functions are exposed via `@visibleForTesting` and covered by tests that pin the CoreGraphics affine matrix (all eight orientations, plus a scaled case) and the WIC `WICBitmapTransformOptions` mapping, so a regression in that math is caught on the unit-test runner without a device or simulator. No behavior change.
+
 ## 2.1.3
 
 * Fix a memory leak on iOS/macOS: the `CFDictionary` holding the JPEG/HEIC compression quality was created but never released, leaking one dictionary per lossy conversion. It is now released together with the surrounding arena.

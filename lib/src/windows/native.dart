@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
@@ -217,7 +218,7 @@ final class ImageConverterWindows implements ImageConverterPlatform {
         // rotation; [_orientationTransform] encodes that. Identity (orientation
         // 1) skips the rotator entirely, leaving the non-oriented path unchanged.
         var source = converter;
-        final transform = _orientationTransform(exifOrientation);
+        final transform = orientationTransform(exifOrientation);
         if (transform != wicBitmapTransformRotate0) {
           final pRotator = arena<Pointer<Void>>();
           if (wicCreateBitmapFlipRotator(factory, pRotator) != sOk) {
@@ -387,7 +388,10 @@ final class ImageConverterWindows implements ImageConverterPlatform {
   /// (verified by the corner mapping — flip-first yields the transpose for 5 and
   /// the transverse for 7). Returns [wicBitmapTransformRotate0] (identity) for 1
   /// and any unexpected value, so the caller skips the rotator.
-  int _orientationTransform(int orientation) => switch (orientation) {
+  ///
+  /// Pure mapping (no native call), so it is exposed for host unit testing.
+  @visibleForTesting
+  int orientationTransform(int orientation) => switch (orientation) {
     2 => wicBitmapTransformFlipHorizontal,
     3 => wicBitmapTransformRotate180,
     4 => wicBitmapTransformFlipVertical,
