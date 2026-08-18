@@ -9,8 +9,6 @@ output:
     path: lib/src/android/bindings.g.dart
     structure: single_file
 
-source_path:
-  - 'java/'
 classes:
   - 'java.io.ByteArrayOutputStream'
   - 'java.io.ByteArrayInputStream'
