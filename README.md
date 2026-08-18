@@ -10,7 +10,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 - 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable libheif GdkPixbuf loader is installed).
 - 📐 **High-Quality Resizing**: Resize images with different modes (`Fit`, `Exact`) while maintaining aspect ratio or targeting specific dimensions.
 - 🧭 **EXIF Orientation**: Bakes the source's EXIF orientation into the output by default (`ExifOrientationPolicy.apply`) so camera photos come out upright and consistent on every platform; opt out with `ExifOrientationPolicy.ignore`.
-- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
+- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `ImageDecoder`/`BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
 - 🔒 **Efficient Native Interop**: Employs FFI and JNI to create a fast, type-safe bridge between Dart and native code, ensuring robust and reliable communication.
 
 ## Platform Support
@@ -19,7 +19,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 |----------|-----------------|----------|
 | iOS      | 14.0            | ImageIO, Core Graphics |
 | macOS    | 10.15           | ImageIO, Core Graphics |
-| Android  | 7               | BitmapFactory, Bitmap compression |
+| Android  | 7               | ImageDecoder (9+), BitmapFactory, Bitmap compression |
 | Windows  | 10              | Windows Imaging Component (WIC) |
 | Linux    | -               | GdkPixbuf (GLib/GTK stack) |
 | Web      | -               | Canvas API |
@@ -64,7 +64,7 @@ final pngData = await ImageConverter.convert(
 
 ### Input Formats
 - **iOS/macOS**: JPEG, PNG, HEIC, WebP, BMP, GIF, TIFF, and more
-- **Android**: JPEG, PNG, WebP, GIF, BMP, HEIC (via BitmapFactory)
+- **Android**: JPEG, PNG, WebP, GIF, BMP, HEIC (via ImageDecoder/BitmapFactory)
 - **Windows**: JPEG, PNG, GIF, BMP, TIFF, and (with the relevant OS codec) HEIC, WebP (via WIC)
 - **Linux**: JPEG, PNG, GIF, BMP, and (where the relevant GdkPixbuf loader is installed) WebP, HEIC
 - **Web**: JPEG, PNG, WebP, GIF, BMP (via Canvas API)
@@ -154,12 +154,11 @@ The iOS/macOS implementation uses the [ImageIO](https://developer.apple.com/docu
 
 ### Android Implementation
 
-The Android implementation uses [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)):
+The Android implementation decodes with [ImageDecoder](https://developer.android.com/reference/android/graphics/ImageDecoder) or [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and encodes with [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)):
 
-1. **Decoding**: `BitmapFactory.decodeByteArray` handles all supported formats.
-2. **Resizing**: `Bitmap.createScaledBitmap` is used to create a new, resized bitmap from the original, with filtering enabled for smoother results.
-3. **Compression**: `Bitmap.compress` encodes the final bitmap to the target format.
-4. **Buffer Management**: `ByteArrayOutputStream` manages output data.
+1. **Decoding**: On Android 9+ with `ExifOrientationPolicy.apply`, `ImageDecoder.decodeBitmap` decodes and — via `setTargetSize` in its header callback — resizes in a single pass, so the full-resolution bitmap is never materialized. `ImageDecoder` also bakes in the source's EXIF orientation itself. Otherwise `BitmapFactory.decodeByteArray` decodes, `ExifInterface` + `Matrix` apply the orientation, and `Bitmap.createScaledBitmap` resizes afterwards (filtering enabled). `ExifOrientationPolicy.ignore` always takes this second path, because `ImageDecoder` offers no way to skip the orientation.
+2. **Compression**: `Bitmap.compress` encodes the final bitmap to the target format. WebP uses the explicit `WEBP_LOSSY`/`WEBP_LOSSLESS` formats on Android 11+ (quality 100 selects lossless, matching what the deprecated combined `WEBP` format did) and `WEBP` below that.
+3. **Buffer Management**: `ByteArrayOutputStream` manages output data.
 
 ### Windows Implementation
 

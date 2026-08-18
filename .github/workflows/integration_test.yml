@@ -12,14 +12,19 @@ concurrency:
 
 jobs:
   drive_android:
-    name: Android
+    name: Android API ${{ matrix.api-level }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
     strategy:
       matrix:
-        api-level: [29]
+        # One API level per behavioral region of the Android backend:
+        # 24 is the plugin's floor and decodes with BitmapFactory; 28 is the
+        # first level that decodes with ImageDecoder; 30 is the first that
+        # selects the explicit WEBP_LOSSY/WEBP_LOSSLESS compress formats; 36
+        # covers current devices. All four have a `default;x86_64` system image.
+        api-level: [24, 28, 30, 36]
       fail-fast: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
