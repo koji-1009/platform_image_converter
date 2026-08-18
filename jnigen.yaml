@@ -16,5 +16,8 @@ classes:
   - 'java.io.ByteArrayInputStream'
   - 'android/graphics/BitmapFactory'
   - 'android/graphics/Bitmap'
+  - 'android/graphics/ImageDecoder'
   - 'android/graphics/Matrix'
   - 'android/media/ExifInterface'
+  - 'android/os/Build'
+  - 'android/util/Size'
