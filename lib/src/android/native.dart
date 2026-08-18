@@ -96,7 +96,15 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
         );
       }
 
-      return Uint8List.fromList(outputJBytes.getRange(0, outputJBytes.length));
+      // `getRange` copies the encoded bytes into a native buffer it takes from
+      // the allocator. With the default (`malloc`) it attaches a NativeFinalizer
+      // and that buffer — as large as the output image — lives until the Dart GC
+      // runs it. Taking it from [arena] instead drops the finalizer and frees it
+      // when this scope ends; the copy into the returned [Uint8List] happens
+      // first, so nothing outlives the arena.
+      return Uint8List.fromList(
+        outputJBytes.getRange(0, outputJBytes.length, allocator: arena),
+      );
     });
   }
 
