@@ -1,7 +1,9 @@
-## Unreleased
+## 2.2.0
 
 * Decode with `ImageDecoder` on Android 9+ (API 28) when `ExifOrientationPolicy.apply` is in effect. `setTargetSize` in the header callback scales during the decode, so a resize no longer materializes the full-resolution bitmap before `Bitmap.createScaledBitmap` shrinks it, and `ImageDecoder` bakes in the EXIF orientation itself. The `BitmapFactory` path is unchanged and still used below API 28 and for `ExifOrientationPolicy.ignore`, which `ImageDecoder` cannot express; the plugin's `minSdk` is unchanged.
 * Use the explicit `WEBP_LOSSY`/`WEBP_LOSSLESS` compress formats for WebP output on Android 11+ (API 30), where the combined `WEBP` format is deprecated. A `quality` of 100 selects `WEBP_LOSSLESS` and anything lower `WEBP_LOSSY`, which is what `WEBP` itself did, so the output is unchanged.
+* Free the Android JNI output buffer deterministically. `JByteArray.getRange` took its native buffer from `malloc` with a `NativeFinalizer` attached, so a buffer as large as the encoded output stayed alive until the Dart GC ran that finalizer. It now comes from the surrounding arena and is freed when the conversion scope ends.
+* Regenerate the bindings with `jnigen` 0.17.0 and `ffigen` 21.0.0.
 * Add host-runnable unit tests for the EXIF orientation transforms on the Darwin and Windows backends. The pure transform functions are exposed via `@visibleForTesting` and covered by tests that pin the CoreGraphics affine matrix (all eight orientations, plus a scaled case) and the WIC `WICBitmapTransformOptions` mapping, so a regression in that math is caught on the unit-test runner without a device or simulator. No behavior change.
 
 ## 2.1.3
