@@ -1,7 +1,6 @@
 # platform_image_converter
 
-[![pub package](https://img.shields.io/pub/v/platform_image_converter.svg)](https://pub.dev/packages/platform_image_converter)
-[![GitHub license](https://img.shields.io/github/license/koji-1009/platform_image_converter)](https://github.com/koji-1009/platform_image_converter/blob/main/LICENSE)
+[![pub package](https://img.shields.io/pub/v/platform_image_converter.svg)](https://pub.dev/packages/platform_image_converter) [![GitHub license](https://img.shields.io/github/license/koji-1009/platform_image_converter)](https://github.com/koji-1009/platform_image_converter/blob/main/LICENSE) [![Analyze](https://img.shields.io/github/actions/workflow/status/koji-1009/platform_image_converter/analyze.yml?branch=main&label=analyze)](https://github.com/koji-1009/platform_image_converter/actions/workflows/analyze.yml) [![Integration Test](https://img.shields.io/github/actions/workflow/status/koji-1009/platform_image_converter/integration_test.yml?branch=main&label=integration%20test)](https://github.com/koji-1009/platform_image_converter/actions/workflows/integration_test.yml)
 
 A high-performance Flutter plugin for cross-platform image format conversion and resizing using native APIs on iOS, macOS, Android, Windows, Linux, and Web.
 
