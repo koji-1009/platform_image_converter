@@ -54,14 +54,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: koji-1009/setup-flutter@9a42a50501f6af795c1a42e2c3c371f40e8c54b2 # v1.4.0
-      - parallel:
-          - uses: koji-1009/boot-simctl@59420d2a1284d7c4227e19e9bab3e11172c883a4 # v1.2.1
-            with:
-              device: iPhone
-              os: "26"
-          - name: Pre-build the app
-            working-directory: example
-            run: flutter build ios --simulator --target=integration_test/app_test.dart
+      - name: Pre-build the app
+        working-directory: example
+        run: flutter build ios --simulator --target=integration_test/app_test.dart
+      - uses: koji-1009/boot-simctl@59420d2a1284d7c4227e19e9bab3e11172c883a4 # v1.2.1
+        with:
+          device: iPhone
+          os: "26"
       - name: Run flutter integration tests
         working-directory: example
         run: flutter test integration_test/app_test.dart -d "$SIMULATOR_UDID"
