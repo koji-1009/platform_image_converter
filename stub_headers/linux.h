@@ -4,12 +4,13 @@
 // exactly the declarations below — none of GLib/GObject's huge transitive type
 // graph. The signatures and the struct/enum layouts mirror the real headers
 //   gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf.h  and  glib-2.0/glib/*.h
-// and are kept honest by the headless conversion test, which drives the live
-// library on Linux CI (test/linux_conversion_test.dart): an ABI mismatch
-// between this stub and the installed library would crash or misbehave there.
+// and are kept honest by the integration test, which drives the live library
+// on Linux CI (example/integration_test/app_test.dart in the drive_linux job):
+// an ABI mismatch between this stub and the installed library would crash or
+// misbehave there.
 //
 // To change the surface: edit this header, then regenerate with
-//   dart run ffigen --config ffigen.yaml
+//   dart run ffigen_linux.dart
 
 // --- GLib primitive typedefs (stable across the GLib 2.x ABI) ---
 typedef int gint;
