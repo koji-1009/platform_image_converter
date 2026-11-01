@@ -253,82 +253,66 @@ void main() {
     });
 
     test('WebP to WebP with quality 100 should produce same file size', () async {
-      if (_supportsWebpOutput) {
-        // WebP to WebP with quality 100
-        final converted1 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 100,
-        );
-        final converted2 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 100,
-        );
+      final converted1 = await ImageConverter.convert(
+        inputData: webpData,
+        format: OutputFormat.webp,
+        quality: 100,
+      );
+      final converted2 = await ImageConverter.convert(
+        inputData: webpData,
+        format: OutputFormat.webp,
+        quality: 100,
+      );
 
-        expect(
-          converted1.length,
-          equals(converted2.length),
-          reason:
-              'Converting same WebP with same format and quality=100 should produce same file size',
-        );
-      } else {
-        expect(
-          () => ImageConverter.convert(
-            inputData: webpData,
-            format: OutputFormat.webp,
-            quality: 100,
-          ),
-          throwsA(isA<UnsupportedFormatException>()),
-          reason: 'WebP output is only supported on Android, Linux and Web.',
-        );
-      }
-    });
+      expect(
+        converted1.length,
+        equals(converted2.length),
+        reason:
+            'Converting same WebP with same format and quality=100 should produce same file size',
+      );
+    }, skip: !_supportsWebpOutput);
 
     test(
       'WebP with quality 50 should produce different file size than quality 100',
       () async {
-        if (_supportsWebpOutput) {
-          // WebP with quality 100
-          final quality100 = await ImageConverter.convert(
-            inputData: webpData,
-            format: OutputFormat.webp,
-            quality: 100,
-          );
+        final quality100 = await ImageConverter.convert(
+          inputData: webpData,
+          format: OutputFormat.webp,
+          quality: 100,
+        );
+        final quality50 = await ImageConverter.convert(
+          inputData: webpData,
+          format: OutputFormat.webp,
+          quality: 50,
+        );
 
-          // WebP with quality 50
-          final quality50 = await ImageConverter.convert(
-            inputData: webpData,
-            format: OutputFormat.webp,
-            quality: 50,
-          );
-
-          if (_webpQualityAffectsOutput) {
-            expect(
-              quality100.length,
-              isNot(equals(quality50.length)),
-              reason:
-                  'Converting same WebP with different quality should produce different file size',
-            );
-          } else {
-            expect(
-              quality50,
-              equals(quality100),
-              reason: 'WebP quality has no effect on this platform.',
-            );
-          }
-        } else {
-          expect(
-            () => ImageConverter.convert(
-              inputData: webpData,
-              format: OutputFormat.webp,
-              quality: 50,
-            ),
-            throwsA(isA<UnsupportedFormatException>()),
-            reason: 'WebP output is only supported on Android, Linux and Web.',
-          );
-        }
+        expect(
+          quality100.length,
+          isNot(equals(quality50.length)),
+          reason:
+              'Converting same WebP with different quality should produce different file size',
+        );
       },
+      skip: !_webpQualityAffectsOutput,
+    );
+
+    test(
+      'WebP with quality 50 should produce the same output as quality 100',
+      () async {
+        final quality100 = await ImageConverter.convert(
+          inputData: webpData,
+          format: OutputFormat.webp,
+          quality: 100,
+        );
+        final quality50 = await ImageConverter.convert(
+          inputData: webpData,
+          format: OutputFormat.webp,
+          quality: 50,
+        );
+
+        expect(quality50, equals(quality100));
+      },
+      skip: !_supportsWebpOutput || _webpQualityAffectsOutput,
     );
   });
 
@@ -354,36 +338,24 @@ void main() {
     });
 
     test('JPEG to WebP should produce different file size', () async {
-      if (_supportsWebpOutput) {
-        final jpegConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.jpeg,
-          quality: 100,
-        );
+      final jpegConverted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.jpeg,
+        quality: 100,
+      );
 
-        final webpConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.webp,
-          quality: 100,
-        );
+      final webpConverted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.webp,
+        quality: 100,
+      );
 
-        expect(
-          jpegConverted.length,
-          isNot(equals(webpConverted.length)),
-          reason: 'Converting JPEG to WebP should produce different file size',
-        );
-      } else {
-        expect(
-          () => ImageConverter.convert(
-            inputData: jpegData,
-            format: OutputFormat.webp,
-            quality: 100,
-          ),
-          throwsA(isA<UnsupportedFormatException>()),
-          reason: 'WebP output is only supported on Android, Linux and Web.',
-        );
-      }
-    });
+      expect(
+        jpegConverted.length,
+        isNot(equals(webpConverted.length)),
+        reason: 'Converting JPEG to WebP should produce different file size',
+      );
+    }, skip: !_supportsWebpOutput);
 
     test('PNG to JPEG should produce different file size', () async {
       final pngConverted = await ImageConverter.convert(
@@ -407,25 +379,20 @@ void main() {
   });
 
   group('Platform-specific format support', () {
-    test('WebP output support', () async {
-      if (_supportsWebpOutput) {
-        final webpConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.webp,
-        );
-        expect(webpConverted, isA<Uint8List>());
-        expect(webpConverted.isNotEmpty, isTrue);
-      } else {
-        expect(
-          () => ImageConverter.convert(
-            inputData: jpegData,
-            format: OutputFormat.webp,
-          ),
-          throwsA(isA<UnsupportedFormatException>()),
-          reason: 'WebP output is not supported on this platform.',
-        );
-      }
-    });
+    test('WebP output is supported', () async {
+      final webpConverted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.webp,
+      );
+      expect(webpConverted, isNotEmpty);
+    }, skip: !_supportsWebpOutput);
+
+    test('WebP output throws UnsupportedFormatException', () async {
+      await expectLater(
+        ImageConverter.convert(inputData: jpegData, format: OutputFormat.webp),
+        throwsA(isA<UnsupportedFormatException>()),
+      );
+    }, skip: _supportsWebpOutput);
 
     test('HEIC output is codecUnavailable on Linux', () async {
       await expectLater(
