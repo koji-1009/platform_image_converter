@@ -42,6 +42,9 @@ String _typeName(OutputFormat format) => switch (format) {
 ///   which varies by distribution. When none is present the backend throws
 ///   [UnsupportedFormatException] with reason
 ///   [UnsupportedFormatReason.codecUnavailable] rather than failing hard.
+///
+/// **Alpha:** JPEG has no alpha channel, so for JPEG output a source with
+/// alpha is composited onto opaque black (transparent pixels become black).
 final class ImageConverterLinux implements ImageConverterPlatform {
   const ImageConverterLinux();
 
@@ -122,11 +125,23 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       final height = gdk_pixbuf_get_height(oriented);
       final (newWidth, newHeight) = resizeMode.calculateSize(width, height);
 
-      // Scale only when the size changes (high-quality resampling). The scaled
-      // pixbuf is a new reference we own; the oriented one is either owned by
-      // the loader (orientation ignored) or by the arena (orientation applied).
-      var pixbuf = oriented;
-      if (newWidth != width || newHeight != height) {
+      // JPEG has no alpha channel, and the JPEG encoder may reject an RGBA
+      // pixbuf, so JPEG output from a source with alpha is flattened onto
+      // opaque black (resizing in the same pass). Otherwise scale only when the
+      // size changes (high-quality resampling). Any new pixbuf is a reference
+      // we own; the oriented one is either owned by the loader (orientation
+      // ignored) or by the arena (orientation applied).
+      final Pointer<GdkPixbuf> pixbuf;
+      if (format == .jpeg && gdk_pixbuf_get_has_alpha(oriented) != 0) {
+        pixbuf = _flattenAlpha(
+          arena,
+          oriented,
+          width,
+          height,
+          newWidth,
+          newHeight,
+        );
+      } else if (newWidth != width || newHeight != height) {
         pixbuf = gdk_pixbuf_scale_simple(
           oriented,
           newWidth,
@@ -136,6 +151,8 @@ final class ImageConverterLinux implements ImageConverterPlatform {
         if (pixbuf == nullptr) {
           throw const ImageConversionException('Failed to resize image.');
         }
+      } else {
+        pixbuf = oriented;
       }
 
       // Encode to an in-memory buffer.
@@ -166,6 +183,52 @@ final class ImageConverterLinux implements ImageConverterPlatform {
         g_free(buffer.cast());
       }
     });
+  }
+
+  /// Composites [src] (which has an alpha channel, [srcWidth]x[srcHeight]) over
+  /// opaque black into a new [destWidth]x[destHeight] 8-bit RGB pixbuf without
+  /// alpha, owned by [arena]. Scales with `GDK_INTERP_HYPER` when the size
+  /// changes, matching `gdk_pixbuf_scale_simple` in the non-flattening path.
+  Pointer<GdkPixbuf> _flattenAlpha(
+    Arena arena,
+    Pointer<GdkPixbuf> src,
+    int srcWidth,
+    int srcHeight,
+    int destWidth,
+    int destHeight,
+  ) {
+    final dest = gdk_pixbuf_new(
+      GdkColorspace.GDK_COLORSPACE_RGB,
+      0,
+      8,
+      destWidth,
+      destHeight,
+    )..unrefBy(arena);
+    if (dest == nullptr) {
+      throw const ImageConversionException('Failed to allocate image buffer.');
+    }
+    // gdk_pixbuf_new leaves the pixel memory uninitialized. The fill value is
+    // RGBA; its alpha byte is ignored for a pixbuf without alpha.
+    gdk_pixbuf_fill(dest, 0x000000ff);
+    final resize = destWidth != srcWidth || destHeight != srcHeight;
+    gdk_pixbuf_composite(
+      src,
+      dest,
+      0,
+      0,
+      destWidth,
+      destHeight,
+      0,
+      0,
+      destWidth / srcWidth,
+      destHeight / srcHeight,
+      // At scale 1, NEAREST copies each source pixel as is.
+      resize
+          ? GdkInterpType.GDK_INTERP_HYPER
+          : GdkInterpType.GDK_INTERP_NEAREST,
+      255,
+    );
+    return dest;
   }
 
   /// Whether GdkPixbuf has a *writable* loader for the format's [type] name

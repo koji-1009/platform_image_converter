@@ -253,7 +253,7 @@ void main() {
     });
 
     test('WebP to WebP with quality 100 should produce same file size', () async {
-      if (defaultTargetPlatform == TargetPlatform.android || kIsWeb) {
+      if (_supportsWebpOutput) {
         // WebP to WebP with quality 100
         final converted1 = await ImageConverter.convert(
           inputData: webpData,
@@ -280,7 +280,7 @@ void main() {
             quality: 100,
           ),
           throwsA(isA<UnsupportedFormatException>()),
-          reason: 'WebP output is only supported on Android and Web.',
+          reason: 'WebP output is only supported on Android, Linux and Web.',
         );
       }
     });
@@ -288,7 +288,7 @@ void main() {
     test(
       'WebP with quality 50 should produce different file size than quality 100',
       () async {
-        if (defaultTargetPlatform == TargetPlatform.android || kIsWeb) {
+        if (_supportsWebpOutput) {
           // WebP with quality 100
           final quality100 = await ImageConverter.convert(
             inputData: webpData,
@@ -303,12 +303,20 @@ void main() {
             quality: 50,
           );
 
-          expect(
-            quality100.length,
-            isNot(equals(quality50.length)),
-            reason:
-                'Converting same WebP with different quality should produce different file size',
-          );
+          if (_webpQualityAffectsOutput) {
+            expect(
+              quality100.length,
+              isNot(equals(quality50.length)),
+              reason:
+                  'Converting same WebP with different quality should produce different file size',
+            );
+          } else {
+            expect(
+              quality50,
+              equals(quality100),
+              reason: 'WebP quality has no effect on this platform.',
+            );
+          }
         } else {
           expect(
             () => ImageConverter.convert(
@@ -317,7 +325,7 @@ void main() {
               quality: 50,
             ),
             throwsA(isA<UnsupportedFormatException>()),
-            reason: 'WebP output is only supported on Android and Web.',
+            reason: 'WebP output is only supported on Android, Linux and Web.',
           );
         }
       },
@@ -346,7 +354,7 @@ void main() {
     });
 
     test('JPEG to WebP should produce different file size', () async {
-      if (defaultTargetPlatform == TargetPlatform.android || kIsWeb) {
+      if (_supportsWebpOutput) {
         final jpegConverted = await ImageConverter.convert(
           inputData: jpegData,
           format: OutputFormat.jpeg,
@@ -372,7 +380,7 @@ void main() {
             quality: 100,
           ),
           throwsA(isA<UnsupportedFormatException>()),
-          reason: 'WebP output is only supported on Android and Web.',
+          reason: 'WebP output is only supported on Android, Linux and Web.',
         );
       }
     });
@@ -400,7 +408,7 @@ void main() {
 
   group('Platform-specific format support', () {
     test('WebP output support', () async {
-      if (defaultTargetPlatform == TargetPlatform.android || kIsWeb) {
+      if (_supportsWebpOutput) {
         final webpConverted = await ImageConverter.convert(
           inputData: jpegData,
           format: OutputFormat.webp,
@@ -418,6 +426,56 @@ void main() {
         );
       }
     });
+
+    test('HEIC output is codecUnavailable on Linux', () async {
+      await expectLater(
+        ImageConverter.convert(inputData: jpegData, format: OutputFormat.heic),
+        throwsA(
+          isA<UnsupportedFormatException>().having(
+            (e) => e.reason,
+            'reason',
+            UnsupportedFormatReason.codecUnavailable,
+          ),
+        ),
+      );
+    }, skip: !_isLinux);
+  });
+
+  group('JPEG output from a source with alpha', () {
+    // Alpha ramps 0..255 across X (fully transparent at x=0, opaque at
+    // x=127); the gray value ramps with x+y.
+    final input = _makePng(
+      format: img.Format.uint8,
+      numChannels: 4,
+      transparent: true,
+    );
+
+    for (final (label, resizeMode, size) in <(String, ResizeMode, int)>[
+      ('original size', const OriginalResizeMode(), 128),
+      ('resized', ExactResizeMode(width: 64, height: 64), 64),
+    ]) {
+      test('$label: transparent pixels flatten to black', () async {
+        final converted = await ImageConverter.convert(
+          inputData: input,
+          format: OutputFormat.jpeg,
+          resizeMode: resizeMode,
+        );
+
+        final decoded = img.decodeJpg(converted);
+        expect(decoded, isNotNull);
+        expect(decoded!.width, size);
+        expect(decoded.height, size);
+        expect(decoded.numChannels, 3);
+
+        final mid = size ~/ 2;
+        // Transparent edge: composited onto black.
+        final transparent = decoded.getPixel(0, mid);
+        expect(transparent.r, closeTo(0, 24));
+        // Opaque edge: keeps the source gray, (127 + 64) / 254 * 255 ≈ 192.
+        final opaque = decoded.getPixel(size - 1, mid);
+        expect(opaque.r, closeTo(192, 24));
+      }, skip: !_isLinux);
+    }
   });
 
   group('Conversion across source pixel formats', () {
@@ -611,6 +669,18 @@ Future<Uint8List> _loadAssetImage(String assetPath) async {
   final data = await rootBundle.load(assetPath);
   return data.buffer.asUint8List();
 }
+
+/// Platforms on which WebP output is expected to succeed.
+bool get _supportsWebpOutput =>
+    kIsWeb ||
+    defaultTargetPlatform == TargetPlatform.android ||
+    defaultTargetPlatform == TargetPlatform.linux;
+
+/// Platforms on which WebP `quality` changes the encoded output.
+bool get _webpQualityAffectsOutput =>
+    kIsWeb || defaultTargetPlatform == TargetPlatform.android;
+
+bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
 
 /// Build a PNG with the given bit depth and channel count. When [transparent]
 /// the alpha channel ramps 0..max across X so transparency is exercised.

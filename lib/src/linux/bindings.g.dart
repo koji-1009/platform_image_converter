@@ -22,6 +22,70 @@ external ffi.Pointer<GdkPixbuf> gdk_pixbuf_apply_embedded_orientation(
   ffi.Pointer<GdkPixbuf> src,
 );
 
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<GdkPixbuf>,
+    ffi.Pointer<GdkPixbuf>,
+    ffi.Int,
+    ffi.Int,
+    ffi.Int,
+    ffi.Int,
+    ffi.Double,
+    ffi.Double,
+    ffi.Double,
+    ffi.Double,
+    ffi.UnsignedInt,
+    ffi.Int,
+  )
+>(symbol: 'gdk_pixbuf_composite')
+external void _gdk_pixbuf_composite(
+  ffi.Pointer<GdkPixbuf> src,
+  ffi.Pointer<GdkPixbuf> dest,
+  int dest_x,
+  int dest_y,
+  int dest_width,
+  int dest_height,
+  double offset_x,
+  double offset_y,
+  double scale_x,
+  double scale_y,
+  int interp_type,
+  int overall_alpha,
+);
+
+void gdk_pixbuf_composite(
+  ffi.Pointer<GdkPixbuf> src,
+  ffi.Pointer<GdkPixbuf> dest,
+  int dest_x,
+  int dest_y,
+  int dest_width,
+  int dest_height,
+  double offset_x,
+  double offset_y,
+  double scale_x,
+  double scale_y,
+  GdkInterpType interp_type,
+  int overall_alpha,
+) {
+  return _gdk_pixbuf_composite(
+    src,
+    dest,
+    dest_x,
+    dest_y,
+    dest_width,
+    dest_height,
+    offset_x,
+    offset_y,
+    scale_x,
+    scale_y,
+    interp_type.value,
+    overall_alpha,
+  );
+}
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<GdkPixbuf>, guint32)>()
+external void gdk_pixbuf_fill(ffi.Pointer<GdkPixbuf> pixbuf, int pixel);
+
 @ffi.Native<ffi.Pointer<gchar> Function(ffi.Pointer<GdkPixbufFormat>)>()
 external ffi.Pointer<gchar> gdk_pixbuf_format_get_name(
   ffi.Pointer<GdkPixbufFormat> format,
@@ -32,6 +96,9 @@ external int gdk_pixbuf_format_is_writable(ffi.Pointer<GdkPixbufFormat> format);
 
 @ffi.Native<ffi.Pointer<GSList> Function()>()
 external ffi.Pointer<GSList> gdk_pixbuf_get_formats();
+
+@ffi.Native<gboolean Function(ffi.Pointer<GdkPixbuf>)>()
+external int gdk_pixbuf_get_has_alpha(ffi.Pointer<GdkPixbuf> pixbuf);
 
 @ffi.Native<ffi.Int Function(ffi.Pointer<GdkPixbuf>)>()
 external int gdk_pixbuf_get_height(ffi.Pointer<GdkPixbuf> pixbuf);
@@ -73,6 +140,39 @@ external int gdk_pixbuf_loader_write(
   int count,
   ffi.Pointer<ffi.Pointer<GError>> error,
 );
+
+@ffi.Native<
+  ffi.Pointer<GdkPixbuf> Function(
+    ffi.UnsignedInt,
+    gboolean,
+    ffi.Int,
+    ffi.Int,
+    ffi.Int,
+  )
+>(symbol: 'gdk_pixbuf_new')
+external ffi.Pointer<GdkPixbuf> _gdk_pixbuf_new(
+  int colorspace,
+  int has_alpha,
+  int bits_per_sample,
+  int width,
+  int height,
+);
+
+ffi.Pointer<GdkPixbuf> gdk_pixbuf_new(
+  GdkColorspace colorspace,
+  Dartgint has_alpha,
+  int bits_per_sample,
+  int width,
+  int height,
+) {
+  return _gdk_pixbuf_new(
+    colorspace.value,
+    has_alpha,
+    bits_per_sample,
+    width,
+    height,
+  );
+}
 
 @ffi.Native<
   gboolean Function(
@@ -164,6 +264,19 @@ final class GSList extends ffi.Struct {
   }) => $allocator<GSList>()
     ..ref.data = data
     ..ref.next = next;
+}
+
+/// --- GdkColorspace: RGB is the only colorspace GdkPixbuf supports ---
+enum GdkColorspace {
+  GDK_COLORSPACE_RGB(0);
+
+  final int value;
+  const GdkColorspace(this.value);
+
+  static GdkColorspace fromValue(int value) => switch (value) {
+    0 => GDK_COLORSPACE_RGB,
+    _ => throw ArgumentError('Unknown value for GdkColorspace: $value'),
+  };
 }
 
 /// --- GdkInterpType: the backend uses GDK_INTERP_HYPER (== 3) ---
