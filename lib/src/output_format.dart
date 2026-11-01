@@ -15,9 +15,9 @@
 ///   `UnsupportedFormatException` with reason `codecUnavailable`.
 ///
 /// ‡ Linux WebP/HEIC output requires a *writable* GdkPixbuf loader module (e.g.
-///   `webp-pixbuf-loader`, or the libheif GdkPixbuf loader), which varies by
-///   distribution; otherwise it throws an `UnsupportedFormatException` with
-///   reason `codecUnavailable`.
+///   `webp-pixbuf-loader`; the libheif GdkPixbuf loader only decodes, so it
+///   does not enable HEIC output), which varies by distribution; otherwise it
+///   throws an `UnsupportedFormatException` with reason `codecUnavailable`.
 ///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality
@@ -40,7 +40,8 @@ enum OutputFormat {
 
   /// HEIC format (.heic)
   /// High Efficiency Image Format. Output on Darwin, on Windows (where the OS
-  /// HEVC/HEIF codec is present), and on Linux (where a writable libheif
-  /// GdkPixbuf loader is installed); not supported on Android or Web.
+  /// HEVC/HEIF codec is present), and on Linux (where a writable `heif`
+  /// GdkPixbuf loader is installed; the libheif GdkPixbuf loader only
+  /// decodes); not supported on Android or Web.
   heic,
 }

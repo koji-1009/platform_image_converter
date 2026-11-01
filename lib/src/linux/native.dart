@@ -34,14 +34,15 @@ String _typeName(OutputFormat format) => switch (format) {
 /// Linux image converter using GdkPixbuf from the GLib/GTK stack.
 ///
 /// Decodes input with an in-memory `GdkPixbufLoader`, resizes with
-/// `gdk_pixbuf_scale_simple`, and re-encodes with `gdk_pixbuf_save_to_bufferv`.
+/// `gdk_pixbuf_scale_simple` (or with `gdk_pixbuf_composite` when JPEG output
+/// flattens alpha), and re-encodes with `gdk_pixbuf_save_to_bufferv`.
 ///
 /// **Output formats:**
 /// - JPEG and PNG: always available (built-in GdkPixbuf loaders).
 /// - WebP and HEIC: available only where a *writable* loader module is
 ///   installed (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only
-///   decodes), which varies by distribution. When none is present the backend throws
-///   [UnsupportedFormatException] with reason
+///   decodes), which varies by distribution. When none is present the backend
+///   throws [UnsupportedFormatException] with reason
 ///   [UnsupportedFormatReason.codecUnavailable] rather than failing hard.
 ///
 /// **Quality:** passed to the encoder only when its loader reports support for

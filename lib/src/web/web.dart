@@ -21,7 +21,8 @@ import 'package:web/web.dart';
 /// - Asynchronous image loading and encoding
 ///
 /// **API Stack:**
-/// - `HTMLImageElement`: Load and decode input image via Blob URL
+/// - `createImageBitmap`: Decode the input Blob, applying or ignoring the EXIF
+///   orientation
 /// - `CanvasRenderingContext2D.drawImage`: Render image to canvas
 /// - `HTMLCanvasElement.toBlob`: Encode canvas to target format
 ///
