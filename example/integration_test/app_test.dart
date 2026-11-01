@@ -127,272 +127,140 @@ void main() {
     });
   });
 
-  group('File size consistency tests', () {
-    test('Same format with quality 100 should produce same file size', () async {
-      // JPEG to JPEG with quality 100
-      final converted1 = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.jpeg,
-        quality: 100,
-      );
-      final converted2 = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.jpeg,
-        quality: 100,
-      );
+  group('Output format', () {
+    // Each source converted to each output format: the output must be in the
+    // requested format, decode, keep the source size and, where the source is
+    // sRGB, keep its pixels. png.png carries a non-sRGB (PQ) colour profile
+    // that the backends treat differently (see README), so only its format and
+    // size are checked.
+    final sources = <(String, Uint8List Function(), bool, bool)>[
+      ('JPEG', () => jpegData, true, true),
+      ('PNG', () => pngData, false, true),
+      ('WebP', () => webpData, true, _supportsWebpInput),
+    ];
+    for (final (label, source, comparePixels, decodable) in sources) {
+      for (final format in const [
+        OutputFormat.jpeg,
+        OutputFormat.png,
+        OutputFormat.webp,
+      ]) {
+        test(
+          '$label to ${format.name}',
+          () async {
+            final input = source();
+            final converted = await ImageConverter.convert(
+              inputData: input,
+              format: format,
+            );
 
-      expect(
-        converted1.length,
-        equals(converted2.length),
-        reason:
-            'Converting same image with same format and quality=100 should produce same file size',
-      );
-    });
-
-    test(
-      'Same format with quality 50 should produce different file size than quality 100',
-      () async {
-        // JPEG to JPEG with quality 100
-        final quality100 = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.jpeg,
-          quality: 100,
+            expect(_detectFormat(converted), format);
+            final expected = img.bakeOrientation(img.decodeImage(input)!);
+            final actual = img.decodeImage(converted);
+            expect(actual, isNotNull);
+            expect(actual!.width, expected.width);
+            expect(actual.height, expected.height);
+            if (comparePixels) {
+              expect(_meanRgbDiff(expected, actual), lessThan(8));
+            }
+          },
+          skip: !decodable
+              ? '$label input is not supported'
+              : format == OutputFormat.webp
+              ? _webpOutputSkip
+              : false,
         );
-
-        // JPEG to JPEG with quality 50
-        final quality50 = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.jpeg,
-          quality: 50,
-        );
-
-        expect(
-          quality100.length,
-          isNot(equals(quality50.length)),
-          reason:
-              'Converting same image with same format but different quality should produce different file size',
-        );
-
-        // Quality 50 should typically be smaller than quality 100
-        expect(
-          quality50.length,
-          lessThan(quality100.length),
-          reason: 'Lower quality should result in smaller file size',
-        );
-      },
-    );
-
-    test(
-      'Different formats with quality 100 should produce different file size',
-      () async {
-        // JPEG with quality 100
-        final jpegConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.jpeg,
-          quality: 100,
-        );
-
-        // PNG with quality 100
-        final pngConverted = await ImageConverter.convert(
-          inputData: jpegData,
-          format: OutputFormat.png,
-          quality: 100,
-        );
-
-        expect(
-          jpegConverted.length,
-          isNot(equals(pngConverted.length)),
-          reason:
-              'Converting same image to different formats should produce different file size',
-        );
-      },
-    );
-
-    test('PNG to PNG with quality 100 should produce same file size', () async {
-      // PNG to PNG with quality 100
-      final converted1 = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.png,
-        quality: 100,
-      );
-      final converted2 = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.png,
-        quality: 100,
-      );
-
-      expect(
-        converted1.length,
-        equals(converted2.length),
-        reason:
-            'Converting same PNG with same format and quality=100 should produce same file size',
-      );
-    });
-
-    test('PNG to PNG with quality 50 should produce same file size', () async {
-      // PNG with quality 100
-      final quality100 = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.png,
-        quality: 100,
-      );
-
-      // PNG with quality 50
-      final quality50 = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.png,
-        quality: 50,
-      );
-
-      expect(
-        quality100.length,
-        equals(quality50.length),
-        reason:
-            'Converting same PNG with same format and quality=50 should produce same file size',
-      );
-    });
-
-    test('WebP to WebP with quality 100 should produce same file size', () async {
-      final converted1 = await ImageConverter.convert(
-        inputData: webpData,
-        format: OutputFormat.webp,
-        quality: 100,
-      );
-      final converted2 = await ImageConverter.convert(
-        inputData: webpData,
-        format: OutputFormat.webp,
-        quality: 100,
-      );
-
-      expect(
-        converted1.length,
-        equals(converted2.length),
-        reason:
-            'Converting same WebP with same format and quality=100 should produce same file size',
-      );
-    }, skip: !_supportsWebpOutput);
-
-    test(
-      'WebP with quality 50 should produce different file size than quality 100',
-      () async {
-        final quality100 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 100,
-        );
-        final quality50 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 50,
-        );
-
-        expect(
-          quality100.length,
-          isNot(equals(quality50.length)),
-          reason:
-              'Converting same WebP with different quality should produce different file size',
-        );
-      },
-      skip: !_webpQualityAffectsOutput,
-    );
-
-    test(
-      'WebP with quality 50 should produce the same output as quality 100',
-      () async {
-        final quality100 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 100,
-        );
-        final quality50 = await ImageConverter.convert(
-          inputData: webpData,
-          format: OutputFormat.webp,
-          quality: 50,
-        );
-
-        expect(quality50, equals(quality100));
-      },
-      skip: !_supportsWebpOutput || _webpQualityAffectsOutput,
-    );
+      }
+    }
   });
 
-  group('Format conversion tests', () {
-    test('JPEG to PNG should produce different file size', () async {
-      final jpegConverted = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.jpeg,
+  group('Quality', () {
+    Future<(Uint8List, Uint8List)> convertAt100And50(
+      Uint8List input,
+      OutputFormat format,
+    ) async => (
+      await ImageConverter.convert(
+        inputData: input,
+        format: format,
         quality: 100,
-      );
+      ),
+      await ImageConverter.convert(
+        inputData: input,
+        format: format,
+        quality: 50,
+      ),
+    );
 
-      final pngConverted = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.png,
-        quality: 100,
-      );
-
-      expect(
-        jpegConverted.length,
-        isNot(equals(pngConverted.length)),
-        reason: 'Converting JPEG to PNG should produce different file size',
-      );
+    test('JPEG: the same quality produces identical output', () async {
+      final (first, _) = await convertAt100And50(jpegData, OutputFormat.jpeg);
+      final (second, _) = await convertAt100And50(jpegData, OutputFormat.jpeg);
+      expect(second, equals(first));
     });
 
-    test('JPEG to WebP should produce different file size', () async {
-      final jpegConverted = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.jpeg,
-        quality: 100,
-      );
+    test(
+      'JPEG: lower quality gives a smaller file that still matches the source',
+      () async {
+        final (q100, q50) = await convertAt100And50(
+          jpegData,
+          OutputFormat.jpeg,
+        );
+        expect(q50.length, lessThan(q100.length));
+        final expected = img.bakeOrientation(img.decodeImage(jpegData)!);
+        expect(_meanRgbDiff(expected, img.decodeJpg(q50)!), lessThan(16));
+      },
+    );
 
-      final webpConverted = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.webp,
-        quality: 100,
-      );
-
-      expect(
-        jpegConverted.length,
-        isNot(equals(webpConverted.length)),
-        reason: 'Converting JPEG to WebP should produce different file size',
-      );
-    }, skip: !_supportsWebpOutput);
-
-    test('PNG to JPEG should produce different file size', () async {
-      final pngConverted = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.png,
-        quality: 100,
-      );
-
-      final jpegConverted = await ImageConverter.convert(
-        inputData: pngData,
-        format: OutputFormat.jpeg,
-        quality: 100,
-      );
-
-      expect(
-        pngConverted.length,
-        isNot(equals(jpegConverted.length)),
-        reason: 'Converting PNG to JPEG should produce different file size',
-      );
+    test('PNG: quality has no effect', () async {
+      final (q100, q50) = await convertAt100And50(pngData, OutputFormat.png);
+      expect(q50, equals(q100));
     });
+
+    test('WebP: the same quality produces identical output', () async {
+      final (first, _) = await convertAt100And50(webpData, OutputFormat.webp);
+      final (second, _) = await convertAt100And50(webpData, OutputFormat.webp);
+      expect(second, equals(first));
+    }, skip: _webpOutputSkip);
+
+    test(
+      'WebP: lower quality gives a smaller file that still matches the source',
+      () async {
+        final (q100, q50) = await convertAt100And50(
+          webpData,
+          OutputFormat.webp,
+        );
+        expect(q50.length, lessThan(q100.length));
+        final expected = img.bakeOrientation(img.decodeImage(webpData)!);
+        expect(_meanRgbDiff(expected, img.decodeWebP(q50)!), lessThan(16));
+      },
+      skip: _skipUnless(
+        _webpQualityAffectsOutput,
+        'WebP quality does not affect the output on this platform',
+      ),
+    );
+
+    test(
+      'WebP: quality has no effect',
+      () async {
+        final (q100, q50) = await convertAt100And50(
+          webpData,
+          OutputFormat.webp,
+        );
+        expect(q50, equals(q100));
+      },
+      skip: _skipUnless(
+        _supportsWebpOutput && !_webpQualityAffectsOutput,
+        'WebP quality affects the output, or WebP output is unsupported, on '
+        'this platform',
+      ),
+    );
   });
 
   group('Platform-specific format support', () {
-    test('WebP output is supported', () async {
-      final webpConverted = await ImageConverter.convert(
-        inputData: jpegData,
-        format: OutputFormat.webp,
-      );
-      expect(webpConverted, isNotEmpty);
-    }, skip: !_supportsWebpOutput);
-
     test('WebP output throws UnsupportedFormatException', () async {
       await expectLater(
         ImageConverter.convert(inputData: jpegData, format: OutputFormat.webp),
         throwsA(isA<UnsupportedFormatException>()),
       );
-    }, skip: _supportsWebpOutput);
+    }, skip: _skipUnless(!_supportsWebpOutput, 'WebP output is supported'));
 
     test('HEIC output is codecUnavailable on Linux', () async {
       await expectLater(
@@ -405,7 +273,7 @@ void main() {
           ),
         ),
       );
-    }, skip: !_isLinux);
+    }, skip: _linuxOnlySkip);
   });
 
   group('JPEG output from a source with alpha', () {
@@ -441,7 +309,7 @@ void main() {
         // Opaque edge: keeps the source gray, (127 + 64) / 254 * 255 ≈ 192.
         final opaque = decoded.getPixel(size - 1, mid);
         expect(opaque.r, closeTo(192, 24));
-      }, skip: !_isLinux);
+      }, skip: _linuxOnlySkip);
     }
   });
 
@@ -643,11 +511,70 @@ bool get _supportsWebpOutput =>
     defaultTargetPlatform == TargetPlatform.android ||
     defaultTargetPlatform == TargetPlatform.linux;
 
+/// Platforms on which WebP input is expected to decode. On Windows WebP
+/// decoding requires an OS codec (see README).
+bool get _supportsWebpInput =>
+    kIsWeb || defaultTargetPlatform != TargetPlatform.windows;
+
 /// Platforms on which WebP `quality` changes the encoded output.
 bool get _webpQualityAffectsOutput =>
     kIsWeb || defaultTargetPlatform == TargetPlatform.android;
 
 bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+
+/// `skip:` value: run when [condition] holds, otherwise skip with [reason].
+Object _skipUnless(bool condition, String reason) => condition ? false : reason;
+
+Object get _webpOutputSkip =>
+    _skipUnless(_supportsWebpOutput, 'WebP output is not supported');
+
+Object get _linuxOnlySkip => _skipUnless(_isLinux, 'Linux-specific behaviour');
+
+/// The [OutputFormat] whose file signature [data] starts with, if any.
+OutputFormat? _detectFormat(Uint8List data) {
+  bool startsWith(int offset, List<int> signature) =>
+      data.length >= offset + signature.length &&
+      Iterable<int>.generate(
+        signature.length,
+      ).every((i) => data[offset + i] == signature[i]);
+
+  if (startsWith(0, const [0xFF, 0xD8, 0xFF])) return OutputFormat.jpeg;
+  if (startsWith(0, const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) {
+    return OutputFormat.png;
+  }
+  if (startsWith(0, 'RIFF'.codeUnits) && startsWith(8, 'WEBP'.codeUnits)) {
+    return OutputFormat.webp;
+  }
+  return null;
+}
+
+/// Mean absolute RGB difference (0-255 scale) between [expected] and [actual],
+/// which must have the same size, over a sparse grid of the pixels that are
+/// fully opaque in [expected] (JPEG output flattens transparent pixels in a
+/// backend-defined way).
+double _meanRgbDiff(img.Image expected, img.Image actual) {
+  expect(actual.width, expected.width);
+  expect(actual.height, expected.height);
+  final step =
+      (expected.width < expected.height ? expected.width : expected.height) ~/
+      32;
+  var sum = 0.0;
+  var count = 0;
+  for (var y = 0; y < expected.height; y += step < 1 ? 1 : step) {
+    for (var x = 0; x < expected.width; x += step < 1 ? 1 : step) {
+      final e = expected.getPixel(x, y);
+      if (e.aNormalized < 1) continue;
+      final a = actual.getPixel(x, y);
+      sum +=
+          (e.rNormalized - a.rNormalized).abs() +
+          (e.gNormalized - a.gNormalized).abs() +
+          (e.bNormalized - a.bNormalized).abs();
+      count += 3;
+    }
+  }
+  expect(count, greaterThan(0), reason: 'no opaque pixels to compare');
+  return sum / count * 255;
+}
 
 /// Build a PNG with the given bit depth and channel count. When [transparent]
 /// the alpha channel ramps 0..max across X so transparency is exercised.
