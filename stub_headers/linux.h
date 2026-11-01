@@ -85,6 +85,8 @@ gboolean gdk_pixbuf_save_to_bufferv(GdkPixbuf *pixbuf, gchar **buffer,
 GSList *gdk_pixbuf_get_formats(void);
 gchar *gdk_pixbuf_format_get_name(GdkPixbufFormat *format);
 gboolean gdk_pixbuf_format_is_writable(GdkPixbufFormat *format);
+gboolean gdk_pixbuf_format_is_save_option_supported(GdkPixbufFormat *format,
+                                                    const gchar *option_key);
 
 // --- GLib / GObject memory management ---
 void g_free(gpointer mem);

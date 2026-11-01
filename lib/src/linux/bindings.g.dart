@@ -91,6 +91,14 @@ external ffi.Pointer<gchar> gdk_pixbuf_format_get_name(
   ffi.Pointer<GdkPixbufFormat> format,
 );
 
+@ffi.Native<
+  gboolean Function(ffi.Pointer<GdkPixbufFormat>, ffi.Pointer<gchar>)
+>()
+external int gdk_pixbuf_format_is_save_option_supported(
+  ffi.Pointer<GdkPixbufFormat> format,
+  ffi.Pointer<gchar> option_key,
+);
+
 @ffi.Native<gboolean Function(ffi.Pointer<GdkPixbufFormat>)>()
 external int gdk_pixbuf_format_is_writable(ffi.Pointer<GdkPixbufFormat> format);
 

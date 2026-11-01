@@ -39,7 +39,9 @@ class ImageConverter {
   /// **Parameters:**
   /// - [inputData]: Raw bytes of the image to convert.
   /// - [format]: Target [OutputFormat]. Defaults to [OutputFormat.jpeg].
-  /// - [quality]: Compression quality for lossy formats (1-100).
+  /// - [quality]: Compression quality for lossy formats (1-100). On Linux it
+  ///   has no effect when the installed encoder does not support a quality
+  ///   option.
   /// - [resizeMode]: The resize mode to apply to the image.
   /// - [orientation]: How to handle the source's EXIF orientation tag. Defaults
   ///   to [ExifOrientationPolicy.apply], which bakes the orientation into the
