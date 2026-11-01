@@ -26,7 +26,8 @@ extension on Pointer<Opaque> {
 /// the native ImageIO framework through FFI bindings.
 ///
 /// **Features:**
-/// - Supports all major image formats (JPEG, PNG, HEIC, WebP, etc.)
+/// - Decodes all major image formats (JPEG, PNG, HEIC, WebP, etc.) and
+///   encodes JPEG, PNG and HEIC
 /// - Uses CoreFoundation and CoreGraphics for efficient processing
 /// - Memory-safe with proper resource cleanup
 ///
@@ -43,7 +44,7 @@ extension on Pointer<Opaque> {
 /// **Performance:**
 /// - Direct FFI calls with minimal overhead
 /// - In-memory processing
-/// - Adjustable JPEG/WebP quality for size optimization
+/// - Adjustable JPEG/HEIC quality for size optimization
 final class ImageConverterDarwin implements ImageConverterPlatform {
   const ImageConverterDarwin();
 

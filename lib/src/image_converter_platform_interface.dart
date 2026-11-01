@@ -13,7 +13,7 @@ import 'package:platform_image_converter/src/output_resize.dart';
 ///
 /// **Implementations:**
 /// - ImageConverterDarwin: iOS and macOS using ImageIO
-/// - ImageConverterAndroid: Android using BitmapFactory
+/// - ImageConverterAndroid: Android using ImageDecoder or BitmapFactory
 /// - ImageConverterWindows: Windows using the Windows Imaging Component (WIC)
 /// - ImageConverterLinux: Linux using GdkPixbuf (GLib/GTK stack)
 /// - ImageConverterWeb: Web using Canvas API

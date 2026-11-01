@@ -93,7 +93,7 @@ static Future<Uint8List> convert({
 **Parameters:**
 - `inputData` (`Uint8List`): Raw image data to convert.
 - `format` (`OutputFormat`): Target image format (default: JPEG).
-- `quality` (`int`): Compression quality 1-100 (default: 100, only for lossy formats).
+- `quality` (`int`): Compression quality 1-100 (default: 100, only for lossy formats). On Linux it has no effect when the installed encoder does not support a quality option.
 - `resizeMode` (`ResizeMode`): The resize mode to apply. Defaults to `OriginalResizeMode`, which keeps the original dimensions.
 - `orientation` (`ExifOrientationPolicy`): How to handle the source's EXIF orientation tag. Defaults to `ExifOrientationPolicy.apply`, which bakes the orientation into the output pixels (a 90°/270° tag swaps the output width/height, and the resize is evaluated against the oriented dimensions). Use `ExifOrientationPolicy.ignore` to encode the raw decoded buffer instead.
 - `runInIsolate` (`bool`): Whether to run the conversion in a background isolate (default: `true`). Set to `false` only for very small images where isolate overhead is a concern.
@@ -175,7 +175,7 @@ The Windows implementation uses the [Windows Imaging Component](https://learn.mi
 The Linux implementation uses [GdkPixbuf](https://docs.gtk.org/gdk-pixbuf/), the imaging library in the GLib/GTK stack that the Flutter Linux embedder already links, bound directly via `dart:ffi` (no native build step):
 
 1. **Decoding**: `GdkPixbufLoader` is fed the input bytes in memory and auto-detects the format via the installed loader modules.
-2. **Resizing**: `gdk_pixbuf_scale_simple` with `GDK_INTERP_HYPER` (high-quality resampling) when the target size differs from the source.
+2. **Resizing**: `gdk_pixbuf_scale_simple` with `GDK_INTERP_HYPER` (high-quality resampling) when the target size differs from the source. For JPEG output from a source with alpha, the resize happens in the same `gdk_pixbuf_composite` pass that flattens the alpha (see Encoding).
 3. **Encoding**: `gdk_pixbuf_save_to_bufferv` writes the target format to an in-memory buffer. Quality for lossy formats (JPEG/WebP/HEIC) is passed via the `quality` option when the loader module supports it (`gdk_pixbuf_format_is_save_option_supported`); otherwise it has no effect, as for PNG. JPEG has no alpha channel, so a source with alpha is composited onto opaque black before JPEG encoding (transparent pixels become black).
 
 **Note:** JPEG and PNG output are always available. WebP and HEIC depend on a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only decodes, so it does not enable HEIC output), detected at runtime via `gdk_pixbuf_get_formats`. When none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. GdkPixbuf decodes to an 8-bit RGB/RGBA surface (normalising bit depth like the other backends), but it performs no ICC colour management: unlike the iOS/macOS sRGB normalisation, non-sRGB or wide-gamut sources (e.g. Display P3, Adobe RGB) keep their original pixel values instead of being converted to sRGB. For the common case — sRGB or untagged JPEG/PNG, which is the bulk of real input — output matches the other backends; this caveat only affects colour-managed sources.
@@ -184,7 +184,7 @@ The Linux implementation uses [GdkPixbuf](https://docs.gtk.org/gdk-pixbuf/), the
 
 The Web implementation uses the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for image conversion:
 
-1. **Decoding**: `HTMLImageElement` loads image data via a Blob URL.
+1. **Decoding**: `createImageBitmap` decodes the input Blob, applying the EXIF orientation (`imageOrientation: 'from-image'`) or ignoring it (`'none'`).
 2. **Resizing & Rendering**: `CanvasRenderingContext2D.drawImage` renders the image to a canvas with the target dimensions, effectively resizing it.
 3. **Encoding**: `HTMLCanvasElement.toBlob` encodes the canvas content to the target format.
 4. **Quality**: Supports quality parameter for JPEG and WebP (0.0-1.0 scale).
