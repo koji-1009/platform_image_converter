@@ -21,8 +21,9 @@ extension on Pointer<Opaque> {
   }
 }
 
-/// GdkPixbuf encoder type name for each [OutputFormat]. GdkPixbuf names the
-/// HEIF/HEIC handler `heif`.
+/// GdkPixbuf encoder type name for each [OutputFormat]. HEIC output is looked
+/// up as a `heif` loader; the libheif loader (`heif/avif`) and the glycin one
+/// (`heic`) only decode, so neither provides it.
 String _typeName(OutputFormat format) => switch (format) {
   .jpeg => 'jpeg',
   .png => 'png',
@@ -38,8 +39,8 @@ String _typeName(OutputFormat format) => switch (format) {
 /// **Output formats:**
 /// - JPEG and PNG: always available (built-in GdkPixbuf loaders).
 /// - WebP and HEIC: available only where a *writable* loader module is
-///   installed (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader),
-///   which varies by distribution. When none is present the backend throws
+///   installed (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only
+///   decodes), which varies by distribution. When none is present the backend throws
 ///   [UnsupportedFormatException] with reason
 ///   [UnsupportedFormatReason.codecUnavailable] rather than failing hard.
 ///
