@@ -4,12 +4,13 @@
 // exactly the declarations below — none of GLib/GObject's huge transitive type
 // graph. The signatures and the struct/enum layouts mirror the real headers
 //   gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf.h  and  glib-2.0/glib/*.h
-// and are kept honest by the headless conversion test, which drives the live
-// library on Linux CI (test/linux_conversion_test.dart): an ABI mismatch
-// between this stub and the installed library would crash or misbehave there.
+// and are kept honest by the integration test, which drives the live library
+// on Linux CI (example/integration_test/app_test.dart in the drive_linux job):
+// an ABI mismatch between this stub and the installed library would crash or
+// misbehave there.
 //
 // To change the surface: edit this header, then regenerate with
-//   dart run ffigen --config ffigen.yaml
+//   dart run ffigen_linux.dart
 
 // --- GLib primitive typedefs (stable across the GLib 2.x ABI) ---
 typedef int gint;
@@ -53,6 +54,11 @@ typedef enum {
   GDK_INTERP_HYPER = 3,
 } GdkInterpType;
 
+// --- GdkColorspace: RGB is the only colorspace GdkPixbuf supports ---
+typedef enum {
+  GDK_COLORSPACE_RGB = 0,
+} GdkColorspace;
+
 // --- GdkPixbuf (libgdk_pixbuf-2.0) ---
 GdkPixbufLoader *gdk_pixbuf_loader_new(void);
 gboolean gdk_pixbuf_loader_write(GdkPixbufLoader *loader, const guchar *buf,
@@ -61,6 +67,15 @@ gboolean gdk_pixbuf_loader_close(GdkPixbufLoader *loader, GError **error);
 GdkPixbuf *gdk_pixbuf_loader_get_pixbuf(GdkPixbufLoader *loader);
 int gdk_pixbuf_get_width(const GdkPixbuf *pixbuf);
 int gdk_pixbuf_get_height(const GdkPixbuf *pixbuf);
+gboolean gdk_pixbuf_get_has_alpha(const GdkPixbuf *pixbuf);
+GdkPixbuf *gdk_pixbuf_new(GdkColorspace colorspace, gboolean has_alpha,
+                          int bits_per_sample, int width, int height);
+void gdk_pixbuf_fill(GdkPixbuf *pixbuf, guint32 pixel);
+void gdk_pixbuf_composite(const GdkPixbuf *src, GdkPixbuf *dest, int dest_x,
+                          int dest_y, int dest_width, int dest_height,
+                          double offset_x, double offset_y, double scale_x,
+                          double scale_y, GdkInterpType interp_type,
+                          int overall_alpha);
 GdkPixbuf *gdk_pixbuf_scale_simple(const GdkPixbuf *src, int dest_width,
                                    int dest_height, GdkInterpType interp_type);
 GdkPixbuf *gdk_pixbuf_apply_embedded_orientation(GdkPixbuf *src);
@@ -71,6 +86,8 @@ gboolean gdk_pixbuf_save_to_bufferv(GdkPixbuf *pixbuf, gchar **buffer,
 GSList *gdk_pixbuf_get_formats(void);
 gchar *gdk_pixbuf_format_get_name(GdkPixbufFormat *format);
 gboolean gdk_pixbuf_format_is_writable(GdkPixbufFormat *format);
+gboolean gdk_pixbuf_format_is_save_option_supported(GdkPixbufFormat *format,
+                                                    const gchar *option_key);
 
 // --- GLib / GObject memory management ---
 void g_free(gpointer mem);

@@ -6,7 +6,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 
 ## Features
 
-- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable libheif GdkPixbuf loader is installed).
+- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable `heif` GdkPixbuf loader is installed; the libheif GdkPixbuf loader only decodes).
 - 📐 **High-Quality Resizing**: Resize images with different modes (`Fit`, `Exact`) while maintaining aspect ratio or targeting specific dimensions.
 - 🧭 **EXIF Orientation**: Bakes the source's EXIF orientation into the output by default (`ExifOrientationPolicy.apply`) so camera photos come out upright and consistent on every platform; opt out with `ExifOrientationPolicy.ignore`.
 - ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `ImageDecoder`/`BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
@@ -27,7 +27,7 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 - On iOS and macOS, WebP input is supported but WebP output is not supported.
 - On Android, HEIC input is supported on Android 9+ but HEIC output is not supported.
 - On Windows, JPEG and PNG output are always supported. HEIC output is supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Microsoft Store "HEVC Video Extensions") — when the codec is absent, HEIC throws `UnsupportedFormatException` with reason `codecUnavailable`. WebP output is not supported (Windows provides a WebP decoder but no encoder).
-- On Linux, JPEG and PNG output are always supported (built-in GdkPixbuf loaders). WebP and HEIC output require a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader), which varies by distribution — when none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`.
+- On Linux, JPEG and PNG output are always supported (built-in GdkPixbuf loaders). WebP and HEIC output require a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only decodes, so it does not enable HEIC output), which varies by distribution — when none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`.
 - On Web, HEIC is not supported.
 
 ## Getting Started
@@ -73,7 +73,7 @@ The supported output formats are defined by the `OutputFormat` enum, with platfo
 - **JPEG**: Supported on all platforms.
 - **PNG**: Supported on all platforms.
 - **WebP**: Supported on Android and Web, and on Linux where a writable GdkPixbuf WebP loader is installed.
-- **HEIC**: Supported on iOS/macOS, on Windows where the OS HEVC/HEIF codec is present, and on Linux where a writable libheif GdkPixbuf loader is installed.
+- **HEIC**: Supported on iOS/macOS, on Windows where the OS HEVC/HEIF codec is present, and on Linux where a writable `heif` GdkPixbuf loader is installed (the libheif GdkPixbuf loader only decodes).
 
 ## API Reference
 
@@ -176,9 +176,9 @@ The Linux implementation uses [GdkPixbuf](https://docs.gtk.org/gdk-pixbuf/), the
 
 1. **Decoding**: `GdkPixbufLoader` is fed the input bytes in memory and auto-detects the format via the installed loader modules.
 2. **Resizing**: `gdk_pixbuf_scale_simple` with `GDK_INTERP_HYPER` (high-quality resampling) when the target size differs from the source.
-3. **Encoding**: `gdk_pixbuf_save_to_bufferv` writes the target format to an in-memory buffer. Quality for lossy formats (JPEG/WebP/HEIC) is passed via the `quality` option.
+3. **Encoding**: `gdk_pixbuf_save_to_bufferv` writes the target format to an in-memory buffer. Quality for lossy formats (JPEG/WebP/HEIC) is passed via the `quality` option when the loader module supports it (`gdk_pixbuf_format_is_save_option_supported`); otherwise it has no effect, as for PNG. JPEG has no alpha channel, so a source with alpha is composited onto opaque black before JPEG encoding (transparent pixels become black).
 
-**Note:** JPEG and PNG output are always available. WebP and HEIC depend on a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader), detected at runtime via `gdk_pixbuf_get_formats`. When none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. GdkPixbuf decodes to an 8-bit RGB/RGBA surface (normalising bit depth like the other backends), but it performs no ICC colour management: unlike the iOS/macOS sRGB normalisation, non-sRGB or wide-gamut sources (e.g. Display P3, Adobe RGB) keep their original pixel values instead of being converted to sRGB. For the common case — sRGB or untagged JPEG/PNG, which is the bulk of real input — output matches the other backends; this caveat only affects colour-managed sources.
+**Note:** JPEG and PNG output are always available. WebP and HEIC depend on a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only decodes, so it does not enable HEIC output), detected at runtime via `gdk_pixbuf_get_formats`. When none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. GdkPixbuf decodes to an 8-bit RGB/RGBA surface (normalising bit depth like the other backends), but it performs no ICC colour management: unlike the iOS/macOS sRGB normalisation, non-sRGB or wide-gamut sources (e.g. Display P3, Adobe RGB) keep their original pixel values instead of being converted to sRGB. For the common case — sRGB or untagged JPEG/PNG, which is the bulk of real input — output matches the other backends; this caveat only affects colour-managed sources.
 
 ### Web Implementation
 

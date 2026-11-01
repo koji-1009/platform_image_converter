@@ -21,8 +21,9 @@ extension on Pointer<Opaque> {
   }
 }
 
-/// GdkPixbuf encoder type name for each [OutputFormat]. GdkPixbuf names the
-/// HEIF/HEIC handler `heif`.
+/// GdkPixbuf encoder type name for each [OutputFormat]. HEIC output is looked
+/// up as a `heif` loader; the libheif loader (`heif/avif`) and the glycin one
+/// (`heic`) only decode, so neither provides it.
 String _typeName(OutputFormat format) => switch (format) {
   .jpeg => 'jpeg',
   .png => 'png',
@@ -38,10 +39,17 @@ String _typeName(OutputFormat format) => switch (format) {
 /// **Output formats:**
 /// - JPEG and PNG: always available (built-in GdkPixbuf loaders).
 /// - WebP and HEIC: available only where a *writable* loader module is
-///   installed (e.g. `webp-pixbuf-loader`, or the libheif GdkPixbuf loader),
-///   which varies by distribution. When none is present the backend throws
+///   installed (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only
+///   decodes), which varies by distribution. When none is present the backend throws
 ///   [UnsupportedFormatException] with reason
 ///   [UnsupportedFormatReason.codecUnavailable] rather than failing hard.
+///
+/// **Quality:** passed to the encoder only when its loader reports support for
+/// the `quality` save option (`gdk_pixbuf_format_is_save_option_supported`).
+/// Otherwise, as for PNG, it has no effect on the output.
+///
+/// **Alpha:** JPEG has no alpha channel, so for JPEG output a source with
+/// alpha is composited onto opaque black (transparent pixels become black).
 final class ImageConverterLinux implements ImageConverterPlatform {
   const ImageConverterLinux();
 
@@ -60,7 +68,8 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     // modules whose presence — and save support — varies by distribution, so a
     // missing one is a recoverable codecUnavailable, not a hard error. This
     // also mirrors the other backends, which reject unsupported output up front.
-    if (!_hasWritableLoader(type)) {
+    final writableFormat = _findWritableFormat(type);
+    if (writableFormat == nullptr) {
       throw UnsupportedFormatException(
         format,
         .codecUnavailable,
@@ -122,11 +131,23 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       final height = gdk_pixbuf_get_height(oriented);
       final (newWidth, newHeight) = resizeMode.calculateSize(width, height);
 
-      // Scale only when the size changes (high-quality resampling). The scaled
-      // pixbuf is a new reference we own; the oriented one is either owned by
-      // the loader (orientation ignored) or by the arena (orientation applied).
-      var pixbuf = oriented;
-      if (newWidth != width || newHeight != height) {
+      // JPEG has no alpha channel, and the JPEG encoder may reject an RGBA
+      // pixbuf, so JPEG output from a source with alpha is flattened onto
+      // opaque black (resizing in the same pass). Otherwise scale only when the
+      // size changes (high-quality resampling). Any new pixbuf is a reference
+      // we own; the oriented one is either owned by the loader (orientation
+      // ignored) or by the arena (orientation applied).
+      final Pointer<GdkPixbuf> pixbuf;
+      if (format == .jpeg && gdk_pixbuf_get_has_alpha(oriented) != 0) {
+        pixbuf = _flattenAlpha(
+          arena,
+          oriented,
+          width,
+          height,
+          newWidth,
+          newHeight,
+        );
+      } else if (newWidth != width || newHeight != height) {
         pixbuf = gdk_pixbuf_scale_simple(
           oriented,
           newWidth,
@@ -136,10 +157,17 @@ final class ImageConverterLinux implements ImageConverterPlatform {
         if (pixbuf == nullptr) {
           throw const ImageConversionException('Failed to resize image.');
         }
+      } else {
+        pixbuf = oriented;
       }
 
       // Encode to an in-memory buffer.
-      final (keys, values) = _encodeOptions(arena, format, quality);
+      final (keys, values) = _encodeOptions(
+        arena,
+        format,
+        quality,
+        writableFormat,
+      );
       final bufferOut = arena<Pointer<Char>>();
       final sizeOut = arena<UnsignedLong>();
       if (gdk_pixbuf_save_to_bufferv(
@@ -168,40 +196,89 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     });
   }
 
-  /// Whether GdkPixbuf has a *writable* loader for the format's [type] name
-  /// (`jpeg`/`png`/`webp`/`heif`). JPEG/PNG are built in; WebP/HEIF are optional
-  /// modules whose presence varies by distribution. Walks the format list only
-  /// until the requested type is found, freeing each name and the list itself
-  /// even if a lookup throws.
-  bool _hasWritableLoader(String type) {
+  /// Composites [src] (which has an alpha channel, [srcWidth]x[srcHeight]) over
+  /// opaque black into a new [destWidth]x[destHeight] 8-bit RGB pixbuf without
+  /// alpha, owned by [arena]. Scales with `GDK_INTERP_HYPER` when the size
+  /// changes, matching `gdk_pixbuf_scale_simple` in the non-flattening path.
+  Pointer<GdkPixbuf> _flattenAlpha(
+    Arena arena,
+    Pointer<GdkPixbuf> src,
+    int srcWidth,
+    int srcHeight,
+    int destWidth,
+    int destHeight,
+  ) {
+    final dest = gdk_pixbuf_new(
+      GdkColorspace.GDK_COLORSPACE_RGB,
+      0,
+      8,
+      destWidth,
+      destHeight,
+    )..unrefBy(arena);
+    if (dest == nullptr) {
+      throw const ImageConversionException('Failed to allocate image buffer.');
+    }
+    // gdk_pixbuf_new leaves the pixel memory uninitialized. The fill value is
+    // RGBA; its alpha byte is ignored for a pixbuf without alpha.
+    gdk_pixbuf_fill(dest, 0x000000ff);
+    final resize = destWidth != srcWidth || destHeight != srcHeight;
+    gdk_pixbuf_composite(
+      src,
+      dest,
+      0,
+      0,
+      destWidth,
+      destHeight,
+      0,
+      0,
+      destWidth / srcWidth,
+      destHeight / srcHeight,
+      // At scale 1, NEAREST copies each source pixel as is.
+      resize
+          ? GdkInterpType.GDK_INTERP_HYPER
+          : GdkInterpType.GDK_INTERP_NEAREST,
+      255,
+    );
+    return dest;
+  }
+
+  /// The *writable* GdkPixbuf format whose name is [type]
+  /// (`jpeg`/`png`/`webp`/`heif`), or `nullptr` if none is installed.
+  /// JPEG/PNG are built in; WebP/HEIF are optional modules whose presence
+  /// varies by distribution. The returned format is owned by GdkPixbuf and
+  /// outlives the list. Walks the format list only until the requested type is
+  /// found, freeing each name and the list itself even if a lookup throws.
+  Pointer<GdkPixbufFormat> _findWritableFormat(String type) {
     final head = gdk_pixbuf_get_formats();
     try {
       for (var node = head; node != nullptr; node = node.ref.next) {
-        final fmt = node.ref.data;
-        if (fmt == nullptr || gdk_pixbuf_format_is_writable(fmt.cast()) == 0) {
+        final fmt = node.ref.data.cast<GdkPixbufFormat>();
+        if (fmt == nullptr || gdk_pixbuf_format_is_writable(fmt) == 0) {
           continue;
         }
-        final namePtr = gdk_pixbuf_format_get_name(fmt.cast());
+        final namePtr = gdk_pixbuf_format_get_name(fmt);
         if (namePtr == nullptr) continue;
         try {
-          if (namePtr.cast<Utf8>().toDartString() == type) return true;
+          if (namePtr.cast<Utf8>().toDartString() == type) return fmt;
         } finally {
           g_free(namePtr.cast());
         }
       }
-      return false;
+      return nullptr;
     } finally {
       if (head != nullptr) g_slist_free(head);
     }
   }
 
   /// Builds the NULL-terminated GdkPixbuf save option arrays. Lossy formats
-  /// (JPEG/WebP/HEIC) take a `quality` (0-100); PNG is lossless and takes no
-  /// options, so `gdk_pixbuf_save_to_bufferv` receives NULL arrays.
+  /// (JPEG/WebP/HEIC) take a `quality` (0-100) when [writableFormat]'s loader
+  /// supports that option; PNG is lossless and takes no options. Without
+  /// options `gdk_pixbuf_save_to_bufferv` receives NULL arrays.
   (Pointer<Pointer<Char>>, Pointer<Pointer<Char>>) _encodeOptions(
     Arena arena,
     OutputFormat format,
     int quality,
+    Pointer<GdkPixbufFormat> writableFormat,
   ) {
     // Exhaustive over OutputFormat so a future format forces a decision here
     // instead of silently receiving a `quality` option it may not accept.
@@ -211,8 +288,16 @@ final class ImageConverterLinux implements ImageConverterPlatform {
       case .jpeg || .webp || .heic:
         break;
     }
+    final qualityKey = 'quality'.toNativeUtf8(allocator: arena).cast<Char>();
+    if (gdk_pixbuf_format_is_save_option_supported(
+          writableFormat,
+          qualityKey,
+        ) ==
+        0) {
+      return (nullptr, nullptr);
+    }
     final keys = arena<Pointer<Char>>(2);
-    keys[0] = 'quality'.toNativeUtf8(allocator: arena).cast();
+    keys[0] = qualityKey;
     keys[1] = nullptr;
     final values = arena<Pointer<Char>>(2);
     values[0] = '$quality'.toNativeUtf8(allocator: arena).cast();

@@ -3,8 +3,7 @@
 // Linux/GdkPixbuf counterpart of ffigen.dart (the Darwin config), using the
 // same default @Native style. Every Flutter Linux app links the GTK embedder,
 // which loads libgdk_pixbuf, so the gdk_pixbuf_*/g_* symbols live in the process
-// and resolve through @Native — no explicit dlopen needed. (Verified: all 14
-// symbols resolve via DynamicLibrary.process() in a real `-d linux` app.)
+// and resolve through @Native — no explicit dlopen needed.
 import 'package:ffigen/ffigen.dart';
 
 final config = FfiGenerator(

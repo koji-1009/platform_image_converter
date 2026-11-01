@@ -151,9 +151,19 @@ final class ImageConverterWindows implements ImageConverterPlatform {
         }
 
         // Decode the first frame.
+        // Report the HRESULT: a failure here is either invalid data or a
+        // format no installed WIC decoder supports (e.g. WebP or HEIC without
+        // the OS codec), and only the code tells them apart.
         final pDecoder = arena<Pointer<Void>>();
-        if (wicCreateDecoderFromStream(factory, inStream, pDecoder) != sOk) {
-          throw const ImageDecodingException('Invalid image data.');
+        final decoderHr = hresult(
+          wicCreateDecoderFromStream(factory, inStream, pDecoder),
+        );
+        if (decoderHr != sOk) {
+          throw ImageDecodingException(
+            'Failed to create a decoder for the input '
+            '(0x${decoderHr.toRadixString(16)}): the data is invalid or no '
+            'installed WIC decoder supports its format.',
+          );
         }
         final decoder = pDecoder.value..releasedBy(arena);
         final pFrame = arena<Pointer<Void>>();
