@@ -619,13 +619,13 @@ bool get _webpQualityAffectsOutput =>
 bool get _supportsAvifEncoder =>
     !kIsWeb && defaultTargetPlatform != TargetPlatform.android;
 
-/// Platforms on which AVIF output is expected to succeed. On iOS it depends on
-/// the ImageIO encoder and on Windows on the HEIF codec and an AV1 encoder
-/// (see README), so neither
-/// has a fixed expectation.
+/// Platforms on which AVIF output is expected to succeed. On Windows it
+/// depends on the HEIF codec and an AV1 encoder (see README), so it has no
+/// fixed expectation.
 bool get _supportsAvifOutput =>
     !kIsWeb &&
-    (defaultTargetPlatform == TargetPlatform.macOS ||
+    (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
         defaultTargetPlatform == TargetPlatform.linux);
 
 Object get _avifOutputSkip =>
