@@ -35,13 +35,14 @@
 ///   encoding can provide one. Otherwise it throws an
 ///   `UnsupportedFormatException` with reason `codecUnavailable`.
 ///
-/// ◊ Android AVIF output requires Android 14 (API 34) or later, except Android
-///   16 before QPR2 (SDK 36.0), whose `MediaMuxer` writes no AVIF image items;
-///   otherwise it throws an `UnsupportedFormatException` with reason
-///   `codecUnavailable`. It
-///   has no alpha channel: AVIF stores alpha as a monochrome AV1 image, which
-///   Android's AV1 encoders cannot produce, so transparent pixels are
-///   composited onto black.
+/// ◊ Use Android AVIF output with care. It requires Android 14 (API 34) or
+///   later, except Android 16 before QPR2 (SDK 36.0), whose `MediaMuxer`
+///   writes no AVIF image items; otherwise it throws an
+///   `UnsupportedFormatException` with reason `codecUnavailable`, so handle it
+///   and fall back to another format. It has no alpha channel: AVIF stores
+///   alpha as a monochrome AV1 image, which Android's AV1 encoders cannot
+///   produce, so transparent pixels are composited onto black. Output size,
+///   quality and encoding time depend on the device's AV1 encoder.
 ///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality
