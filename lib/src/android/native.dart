@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
+import 'package:platform_image_converter/src/android/avif.dart';
 import 'package:platform_image_converter/src/android/bindings.g.dart';
 import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
@@ -18,12 +19,14 @@ const _sdkExplicitWebp = 30;
 /// Android image converter using ImageDecoder or BitmapFactory.
 ///
 /// Implements image conversion on Android using ImageDecoder (API 28+) or
-/// BitmapFactory for decoding, and Bitmap.compress for encoding via JNI.
+/// BitmapFactory for decoding, and Bitmap.compress (or, for AVIF, MediaCodec
+/// and MediaMuxer) for encoding via JNI.
 ///
 /// **Features:**
 /// - Supports JPEG, PNG, WebP, GIF, BMP input formats
 /// - Can read HEIC files (Android 9+)
-/// - Cannot write HEIC or AVIF (throws UnsupportedFormatException)
+/// - Writes AVIF on Android 14+ (API 34), without an alpha channel
+/// - Cannot write HEIC (throws UnsupportedFormatException)
 /// - Efficient memory usage with ByteArrayOutputStream
 ///
 /// **API Stack:**
@@ -31,10 +34,15 @@ const _sdkExplicitWebp = 30;
 /// - `BitmapFactory.decodeByteArray`: Auto-detect and decode input
 /// - `Bitmap.createScaledBitmap`: Resize image with filtering
 /// - `Bitmap.compress`: Encode to target format with quality control
+/// - `MediaCodec` + `MediaMuxer`: Encode AVIF with the AV1 encoder (API 34+)
 /// - `ByteArrayOutputStream`: Memory-based output buffer
 ///
 /// **Limitations:**
-/// - HEIC and AVIF output not supported (use JPEG or PNG instead)
+/// - HEIC output not supported (use JPEG or PNG instead)
+/// - AVIF output requires Android 14+ (not Android 16 before QPR2, whose
+///   MediaMuxer writes no AVIF image items) and has no alpha channel: AVIF
+///   stores alpha as a monochrome AV1 image, which Android's AV1 encoders
+///   cannot produce, so transparent pixels are composited onto black
 /// - Requires Android 9+ for full format support
 ///
 /// **Performance:**
@@ -59,6 +67,19 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       // here never look up a class that is missing on an older device.
       final sdkInt = Build$VERSION.SDK_INT;
 
+      // Reject AVIF before decoding on a device that cannot write it.
+      if (format == .avif && !canEncodeAvif(sdkInt)) {
+        throw UnsupportedFormatException(
+          format,
+          .codecUnavailable,
+          sdkInt < sdkAvifEncoding
+              ? 'AVIF output requires Android 14 (API $sdkAvifEncoding) or '
+                    'later; this device runs API $sdkInt.'
+              : 'AVIF output is unavailable on Android 16 before QPR2: its '
+                    'MediaMuxer writes no AVIF image items.',
+        );
+      }
+
       // ImageDecoder scales while decoding instead of decoding at full size and
       // scaling afterwards, and it bakes in the EXIF orientation itself. It has
       // no way to *skip* that orientation, so `ignore` stays on BitmapFactory.
@@ -76,12 +97,12 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
           .platformUnsupported,
           'HEIC output is not supported on Android.',
         ),
-        .avif => throw UnsupportedFormatException(
-          format,
-          .platformUnsupported,
-          'AVIF output is not supported on Android.',
-        ),
-      }..releasedBy(arena);
+        // Bitmap.compress has no AVIF format; it is encoded with MediaCodec.
+        .avif => null,
+      }?..releasedBy(arena);
+      if (compressFormat == null) {
+        return encodeAvif(arena, bitmapToCompress, quality);
+      }
 
       final outputStream = ByteArrayOutputStream()..releasedBy(arena);
       final success = bitmapToCompress.compress(

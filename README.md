@@ -6,10 +6,10 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 
 ## Features
 
-- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable `heif` GdkPixbuf loader is installed; the libheif GdkPixbuf loader only decodes). AVIF output is supported on iOS/macOS (where ImageIO provides an AVIF encoder), Windows (where the HEIF codec and an AV1 encoder are installed), and Linux (where GdkPixbuf has a writable `avif` format with an AV1 encoder).
+- 🖼️ **Versatile Format Conversion**: Supports conversion between JPEG, PNG, and WebP. It also handles HEIC/HEIF, allowing conversion *from* HEIC on all supported platforms and *to* HEIC on iOS/macOS, Windows (where the OS HEVC/HEIF codec is present), and Linux (where a writable `heif` GdkPixbuf loader is installed; the libheif GdkPixbuf loader only decodes). AVIF output is supported on iOS/macOS (where ImageIO provides an AVIF encoder), Android 14+ (without an alpha channel), Windows (where the HEIF codec and an AV1 encoder are installed), and Linux (where GdkPixbuf has a writable `avif` format with an AV1 encoder).
 - 📐 **High-Quality Resizing**: Resize images with different modes (`Fit`, `Exact`) while maintaining aspect ratio or targeting specific dimensions.
 - 🧭 **EXIF Orientation**: Bakes the source's EXIF orientation into the output by default (`ExifOrientationPolicy.apply`) so camera photos come out upright and consistent on every platform; opt out with `ExifOrientationPolicy.ignore`.
-- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `ImageDecoder`/`BitmapFactory` and `Bitmap` methods on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
+- ⚡ **Native Performance**: Achieves high speed by using platform-native APIs directly: `ImageIO` and `Core Graphics` on iOS/macOS, `ImageDecoder`/`BitmapFactory`, `Bitmap` methods and `MediaCodec`/`MediaMuxer` on Android, the `Windows Imaging Component` (WIC) on Windows, `GdkPixbuf` (GLib/GTK stack) on Linux, and the `Canvas API` on the Web.
 - 🔒 **Efficient Native Interop**: Employs FFI and JNI to create a fast, type-safe bridge between Dart and native code, ensuring robust and reliable communication.
 
 ## Platform Support
@@ -18,14 +18,17 @@ A high-performance Flutter plugin for cross-platform image format conversion and
 |----------|-----------------|----------|
 | iOS      | 14.0            | ImageIO, Core Graphics |
 | macOS    | 10.15           | ImageIO, Core Graphics |
-| Android  | 7               | ImageDecoder (9+), BitmapFactory, Bitmap compression |
+| Android  | 7               | ImageDecoder (9+), BitmapFactory, Bitmap compression, MediaCodec + MediaMuxer (AVIF, 14+) |
 | Windows  | 10              | Windows Imaging Component (WIC) |
 | Linux    | -               | GdkPixbuf (GLib/GTK stack) |
 | Web      | -               | Canvas API |
 
 **Note:**
 - On iOS and macOS, WebP input is supported but WebP output is not supported. AVIF output requires an AVIF encoder in ImageIO — when it is absent, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`.
-- On Android, HEIC input is supported on Android 9+ but HEIC output is not supported. AVIF output is not supported.
+- On Android, HEIC input is supported on Android 9+ but HEIC output is not supported. Use AVIF output on Android with care:
+  - Whether it works depends on the OS release, not only the API level: it needs Android 14+ (API 34) and does not work on Android 16 before QPR2 (SDK 36.0). Elsewhere AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`, so handle it and fall back to another format.
+  - It has no alpha channel: transparent pixels are composited onto black.
+  - It is encoded by whichever AV1 encoder the device provides (hardware or software), so output size, quality and encoding time vary by device.
 - On Windows, JPEG and PNG output are always supported. HEIC output is supported where the OS ships the HEVC/HEIF codec (Windows 11 22H2+ out of the box; older Windows via the Microsoft Store "HEVC Video Extensions") — when the codec is absent, HEIC throws `UnsupportedFormatException` with reason `codecUnavailable`. AVIF output is supported where the Microsoft Store "HEIF Image Extension" and a Media Foundation AV1 encoder are installed. Windows ships no software AV1 encoder (the Store "AV1 Video Extension" only decodes); GPU drivers for hardware with AV1 encoding can provide one — when either is absent, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`. WebP output is not supported (Windows provides a WebP decoder but no encoder).
 - On Linux, JPEG and PNG output are always supported (built-in GdkPixbuf loaders). WebP and HEIC output require a *writable* GdkPixbuf loader module (e.g. `webp-pixbuf-loader`; the libheif GdkPixbuf loader only decodes, so it does not enable HEIC output), which varies by distribution — when none is installed, output throws `UnsupportedFormatException` with reason `codecUnavailable`. AVIF output requires a writable `avif` GdkPixbuf format: a GdkPixbuf built with glycin provides one, which needs a libheif AV1 encoder plugin (e.g. `libheif-plugin-aomenc`); otherwise a loader module such as `libavif-gdk-pixbuf` provides it — without them, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`.
 - On Web, HEIC and AVIF output are not supported.
@@ -74,7 +77,7 @@ The supported output formats are defined by the `OutputFormat` enum, with platfo
 - **PNG**: Supported on all platforms.
 - **WebP**: Supported on Android and Web, and on Linux where a writable GdkPixbuf WebP loader is installed.
 - **HEIC**: Supported on iOS/macOS, on Windows where the OS HEVC/HEIF codec is present, and on Linux where a writable `heif` GdkPixbuf loader is installed (the libheif GdkPixbuf loader only decodes).
-- **AVIF**: Supported on iOS/macOS where ImageIO provides an AVIF encoder, on Windows where the HEIF codec and an AV1 encoder are installed, and on Linux where GdkPixbuf has a writable `avif` format with an AV1 encoder (a GdkPixbuf built with glycin plus a libheif AV1 encoder plugin such as `libheif-plugin-aomenc`, or a loader module such as `libavif-gdk-pixbuf`).
+- **AVIF**: Supported on iOS/macOS where ImageIO provides an AVIF encoder, on Android 14+ (without an alpha channel), on Windows where the HEIF codec and an AV1 encoder are installed, and on Linux where GdkPixbuf has a writable `avif` format with an AV1 encoder (a GdkPixbuf built with glycin plus a libheif AV1 encoder plugin such as `libheif-plugin-aomenc`, or a loader module such as `libavif-gdk-pixbuf`).
 
 ## API Reference
 
@@ -155,11 +158,14 @@ The iOS/macOS implementation uses the [ImageIO](https://developer.apple.com/docu
 
 ### Android Implementation
 
-The Android implementation decodes with [ImageDecoder](https://developer.android.com/reference/android/graphics/ImageDecoder) or [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and encodes with [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)):
+The Android implementation decodes with [ImageDecoder](https://developer.android.com/reference/android/graphics/ImageDecoder) or [BitmapFactory](https://developer.android.com/reference/android/graphics/BitmapFactory) and encodes with [Bitmap.compress](https://developer.android.com/reference/android/graphics/Bitmap#compress(android.graphics.Bitmap.CompressFormat,%20int,%20java.io.OutputStream)), or for AVIF with [MediaCodec](https://developer.android.com/reference/android/media/MediaCodec) and [MediaMuxer](https://developer.android.com/reference/android/media/MediaMuxer):
 
 1. **Decoding**: On Android 9+ with `ExifOrientationPolicy.apply`, `ImageDecoder.decodeBitmap` decodes and — via `setTargetSize` in its header callback — resizes in a single pass, so the full-resolution bitmap is never materialized. `ImageDecoder` also bakes in the source's EXIF orientation itself. Otherwise `BitmapFactory.decodeByteArray` decodes, `ExifInterface` + `Matrix` apply the orientation, and `Bitmap.createScaledBitmap` resizes afterwards (filtering enabled). `ExifOrientationPolicy.ignore` always takes this second path, because `ImageDecoder` offers no way to skip the orientation.
 2. **Compression**: `Bitmap.compress` encodes the final bitmap to the target format. WebP uses the explicit `WEBP_LOSSY`/`WEBP_LOSSLESS` formats on Android 11+ (quality 100 selects lossless, matching what the deprecated combined `WEBP` format did) and `WEBP` below that.
-3. **Buffer Management**: `ByteArrayOutputStream` manages output data.
+3. **AVIF**: `Bitmap.compress` has no AVIF format, so on Android 14+ (API 34) the bitmap is converted to 8-bit BT.601 full-range YUV 4:2:0, encoded with the platform's AV1 encoder (`MediaCodec`, constant-quality mode when the encoder offers it), and written by `MediaMuxer` as a HEIF grid of 512×512 AV1 tiles (one tile for smaller images) cropped to the image size. Below Android 14, which has neither the AV1 encoder nor AVIF muxing, and on Android 16 before QPR2 (SDK 36.0), whose `MediaMuxer` applies the HEVC minimum configuration size to AVIF tracks and so writes no image items, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`.
+4. **Buffer Management**: `ByteArrayOutputStream` manages output data.
+
+**Note:** Use AVIF output on Android with care. It has no alpha channel: AVIF stores alpha as a separate monochrome AV1 image, which Android's AV1 encoders cannot produce (they only take YUV 4:2:0 input), so a source with alpha is composited onto black, as for JPEG. Its availability depends on the OS release (see above), so handle `codecUnavailable` and fall back to another format. The encoder is whichever AV1 encoder the device provides — one with a constant-quality mode is preferred — so output size, quality and encoding time vary by device.
 
 ### Windows Implementation
 

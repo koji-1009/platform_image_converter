@@ -9,7 +9,7 @@
 /// | png    | ✓         | ✓       | ✓       | ✓     | ✓   |
 /// | webp   |           | ✓       |         | ‡     | ✓   |
 /// | heic   | ✓         |         | ✓†      | ‡     |     |
-/// | avif   | §         |         | ¶       | #     |     |
+/// | avif   | §         | ◊       | ¶       | #     |     |
 ///
 /// † Windows HEIC output requires the OS HEVC/HEIF codec (Windows 11 22H2+, or
 ///   the Store "HEVC Video Extensions"); otherwise it throws an
@@ -35,12 +35,21 @@
 ///   encoding can provide one. Otherwise it throws an
 ///   `UnsupportedFormatException` with reason `codecUnavailable`.
 ///
+/// ◊ Use Android AVIF output with care. It requires Android 14 (API 34) or
+///   later, except Android 16 before QPR2 (SDK 36.0), whose `MediaMuxer`
+///   writes no AVIF image items; otherwise it throws an
+///   `UnsupportedFormatException` with reason `codecUnavailable`, so handle it
+///   and fall back to another format. It has no alpha channel: AVIF stores
+///   alpha as a monochrome AV1 image, which Android's AV1 encoders cannot
+///   produce, so transparent pixels are composited onto black. Output size,
+///   quality and encoding time depend on the device's AV1 encoder.
+///
 /// **Notes:**
 /// - [jpeg]: Good compression with adjustable quality
 /// - [png]: Lossless compression, supports transparency
 /// - [webp]: Modern format with better compression than JPEG
 /// - [heic]: High Efficiency Image Format, not supported on Android or Web
-/// - [avif]: AV1 Image File Format, not supported on Android or Web
+/// - [avif]: AV1 Image File Format, not supported on Web
 enum OutputFormat {
   /// JPEG format (.jpg, .jpeg)
   /// Lossy compression, suitable for photos
@@ -64,9 +73,9 @@ enum OutputFormat {
 
   /// AVIF format (.avif)
   /// AV1 Image File Format. Output on iOS/macOS (where ImageIO provides an
-  /// AVIF encoder), on Windows (where the HEIF codec and an AV1 encoder are
-  /// present), and
-  /// on Linux (where GdkPixbuf has a writable `avif` format with an AV1
-  /// encoder); not supported on Android or Web.
+  /// AVIF encoder), on Android 14+ (without an alpha channel), on Windows
+  /// (where the HEIF codec and an AV1 encoder are present), and on Linux
+  /// (where GdkPixbuf has a writable `avif` format with an AV1 encoder); not
+  /// supported on Web.
   avif,
 }
