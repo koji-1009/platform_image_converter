@@ -384,7 +384,7 @@ void main() {
       skip: _avifOutputSkip,
     );
 
-    test('throws codecUnavailable below Android 14', () async {
+    test('throws codecUnavailable where Android cannot write AVIF', () async {
       await expectLater(
         ImageConverter.convert(inputData: jpegData, format: OutputFormat.avif),
         throwsA(
@@ -395,7 +395,7 @@ void main() {
           ),
         ),
       );
-    }, skip: _skipUnless(_isAndroidBelowAvif, 'Not Android below API 34'));
+    }, skip: _skipUnless(_isAndroidWithoutAvif, 'Android writes AVIF here'));
 
     test('throws platformUnsupported on Web', () async {
       await expectLater(
@@ -659,10 +659,16 @@ bool get _isAndroid =>
     !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
 /// Android 14 (API 34) added the AV1 encoder and AVIF muxing that AVIF output
-/// needs.
-bool get _isAndroidBelowAvif => _isAndroid && androidApiLevel() < 34;
+/// needs; Android 16 before QPR2 (SDK 36.0, below 3600001) writes no AVIF
+/// image items (see README).
+bool get _androidWritesAvif {
+  final apiLevel = androidApiLevel();
+  return apiLevel >= 34 && (apiLevel != 36 || androidSdkFull() >= 3600001);
+}
 
-bool get _isAndroidWithAvif => _isAndroid && androidApiLevel() >= 34;
+bool get _isAndroidWithoutAvif => _isAndroid && !_androidWritesAvif;
+
+bool get _isAndroidWithAvif => _isAndroid && _androidWritesAvif;
 
 /// Platforms whose AVIF output keeps an alpha channel. Android's AV1 encoders
 /// cannot encode the monochrome alpha image AVIF requires (see README).
@@ -679,7 +685,7 @@ bool get _supportsAvifOutput =>
         _isAndroidWithAvif);
 
 Object get _avifOutputSkip =>
-    _skipUnless(_supportsAvifOutput, 'AVIF output has no fixed expectation');
+    _skipUnless(_supportsAvifOutput, 'AVIF output is not expected to succeed');
 
 bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
 

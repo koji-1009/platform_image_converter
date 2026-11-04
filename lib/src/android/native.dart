@@ -39,9 +39,10 @@ const _sdkExplicitWebp = 30;
 ///
 /// **Limitations:**
 /// - HEIC output not supported (use JPEG or PNG instead)
-/// - AVIF output requires Android 14+ and has no alpha channel: AVIF stores
-///   alpha as a monochrome AV1 image, which Android's AV1 encoders cannot
-///   produce, so transparent pixels are composited onto black
+/// - AVIF output requires Android 14+ (not Android 16 before QPR2, whose
+///   MediaMuxer writes no AVIF image items) and has no alpha channel: AVIF
+///   stores alpha as a monochrome AV1 image, which Android's AV1 encoders
+///   cannot produce, so transparent pixels are composited onto black
 /// - Requires Android 9+ for full format support
 ///
 /// **Performance:**
@@ -67,12 +68,15 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
       final sdkInt = Build$VERSION.SDK_INT;
 
       // Reject AVIF before decoding on a device that cannot write it.
-      if (format == .avif && sdkInt < sdkAvifEncoding) {
+      if (format == .avif && !canEncodeAvif(sdkInt)) {
         throw UnsupportedFormatException(
           format,
           .codecUnavailable,
-          'AVIF output requires Android 14 (API $sdkAvifEncoding) or later; '
-          'this device runs API $sdkInt.',
+          sdkInt < sdkAvifEncoding
+              ? 'AVIF output requires Android 14 (API $sdkAvifEncoding) or '
+                    'later; this device runs API $sdkInt.'
+              : 'AVIF output is unavailable on Android 16 before QPR2: its '
+                    'MediaMuxer writes no AVIF image items.',
         );
       }
 

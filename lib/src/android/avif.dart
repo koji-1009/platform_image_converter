@@ -10,6 +10,19 @@ import 'package:platform_image_converter/src/output_format.dart';
 /// `MediaMuxer`: AVIF can only be written from Android 14 on.
 const sdkAvifEncoding = 34;
 
+/// `Build.VERSION_CODES_FULL.BAKLAVA_1`: Android 16 QPR2 (SDK 36.1).
+const _sdkFullAndroid16Qpr2 = 3600001;
+
+/// Whether `MediaMuxer` can write AVIF on a device at API level [sdkInt].
+///
+/// Android 16 before QPR2 (SDK 36.0) applies the minimum `hvcC` size of HEVC
+/// to every HEIF image track, so it drops the 4-byte `av1C` of an AVIF track
+/// and writes no image items. `SDK_INT_FULL` (API 36+) tells the releases
+/// apart.
+bool canEncodeAvif(int sdkInt) =>
+    sdkInt >= sdkAvifEncoding &&
+    (sdkInt != 36 || Build$VERSION.SDK_INT_FULL >= _sdkFullAndroid16Qpr2);
+
 /// Side of the square tiles a larger image is split into, as `AvifWriter`
 /// (androidx.heifwriter) does: every AV1 encoder supports frames this size.
 const _tileSize = 512;
