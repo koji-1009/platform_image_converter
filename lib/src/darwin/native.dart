@@ -27,7 +27,7 @@ extension on Pointer<Opaque> {
 ///
 /// **Features:**
 /// - Decodes all major image formats (JPEG, PNG, HEIC, WebP, etc.) and
-///   encodes JPEG, PNG and HEIC
+///   encodes JPEG, PNG, HEIC and (where ImageIO provides the encoder) AVIF
 /// - Uses CoreFoundation and CoreGraphics for efficient processing
 /// - Memory-safe with proper resource cleanup
 ///
@@ -44,7 +44,7 @@ extension on Pointer<Opaque> {
 /// **Performance:**
 /// - Direct FFI calls with minimal overhead
 /// - In-memory processing
-/// - Adjustable JPEG/HEIC quality for size optimization
+/// - Adjustable JPEG/HEIC/AVIF quality for size optimization
 final class ImageConverterDarwin implements ImageConverterPlatform {
   const ImageConverterDarwin();
 
@@ -57,6 +57,60 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     ExifOrientationPolicy orientation = .apply,
   }) {
     return using((arena) {
+      // Create the encoder destination before decoding, so an output format
+      // ImageIO cannot encode is rejected without decoding the input.
+      final utiStr = switch (format) {
+        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypejpeg
+        .jpeg => 'public.jpeg',
+        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypepng
+        .png => 'public.png',
+        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypeheic
+        .heic => 'public.heic',
+        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypewebp
+        .webp => throw UnsupportedFormatException(
+          format,
+          .platformUnsupported,
+          'WebP output is not supported on iOS/macOS via ImageIO.',
+        ),
+        .avif => 'public.avif',
+      };
+      final cfString = CFStringCreateWithCString(
+        kCFAllocatorDefault,
+        utiStr.toNativeUtf8(allocator: arena).cast(),
+        kCFStringEncodingUTF8,
+      )..releasedBy(arena);
+      if (cfString == nullptr) {
+        throw ImageEncodingException(format, 'Failed to create UTI string.');
+      }
+
+      final outputData = CFDataCreateMutable(kCFAllocatorDefault, 0)
+        ..releasedBy(arena);
+      if (outputData == nullptr) {
+        throw ImageEncodingException(format, 'Failed to create output CFData.');
+      }
+
+      // ImageIO returns NULL for a type it has no encoder for.
+      final destination = CGImageDestinationCreateWithData(
+        outputData,
+        cfString,
+        1,
+        nullptr,
+      )..releasedBy(arena);
+      if (destination == nullptr) {
+        if (format == .avif) {
+          throw UnsupportedFormatException(
+            format,
+            .codecUnavailable,
+            'AVIF output is unavailable on this system: ImageIO provides no '
+            'AVIF encoder.',
+          );
+        }
+        throw ImageEncodingException(
+          format,
+          'Failed to create CGImageDestination.',
+        );
+      }
+
       final inputPtr = arena<Uint8>(inputData.length);
       inputPtr.asTypedList(inputData.length).setAll(0, inputData);
 
@@ -118,48 +172,6 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
         exifOrientation,
       );
 
-      final outputData = CFDataCreateMutable(kCFAllocatorDefault, 0)
-        ..releasedBy(arena);
-      if (outputData == nullptr) {
-        throw ImageEncodingException(format, 'Failed to create output CFData.');
-      }
-
-      final utiStr = switch (format) {
-        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypejpeg
-        .jpeg => 'public.jpeg',
-        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypepng
-        .png => 'public.png',
-        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypeheic
-        .heic => 'public.heic',
-        // https://developer.apple.com/documentation/uniformtypeidentifiers/uttypewebp
-        .webp => throw UnsupportedFormatException(
-          format,
-          .platformUnsupported,
-          'WebP output is not supported on iOS/macOS via ImageIO.',
-        ),
-      };
-      final cfString = CFStringCreateWithCString(
-        kCFAllocatorDefault,
-        utiStr.toNativeUtf8(allocator: arena).cast(),
-        kCFStringEncodingUTF8,
-      )..releasedBy(arena);
-      if (cfString == nullptr) {
-        throw ImageEncodingException(format, 'Failed to create UTI string.');
-      }
-
-      final destination = CGImageDestinationCreateWithData(
-        outputData,
-        cfString,
-        1,
-        nullptr,
-      )..releasedBy(arena);
-      if (destination == nullptr) {
-        throw ImageEncodingException(
-          format,
-          'Failed to create CGImageDestination.',
-        );
-      }
-
       final properties = _createPropertiesForFormat(arena, format, quality);
       CGImageDestinationAddImage(
         destination,
@@ -204,7 +216,7 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
     switch (format) {
       case .png || .webp:
         return null;
-      case .jpeg || .heic:
+      case .jpeg || .heic || .avif:
         break;
     }
 
@@ -213,7 +225,12 @@ final class ImageConverterDarwin implements ImageConverterPlatform {
 
     keys[0] = kCGImageDestinationLossyCompressionQuality;
 
-    final qualityPtr = arena<Double>()..value = quality / 100.0;
+    // ImageIO's AVIF encoder fails to finalize at a compression quality of 1.0,
+    // so AVIF caps it at 0.99, the highest quality it encodes.
+    final compressionQuality = format == .avif && quality == 100
+        ? 0.99
+        : quality / 100.0;
+    final qualityPtr = arena<Double>()..value = compressionQuality;
     final number = CFNumberCreate(
       kCFAllocatorDefault,
       kCFNumberFloat64Type,

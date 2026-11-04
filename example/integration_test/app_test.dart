@@ -276,6 +276,100 @@ void main() {
     }, skip: _linuxOnlySkip);
   });
 
+  group('AVIF output', () {
+    // AVIF output is read back through the converter itself (to PNG), since
+    // the image package does not decode AVIF.
+    Future<img.Image> decodeAvif(Uint8List avif) async => img.decodePng(
+      await ImageConverter.convert(inputData: avif, format: OutputFormat.png),
+    )!;
+
+    test('JPEG to avif', () async {
+      final converted = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.avif,
+        quality: 90,
+      );
+
+      expect(_detectFormat(converted), OutputFormat.avif);
+      final expected = img.bakeOrientation(img.decodeImage(jpegData)!);
+      final actual = await decodeAvif(converted);
+      expect(actual.width, expected.width);
+      expect(actual.height, expected.height);
+      expect(_meanRgbDiff(expected, actual), lessThan(8));
+    }, skip: _avifOutputSkip);
+
+    test('semi-transparent RGBA keeps its alpha', () async {
+      final input = _makePng(
+        format: img.Format.uint8,
+        numChannels: 4,
+        transparent: true,
+      );
+
+      final converted = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.avif,
+        quality: 90,
+      );
+
+      expect(_detectFormat(converted), OutputFormat.avif);
+      final decoded = await decodeAvif(converted);
+      expect(decoded.width, 128);
+      expect(decoded.height, 128);
+      expect(
+        _inspect(decoded).alphaVaries,
+        isTrue,
+        reason: 'transparency was not preserved',
+      );
+    }, skip: _avifOutputSkip);
+
+    test('the same quality produces identical output', () async {
+      final first = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.avif,
+      );
+      final second = await ImageConverter.convert(
+        inputData: jpegData,
+        format: OutputFormat.avif,
+      );
+      expect(second, equals(first));
+    }, skip: _avifOutputSkip);
+
+    test(
+      'lower quality gives a smaller file that still matches the source',
+      () async {
+        final q100 = await ImageConverter.convert(
+          inputData: jpegData,
+          format: OutputFormat.avif,
+          quality: 100,
+        );
+        final q50 = await ImageConverter.convert(
+          inputData: jpegData,
+          format: OutputFormat.avif,
+          quality: 50,
+        );
+        expect(_detectFormat(q100), OutputFormat.avif);
+        expect(_detectFormat(q50), OutputFormat.avif);
+        expect(q50.length, lessThan(q100.length));
+        final expected = img.bakeOrientation(img.decodeImage(jpegData)!);
+        expect(_meanRgbDiff(expected, await decodeAvif(q50)), lessThan(16));
+      },
+      skip: _avifOutputSkip,
+    );
+
+    test('throws platformUnsupported on Android and Web', () async {
+      await expectLater(
+        ImageConverter.convert(inputData: jpegData, format: OutputFormat.avif),
+        throwsA(
+          isA<UnsupportedFormatException>().having(
+            (e) => e.reason,
+            'reason',
+            UnsupportedFormatReason.platformUnsupported,
+          ),
+        ),
+      );
+    }, skip: _skipUnless(!_supportsAvifEncoder, 'AVIF output is supported'));
+  });
+
   group('JPEG output from a source with alpha', () {
     // Alpha ramps 0..255 across X (fully transparent at x=0, opaque at
     // x=127); the gray value ramps with x+y.
@@ -520,6 +614,23 @@ bool get _supportsWebpInput =>
 bool get _webpQualityAffectsOutput =>
     kIsWeb || defaultTargetPlatform == TargetPlatform.android;
 
+/// Platforms whose backend has an AVIF encoder path. Android and Web have
+/// none.
+bool get _supportsAvifEncoder =>
+    !kIsWeb && defaultTargetPlatform != TargetPlatform.android;
+
+/// Platforms on which AVIF output is expected to succeed. On iOS it depends on
+/// the ImageIO encoder and on Windows on the HEIF codec and an AV1 encoder
+/// (see README), so neither
+/// has a fixed expectation.
+bool get _supportsAvifOutput =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.linux);
+
+Object get _avifOutputSkip =>
+    _skipUnless(_supportsAvifOutput, 'AVIF output has no fixed expectation');
+
 bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
 
 /// `skip:` value: run when [condition] holds, otherwise skip with [reason].
@@ -544,6 +655,10 @@ OutputFormat? _detectFormat(Uint8List data) {
   }
   if (startsWith(0, 'RIFF'.codeUnits) && startsWith(8, 'WEBP'.codeUnits)) {
     return OutputFormat.webp;
+  }
+  // ISOBMFF `ftyp` box with the `avif` major brand.
+  if (startsWith(4, 'ftyp'.codeUnits) && startsWith(8, 'avif'.codeUnits)) {
+    return OutputFormat.avif;
   }
   return null;
 }

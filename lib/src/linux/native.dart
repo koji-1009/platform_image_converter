@@ -6,6 +6,7 @@ import 'package:platform_image_converter/src/exif_orientation_policy.dart';
 import 'package:platform_image_converter/src/image_conversion_exception.dart';
 import 'package:platform_image_converter/src/image_converter_platform_interface.dart';
 import 'package:platform_image_converter/src/linux/bindings.g.dart';
+import 'package:platform_image_converter/src/linux/libheif.dart';
 import 'package:platform_image_converter/src/output_format.dart';
 import 'package:platform_image_converter/src/output_resize.dart';
 
@@ -21,14 +22,26 @@ extension on Pointer<Opaque> {
   }
 }
 
+/// `GLY_LOADER_ERROR_FAILED` (glycin `GlyLoaderError`, domain
+/// `gly-loader-error`).
+const int _glyLoaderErrorFailed = 0;
+
+/// `GLY_LOADER_ERROR_UNKNOWN_IMAGE_FORMAT`: glycin has no loader for the
+/// requested format.
+const int _glyLoaderErrorUnknownImageFormat = 1;
+
 /// GdkPixbuf encoder type name for each [OutputFormat]. HEIC output is looked
 /// up as a `heif` loader; the libheif loader (`heif/avif`) and the glycin one
-/// (`heic`) only decode, so neither provides it.
+/// (`heic`) only decode, so neither provides it. AVIF output is looked up as
+/// `avif`, the name of both the format a GdkPixbuf built with glycin provides
+/// and libavif's GdkPixbuf loader; GdkPixbuf saves with the glycin one when
+/// both are present.
 String _typeName(OutputFormat format) => switch (format) {
   .jpeg => 'jpeg',
   .png => 'png',
   .webp => 'webp',
   .heic => 'heif',
+  .avif => 'avif',
 };
 
 /// Linux image converter using GdkPixbuf from the GLib/GTK stack.
@@ -44,6 +57,12 @@ String _typeName(OutputFormat format) => switch (format) {
 ///   decodes), which varies by distribution. When none is present the backend
 ///   throws [UnsupportedFormatException] with reason
 ///   [UnsupportedFormatReason.codecUnavailable] rather than failing hard.
+/// - AVIF: available where GdkPixbuf has a writable `avif` format. A GdkPixbuf
+///   built with glycin provides one, which encodes with libheif and needs a
+///   libheif AV1 encoder plugin (e.g. `libheif-plugin-aomenc`); otherwise a
+///   loader module such as `libavif-gdk-pixbuf` provides it. A missing format,
+///   glycin loader or AV1 encoder throws [UnsupportedFormatException] with
+///   reason [UnsupportedFormatReason.codecUnavailable].
 ///
 /// **Quality:** passed to the encoder only when its loader reports support for
 /// the `quality` save option (`gdk_pixbuf_format_is_save_option_supported`).
@@ -181,6 +200,15 @@ final class ImageConverterLinux implements ImageConverterPlatform {
             errorOut,
           ) ==
           0) {
+        if (format == .avif && _isMissingGlycinAvifEncoder(errorOut.value)) {
+          throw UnsupportedFormatException(
+            format,
+            .codecUnavailable,
+            'avif output is unavailable on this system: glycin has no AV1 '
+            'encoder (install a libheif AV1 encoder plugin such as '
+            '`libheif-plugin-aomenc`): ${_takeErrorMessage(errorOut)}',
+          );
+        }
         throw ImageEncodingException(format, _takeErrorMessage(errorOut));
       }
       final buffer = bufferOut.value;
@@ -244,7 +272,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
   }
 
   /// The *writable* GdkPixbuf format whose name is [type]
-  /// (`jpeg`/`png`/`webp`/`heif`), or `nullptr` if none is installed.
+  /// (`jpeg`/`png`/`webp`/`heif`/`avif`), or `nullptr` if none is installed.
   /// JPEG/PNG are built in; WebP/HEIF are optional modules whose presence
   /// varies by distribution. The returned format is owned by GdkPixbuf and
   /// outlives the list. Walks the format list only until the requested type is
@@ -272,8 +300,8 @@ final class ImageConverterLinux implements ImageConverterPlatform {
   }
 
   /// Builds the NULL-terminated GdkPixbuf save option arrays. Lossy formats
-  /// (JPEG/WebP/HEIC) take a `quality` (0-100) when [writableFormat]'s loader
-  /// supports that option; PNG is lossless and takes no options. Without
+  /// (JPEG/WebP/HEIC/AVIF) take a `quality` (0-100) when [writableFormat]'s
+  /// loader supports that option; PNG is lossless and takes no options. Without
   /// options `gdk_pixbuf_save_to_bufferv` receives NULL arrays.
   (Pointer<Pointer<Char>>, Pointer<Pointer<Char>>) _encodeOptions(
     Arena arena,
@@ -286,7 +314,7 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     switch (format) {
       case .png:
         return (nullptr, nullptr);
-      case .jpeg || .webp || .heic:
+      case .jpeg || .webp || .heic || .avif:
         break;
     }
     final qualityKey = 'quality'.toNativeUtf8(allocator: arena).cast<Char>();
@@ -304,6 +332,28 @@ final class ImageConverterLinux implements ImageConverterPlatform {
     values[0] = '$quality'.toNativeUtf8(allocator: arena).cast();
     values[1] = nullptr;
     return (keys, values);
+  }
+
+  /// Whether an AVIF save failed with [error] because glycin cannot encode
+  /// AVIF on this system.
+  ///
+  /// A GdkPixbuf built with glycin provides a writable `avif` format of its
+  /// own, which glycin encodes in its HEIF loader with libheif. A missing loader
+  /// is reported as `GLY_LOADER_ERROR_UNKNOWN_IMAGE_FORMAT`, but a missing AV1
+  /// encoder comes back as the generic `GLY_LOADER_ERROR_FAILED`, so that case
+  /// is told apart by asking libheif whether it has an AV1 encoder.
+  bool _isMissingGlycinAvifEncoder(Pointer<GError> error) {
+    if (error == nullptr) return false;
+    final domain = g_quark_to_string(error.ref.domain);
+    if (domain == nullptr ||
+        domain.cast<Utf8>().toDartString() != 'gly-loader-error') {
+      return false;
+    }
+    return switch (error.ref.code) {
+      _glyLoaderErrorUnknownImageFormat => true,
+      _glyLoaderErrorFailed => !libheifHasAv1Encoder(),
+      _ => false,
+    };
   }
 
   /// Reads and consumes the message from a `GError **` out-param: returns the

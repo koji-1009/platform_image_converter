@@ -14,6 +14,10 @@ external void g_free(gpointer mem);
 @ffi.Native<ffi.Void Function(gpointer)>()
 external void g_object_unref(gpointer object);
 
+/// --- GLib quarks: names a GError domain ---
+@ffi.Native<ffi.Pointer<gchar> Function(GQuark)>()
+external ffi.Pointer<gchar> g_quark_to_string(int quark);
+
 @ffi.Native<ffi.Void Function(ffi.Pointer<GSList>)>()
 external void g_slist_free(ffi.Pointer<GSList> list);
 
@@ -232,7 +236,8 @@ ffi.Pointer<GdkPixbuf> gdk_pixbuf_scale_simple(
   );
 }
 
-/// --- GError: only `message` is read by the backend ---
+/// --- GError: the backend reads `message`, and `domain`/`code` to classify an
+/// AVIF encoding failure ---
 /// Anonymous tag so ffigen names the Dart class `GError` (a leading-underscore
 /// C tag like the real `struct _GError` would be emitted as a private class).
 final class GError extends ffi.Struct {
