@@ -5,6 +5,8 @@ import 'package:image/image.dart' as img;
 import 'package:integration_test/integration_test.dart';
 import 'package:platform_image_converter/platform_image_converter.dart';
 
+import 'android_api_level.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -320,7 +322,33 @@ void main() {
         isTrue,
         reason: 'transparency was not preserved',
       );
-    }, skip: _avifOutputSkip);
+    }, skip: _skipUnless(_avifKeepsAlpha, 'AVIF output has no alpha'));
+
+    test('Android: transparent pixels flatten to black', () async {
+      // Alpha ramps 0..255 across X (fully transparent at x=0, opaque at
+      // x=127); the gray value ramps with x+y.
+      final input = _makePng(
+        format: img.Format.uint8,
+        numChannels: 4,
+        transparent: true,
+      );
+
+      final converted = await ImageConverter.convert(
+        inputData: input,
+        format: OutputFormat.avif,
+        quality: 90,
+      );
+
+      expect(_detectFormat(converted), OutputFormat.avif);
+      final decoded = await decodeAvif(converted);
+      expect(decoded.width, 128);
+      expect(decoded.height, 128);
+      expect(_inspect(decoded).alphaVaries, isFalse);
+      // Transparent edge: composited onto black.
+      expect(decoded.getPixel(0, 64).r, closeTo(0, 24));
+      // Opaque edge: keeps the source gray, (127 + 64) / 254 * 255 ≈ 192.
+      expect(decoded.getPixel(127, 64).r, closeTo(192, 24));
+    }, skip: _skipUnless(_isAndroidWithAvif, 'Not Android with AVIF output'));
 
     test('the same quality produces identical output', () async {
       final first = await ImageConverter.convert(
@@ -356,7 +384,20 @@ void main() {
       skip: _avifOutputSkip,
     );
 
-    test('throws platformUnsupported on Android and Web', () async {
+    test('throws codecUnavailable below Android 14', () async {
+      await expectLater(
+        ImageConverter.convert(inputData: jpegData, format: OutputFormat.avif),
+        throwsA(
+          isA<UnsupportedFormatException>().having(
+            (e) => e.reason,
+            'reason',
+            UnsupportedFormatReason.codecUnavailable,
+          ),
+        ),
+      );
+    }, skip: _skipUnless(_isAndroidBelowAvif, 'Not Android below API 34'));
+
+    test('throws platformUnsupported on Web', () async {
       await expectLater(
         ImageConverter.convert(inputData: jpegData, format: OutputFormat.avif),
         throwsA(
@@ -367,7 +408,7 @@ void main() {
           ),
         ),
       );
-    }, skip: _skipUnless(!_supportsAvifEncoder, 'AVIF output is supported'));
+    }, skip: _skipUnless(kIsWeb, 'Not Web'));
   });
 
   group('JPEG output from a source with alpha', () {
@@ -614,10 +655,18 @@ bool get _supportsWebpInput =>
 bool get _webpQualityAffectsOutput =>
     kIsWeb || defaultTargetPlatform == TargetPlatform.android;
 
-/// Platforms whose backend has an AVIF encoder path. Android and Web have
-/// none.
-bool get _supportsAvifEncoder =>
-    !kIsWeb && defaultTargetPlatform != TargetPlatform.android;
+bool get _isAndroid =>
+    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+/// Android 14 (API 34) added the AV1 encoder and AVIF muxing that AVIF output
+/// needs.
+bool get _isAndroidBelowAvif => _isAndroid && androidApiLevel() < 34;
+
+bool get _isAndroidWithAvif => _isAndroid && androidApiLevel() >= 34;
+
+/// Platforms whose AVIF output keeps an alpha channel. Android's AV1 encoders
+/// cannot encode the monochrome alpha image AVIF requires (see README).
+bool get _avifKeepsAlpha => _supportsAvifOutput && !_isAndroid;
 
 /// Platforms on which AVIF output is expected to succeed. On Windows it
 /// depends on the HEIF codec and an AV1 encoder (see README), so it has no
@@ -626,7 +675,8 @@ bool get _supportsAvifOutput =>
     !kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS ||
-        defaultTargetPlatform == TargetPlatform.linux);
+        defaultTargetPlatform == TargetPlatform.linux ||
+        _isAndroidWithAvif);
 
 Object get _avifOutputSkip =>
     _skipUnless(_supportsAvifOutput, 'AVIF output has no fixed expectation');
