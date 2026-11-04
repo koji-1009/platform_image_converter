@@ -1,3 +1,8 @@
+## Unreleased
+
+* Add `OutputFormat.avif` for AVIF output on iOS/macOS, Windows and Linux. iOS/macOS encode it with ImageIO, Windows with the WIC HEIF encoder set to AV1 compression, and Linux through GdkPixbuf's `avif` format (glycin with a libheif AV1 encoder such as `libheif-plugin-aomenc`, or a loader module such as `libavif-gdk-pixbuf`). Where the encoder is missing, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`; Android and Web throw `platformUnsupported`. On iOS/macOS, quality 100 is encoded at 0.99, since ImageIO's AVIF encoder fails at 1.0.
+* Reject unsupported output on iOS/macOS before decoding the input: WebP output with invalid input now throws `UnsupportedFormatException` instead of `ImageDecodingException`.
+
 ## 2.2.1
 
 * Fix JPEG output on Linux from a source with an alpha channel. The RGBA pixbuf was handed to the JPEG encoder as is, which either rejected it (throwing `ImageEncodingException`) or dropped the alpha channel and kept the colour of transparent pixels, depending on the installed GdkPixbuf encoder. The source is now composited onto opaque black before encoding, in the same pass as any resize, so transparent pixels become black.

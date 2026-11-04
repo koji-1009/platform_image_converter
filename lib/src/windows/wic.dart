@@ -7,7 +7,8 @@ import 'package:ffi/ffi.dart';
 /// Hand-written FFI bindings for the Windows Imaging Component (WIC) — the
 /// modern, COM-based imaging stack (`windowscodecs.dll`) that decodes, scales
 /// and encodes images, including HEIC where the OS ships the HEVC/HEIF codec
-/// (Windows 11 22H2+ out of the box; older Windows via the Store extension).
+/// (Windows 11 22H2+ out of the box; older Windows via the Store extension)
+/// and AVIF where the HEIF codec and an AV1 encoder are installed.
 ///
 /// These are written by hand by necessity, not convenience. No code generator
 /// emits this surface:
@@ -662,11 +663,50 @@ Pointer<Void> createImagingFactory(Arena arena) {
   return hr == sOk ? pp.value : nullptr;
 }
 
-/// Writes a single `ImageQuality` float (0..1) into [bag] via a `PROPBAG2` +
-/// `VARIANT` pair allocated in [arena]. Used for JPEG and HEIF (lossy) encoders.
+/// Writes a single `ImageQuality` float (0..1) into [bag]. Used for the JPEG
+/// and HEIF (lossy) encoders.
 int writeImageQuality(Arena arena, Pointer<Void> bag, double quality) {
-  // VT_R4 == 4 (32-bit float), PROPBAG2_TYPE_DATA == 1.
+  // VT_R4 == 4 (32-bit float).
   const vtR4 = 4;
+  return _writeProperty(
+    arena,
+    bag,
+    'ImageQuality',
+    vtR4,
+    (value) => value.cast<Float>().value = quality,
+  );
+}
+
+/// `WICHeifCompressionAV1` (wincodec.h `WICHeifCompressionOption`): the HEIF
+/// encoder compresses with AV1, producing an AVIF file.
+const int wicHeifCompressionAv1 = 0x3;
+
+/// Writes the HEIF encoder's `HeifCompressionMethod` byte (a
+/// `WICHeifCompressionOption`) into [bag], selecting the codec that compresses
+/// the image inside the HEIF container.
+int writeHeifCompressionMethod(Arena arena, Pointer<Void> bag, int method) {
+  // VT_UI1 == 17 (unsigned byte).
+  const vtUi1 = 17;
+  return _writeProperty(
+    arena,
+    bag,
+    'HeifCompressionMethod',
+    vtUi1,
+    (value) => value.cast<Uint8>().value = method,
+  );
+}
+
+/// Writes one property named [name] of VARIANT type [vt] into [bag] via a
+/// `PROPBAG2` + `VARIANT` pair allocated in [arena]. [setValue] stores the
+/// value at the VARIANT's value union.
+int _writeProperty(
+  Arena arena,
+  Pointer<Void> bag,
+  String name,
+  int vt,
+  void Function(Pointer<Uint8> value) setValue,
+) {
+  // PROPBAG2_TYPE_DATA == 1.
   const propbag2TypeData = 1;
 
   // PROPBAG2 (64-bit layout, 40 bytes — identical on x64 and arm64 Windows):
@@ -675,15 +715,15 @@ int writeImageQuality(Arena arena, Pointer<Void> bag, double quality) {
   final pb = arena<Uint8>(40);
   pb.asTypedList(40).fillRange(0, 40, 0);
   pb.cast<Uint32>().value = propbag2TypeData; // dwType
-  (pb + 4).cast<Uint16>().value = vtR4; // vt
-  final name = 'ImageQuality'.toNativeUtf16(allocator: arena);
-  (pb + 16).cast<IntPtr>().value = name.address; // pstrName
+  (pb + 4).cast<Uint16>().value = vt; // vt
+  final namePtr = name.toNativeUtf16(allocator: arena);
+  (pb + 16).cast<IntPtr>().value = namePtr.address; // pstrName
 
-  // VARIANT (64-bit, 24 bytes): vt@0, fltVal@8.
+  // VARIANT (64-bit, 24 bytes): vt@0, value union@8.
   final v = arena<Uint8>(24);
   v.asTypedList(24).fillRange(0, 24, 0);
-  v.cast<Uint16>().value = vtR4; // vt
-  (v + 8).cast<Float>().value = quality;
+  v.cast<Uint16>().value = vt; // vt
+  setValue(v + 8);
 
   return propertyBagWrite(bag, 1, pb, v);
 }

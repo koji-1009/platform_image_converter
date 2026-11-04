@@ -29,7 +29,8 @@ typedef struct GdkPixbuf GdkPixbuf;
 typedef struct GdkPixbufLoader GdkPixbufLoader;
 typedef struct GdkPixbufFormat GdkPixbufFormat;
 
-// --- GError: only `message` is read by the backend ---
+// --- GError: the backend reads `message`, and `domain`/`code` to classify an
+// AVIF encoding failure ---
 // Anonymous tag so ffigen names the Dart class `GError` (a leading-underscore
 // C tag like the real `struct _GError` would be emitted as a private class).
 typedef struct {
@@ -88,6 +89,9 @@ gchar *gdk_pixbuf_format_get_name(GdkPixbufFormat *format);
 gboolean gdk_pixbuf_format_is_writable(GdkPixbufFormat *format);
 gboolean gdk_pixbuf_format_is_save_option_supported(GdkPixbufFormat *format,
                                                     const gchar *option_key);
+
+// --- GLib quarks: names a GError domain ---
+const gchar *g_quark_to_string(GQuark quark);
 
 // --- GLib / GObject memory management ---
 void g_free(gpointer mem);

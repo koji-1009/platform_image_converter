@@ -16,7 +16,7 @@ import 'package:web/web.dart';
 ///
 /// **Features:**
 /// - Supports JPEG, PNG, WebP formats (browser-dependent)
-/// - HEIC format not supported on Web
+/// - HEIC and AVIF output not supported on Web
 /// - Adjustable quality for JPEG and WebP compression
 /// - Asynchronous image loading and encoding
 ///
@@ -27,7 +27,7 @@ import 'package:web/web.dart';
 /// - `HTMLCanvasElement.toBlob`: Encode canvas to target format
 ///
 /// **Limitations:**
-/// - HEIC not supported (throws UnsupportedFormatException)
+/// - HEIC and AVIF output not supported (throws UnsupportedFormatException)
 /// - Output format support depends on browser capabilities
 /// - JPEG and PNG are universally supported
 /// - WebP is widely supported in modern browsers
@@ -92,6 +92,11 @@ final class ImageConverterWeb implements ImageConverterPlatform {
         format,
         .platformUnsupported,
         'HEIC output is not supported on Web.',
+      ),
+      .avif => throw UnsupportedFormatException(
+        format,
+        .platformUnsupported,
+        'AVIF output is not supported on Web.',
       ),
     };
 

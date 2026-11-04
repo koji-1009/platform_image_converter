@@ -45,6 +45,14 @@ extension on Pointer<Void> {
 ///   the codec is missing or fails to initialize, `CreateEncoder` reports it and
 ///   we throw an [UnsupportedFormatException] with reason `codecUnavailable`
 ///   (graceful degradation rather than a hard crash).
+/// - AVIF: the HEIF encoder with `HeifCompressionMethod` set to AV1, available
+///   where the Store "HEIF Image Extension" and a Media Foundation AV1 encoder
+///   are installed. Windows ships no software AV1 encoder (the Store "AV1
+///   Video Extension" only decodes); GPU drivers for hardware with AV1
+///   encoding can provide one. A missing HEIF codec is reported by
+///   `CreateEncoder`, a HEIF encoder without AV1 support by the option write,
+///   and a missing AV1 encoder by the frame commit; each throws an
+///   [UnsupportedFormatException] with reason `codecUnavailable`.
 /// - WebP: not supported — Windows ships a WebP *decoder* but no encoder.
 final class ImageConverterWindows implements ImageConverterPlatform {
   const ImageConverterWindows();
@@ -85,6 +93,9 @@ final class ImageConverterWindows implements ImageConverterPlatform {
           .jpeg => (true, containerFormatJpeg(arena)),
           .png => (false, containerFormatPng(arena)),
           .heic => (true, containerFormatHeif(arena)),
+          // AVIF is a HEIF container compressed with AV1: the HEIF encoder
+          // produces it when `HeifCompressionMethod` selects AV1 (below).
+          .avif => (true, containerFormatHeif(arena)),
           .webp => throw StateError(
             'unreachable: WebP is rejected before COM init',
           ),
@@ -117,9 +128,8 @@ final class ImageConverterWindows implements ImageConverterPlatform {
             format,
             .codecUnavailable,
             '${format.name.toUpperCase()} encoding is unavailable on this '
-            'Windows: the required codec is not available. HEIC needs the '
-            'HEVC/HEIF codec (Windows 11 22H2+ ships it; older Windows can '
-            'install "HEVC Video Extensions" from the Microsoft Store).',
+            'Windows: the required codec is not available. '
+            '${_codecHint(format)}',
           );
         }
         if (encoderHr != sOk) {
@@ -299,6 +309,22 @@ final class ImageConverterWindows implements ImageConverterPlatform {
             );
           }
         }
+        // A HEIF encoder that does not accept AV1 compression cannot produce
+        // AVIF on this Windows.
+        if (format == .avif &&
+            writeHeifCompressionMethod(
+                  arena,
+                  propertyBag,
+                  wicHeifCompressionAv1,
+                ) !=
+                sOk) {
+          throw UnsupportedFormatException(
+            format,
+            .codecUnavailable,
+            'AVIF encoding is unavailable on this Windows: the HEIF encoder '
+            'does not support AV1 compression. ${_codecHint(format)}',
+          );
+        }
         if (wicFrameInitialize(frameEncode, propertyBag) != sOk) {
           throw ImageEncodingException(format, 'Failed to initialize frame.');
         }
@@ -311,8 +337,20 @@ final class ImageConverterWindows implements ImageConverterPlatform {
             'Failed to encode image to ${format.name}.',
           );
         }
-        if (wicFrameCommit(frameEncode) != sOk ||
-            wicEncoderCommit(encoder) != sOk) {
+        // The frame commit performs the compression. With AV1 selected it
+        // fails when the AV1 encoder is missing, so for AVIF a failure here
+        // means the codec is unavailable.
+        final frameCommitHr = hresult(wicFrameCommit(frameEncode));
+        if (frameCommitHr != sOk && format == .avif) {
+          throw UnsupportedFormatException(
+            format,
+            .codecUnavailable,
+            'AVIF encoding is unavailable on this Windows: AV1 compression '
+            'failed (0x${frameCommitHr.toRadixString(16)}). '
+            '${_codecHint(format)}',
+          );
+        }
+        if (frameCommitHr != sOk || wicEncoderCommit(encoder) != sOk) {
           throw ImageEncodingException(
             format,
             'Failed to finalize ${format.name} output.',
@@ -325,6 +363,18 @@ final class ImageConverterWindows implements ImageConverterPlatform {
       if (mustUninitialize) coUninitialize();
     }
   }
+
+  /// What provides the encoder for [format] (HEIC or AVIF).
+  String _codecHint(OutputFormat format) => switch (format) {
+    .avif =>
+      'AVIF needs the HEIF codec ("HEIF Image Extension" from the Microsoft '
+          'Store) and a Media Foundation AV1 encoder, which Windows does not '
+          'ship; GPU drivers for hardware with AV1 encoding can provide one.',
+    _ =>
+      'HEIC needs the HEVC/HEIF codec (Windows 11 22H2+ ships it; older '
+          'Windows can install "HEVC Video Extensions" from the Microsoft '
+          'Store).',
+  };
 
   /// Reads every byte written to [stream] back into a Dart [Uint8List]. The
   /// exact length comes from seeking to the end (the backing `HGLOBAL` is

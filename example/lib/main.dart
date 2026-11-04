@@ -150,7 +150,7 @@ class _MainPageState extends State<MainPage> {
               Text('Original Image ($_originalName): '),
               Image.memory(_originalImage!, height: 180),
               const SizedBox(height: 8),
-              Row(
+              Wrap(
                 spacing: 4,
                 children: [
                   ActionChip(
@@ -176,6 +176,12 @@ class _MainPageState extends State<MainPage> {
                         ? null
                         : () => _convertImage(OutputFormat.heic),
                     label: const Text('to HEIC'),
+                  ),
+                  ActionChip(
+                    onPressed: _isLoading
+                        ? null
+                        : () => _convertImage(OutputFormat.avif),
+                    label: const Text('to AVIF'),
                   ),
                 ],
               ),

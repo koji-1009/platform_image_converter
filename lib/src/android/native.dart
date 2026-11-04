@@ -23,7 +23,7 @@ const _sdkExplicitWebp = 30;
 /// **Features:**
 /// - Supports JPEG, PNG, WebP, GIF, BMP input formats
 /// - Can read HEIC files (Android 9+)
-/// - Cannot write HEIC (throws UnsupportedFormatException)
+/// - Cannot write HEIC or AVIF (throws UnsupportedFormatException)
 /// - Efficient memory usage with ByteArrayOutputStream
 ///
 /// **API Stack:**
@@ -34,7 +34,7 @@ const _sdkExplicitWebp = 30;
 /// - `ByteArrayOutputStream`: Memory-based output buffer
 ///
 /// **Limitations:**
-/// - HEIC output not supported (use JPEG or PNG instead)
+/// - HEIC and AVIF output not supported (use JPEG or PNG instead)
 /// - Requires Android 9+ for full format support
 ///
 /// **Performance:**
@@ -75,6 +75,11 @@ final class ImageConverterAndroid implements ImageConverterPlatform {
           format,
           .platformUnsupported,
           'HEIC output is not supported on Android.',
+        ),
+        .avif => throw UnsupportedFormatException(
+          format,
+          .platformUnsupported,
+          'AVIF output is not supported on Android.',
         ),
       }..releasedBy(arena);
 
