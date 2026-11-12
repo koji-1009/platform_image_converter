@@ -1,3 +1,8 @@
+## Unreleased
+
+* Raise the minimum `jni` version to 1.1.0 (previously 1.0.0). The Android bindings are regenerated with `jnigen` 1.0.1, which requires `jni` 1.1.
+* Regenerate the bindings with `jnigen` 1.0.1 and `ffigen` 23.0.0, configured from Dart scripts (`ffigen.dart`, `ffigen_linux.dart`, `jnigen.dart`) instead of `jnigen.yaml`.
+
 ## 2.3.0
 
 * Add `OutputFormat.avif` for AVIF output on iOS/macOS, Android, Windows and Linux. iOS/macOS encode it with ImageIO, Windows with the WIC HEIF encoder set to AV1 compression, and Linux through GdkPixbuf's `avif` format (glycin with a libheif AV1 encoder such as `libheif-plugin-aomenc`, or a loader module such as `libavif-gdk-pixbuf`). Where the encoder is missing, AVIF throws `UnsupportedFormatException` with reason `codecUnavailable`; Web throws `platformUnsupported`. On iOS/macOS, quality 100 is encoded at 0.99, since ImageIO's AVIF encoder fails at 1.0.

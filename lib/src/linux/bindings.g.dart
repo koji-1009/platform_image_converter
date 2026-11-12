@@ -311,6 +311,9 @@ enum GdkInterpType {
   };
 }
 
+/// --- Opaque types: only ever held by pointer ---
+/// Underscore-free tags so ffigen emits public `GdkPixbuf`/… opaque classes
+/// (a `struct _Gdk*` tag would be generated as a private `_Gdk*` class).
 final class GdkPixbuf extends ffi.Opaque {}
 
 final class GdkPixbufFormat extends ffi.Opaque {}
