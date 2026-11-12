@@ -5,6 +5,7 @@ analyzer:
     strict-raw-types: true
   exclude:
     - '**/*.g.dart'
+    - build/**
 
 linter:
   rules:

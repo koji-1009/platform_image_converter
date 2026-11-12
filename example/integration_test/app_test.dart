@@ -701,9 +701,8 @@ Object get _linuxOnlySkip => _skipUnless(_isLinux, 'Linux-specific behaviour');
 OutputFormat? _detectFormat(Uint8List data) {
   bool startsWith(int offset, List<int> signature) =>
       data.length >= offset + signature.length &&
-      Iterable<int>.generate(
-        signature.length,
-      ).every((i) => data[offset + i] == signature[i]);
+      Iterable<int>.generate(signature.length)
+          .every((i) => data[offset + i] == signature[i]);
 
   if (startsWith(0, const [0xFF, 0xD8, 0xFF])) return OutputFormat.jpeg;
   if (startsWith(0, const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) {

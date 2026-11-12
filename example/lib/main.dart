@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:platform_image_converter/platform_image_converter.dart';
 
 void main() {
@@ -87,9 +87,8 @@ class _MainPageState extends State<MainPage> {
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Conversion failed: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Conversion failed: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
