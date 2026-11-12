@@ -18,7 +18,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: koji-1009/setup-flutter@8602f8dee92d2365ed4d9af298572fbb38ab8c69 # v1.4.1
+      - uses: koji-1009/setup-flutter@158060745e545426c27a6e9814e5c5486a5f7dd8 # v1.4.2
       - run: flutter analyze
 
   format:
@@ -28,7 +28,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: koji-1009/setup-flutter@8602f8dee92d2365ed4d9af298572fbb38ab8c69 # v1.4.1
+      - uses: koji-1009/setup-flutter@158060745e545426c27a6e9814e5c5486a5f7dd8 # v1.4.2
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed .
 
@@ -39,5 +39,5 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: koji-1009/setup-flutter@8602f8dee92d2365ed4d9af298572fbb38ab8c69 # v1.4.1
+      - uses: koji-1009/setup-flutter@158060745e545426c27a6e9814e5c5486a5f7dd8 # v1.4.2
       - run: flutter test
