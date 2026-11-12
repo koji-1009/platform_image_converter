@@ -1,4 +1,4 @@
-## Unreleased
+## 2.4.0
 
 * Raise the minimum `jni` version to 1.1.0 (previously 1.0.0). The Android bindings are regenerated with `jnigen` 1.0.1, which requires `jni` 1.1.
 * Regenerate the bindings with `jnigen` 1.0.1 and `ffigen` 23.0.0, configured from Dart scripts (`ffigen.dart`, `ffigen_linux.dart`, `jnigen.dart`) instead of `jnigen.yaml`.
